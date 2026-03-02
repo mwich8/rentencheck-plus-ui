@@ -55,7 +55,7 @@ export type PricingTier = 'free' | 'report' | 'premium';
             <li class="excluded">✗ Multi-Szenario-Vergleich</li>
           </ul>
           <button class="tier-button report-btn" (click)="tierSelected.emit('report')">
-            Report kaufen →
+            PDF herunterladen →
           </button>
         </div>
 

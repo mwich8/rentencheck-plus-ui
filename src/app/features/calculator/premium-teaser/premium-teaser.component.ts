@@ -107,7 +107,7 @@ import { Component, output } from '@angular/core';
               <li>✓ Professionelles Layout</li>
             </ul>
             <button class="teaser-cta report" (click)="unlock.emit('report')">
-              Für 14,90 € freischalten →
+              PDF herunterladen →
             </button>
           </div>
         </div>

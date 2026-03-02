@@ -8,6 +8,7 @@ import { PricingTierComponent } from './pricing-tier/pricing-tier.component';
 import { ActionTipsComponent } from './action-tips/action-tips.component';
 import { PremiumTeaserComponent } from './premium-teaser/premium-teaser.component';
 import { PensionCalculatorService } from '../../core/services/pension-calculator.service';
+import { PdfReportService } from '../../core/services/pdf-report.service';
 import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
 
 /**
@@ -75,6 +76,18 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
         <div class="card result-card animate-fade-in-up" style="animation-delay: 0.15s">
           <app-result-panel [result]="pensionResult()" [gewuenschteRente]="gewuenschteRente()" />
         </div>
+      </div>
+
+      <!-- PDF Download Button -->
+      <div class="pdf-download-section animate-fade-in-up" style="animation-delay: 0.2s">
+        <button class="pdf-download-btn" (click)="downloadReport()">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-text">
+            <strong>Kostenloser PDF-Report herunterladen</strong>
+            <small>Ihre komplette Rentenanalyse als PDF — zum Ausdrucken & Teilen</small>
+          </span>
+          <span class="pdf-arrow">↓</span>
+        </button>
       </div>
 
       <!-- Action Tips Section -->
@@ -292,6 +305,69 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
     }
 
     /* ==========================================
+       PDF Download Section
+       ========================================== */
+    .pdf-download-section {
+      margin-bottom: 1.75rem;
+    }
+
+    .pdf-download-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 1.75rem;
+      background: linear-gradient(135deg, #0f3460, #1a5276);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-lg);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+
+    .pdf-download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(15, 52, 96, 0.35);
+      background: linear-gradient(135deg, #1a5276, #0f3460);
+    }
+
+    .pdf-download-btn:active {
+      transform: translateY(0);
+    }
+
+    .pdf-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+
+    .pdf-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .pdf-text strong {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .pdf-text small {
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.65);
+      font-weight: 400;
+    }
+
+    .pdf-arrow {
+      font-size: 1.5rem;
+      font-weight: 700;
+      opacity: 0.6;
+      flex-shrink: 0;
+      animation: bounceDown 2s ease-in-out infinite;
+    }
+
+    /* ==========================================
        Charts Section
        ========================================== */
     .charts-section {
@@ -452,6 +528,7 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
 })
 export class CalculatorPageComponent {
   private readonly calculatorService = inject(PensionCalculatorService);
+  private readonly pdfService = inject(PdfReportService);
   private readonly inputPanel = viewChild(InputPanelComponent);
 
   readonly currentYear = new Date().getFullYear();
@@ -477,8 +554,18 @@ export class CalculatorPageComponent {
   });
 
   onTierSelected(tier: string): void {
-    console.log(`Tier selected: ${tier}`);
-    alert(`Das ${tier === 'report' ? 'Detail-Analyse' : 'Premium'}-Paket wird bald verfügbar sein! 🚀`);
+    if (tier === 'report') {
+      this.downloadReport();
+    } else {
+      alert(`Das Premium-Paket wird bald verfügbar sein! 🚀`);
+    }
+  }
+
+  downloadReport(): void {
+    const panel = this.inputPanel();
+    const input = panel ? panel.pensionInput() : DEFAULT_PENSION_INPUT;
+    const result = this.pensionResult();
+    this.pdfService.generateReport(input, result);
   }
 }
 
