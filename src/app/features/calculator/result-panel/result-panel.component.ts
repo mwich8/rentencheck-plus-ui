@@ -3,15 +3,16 @@ import { EuroPipe } from '../../../shared/pipes/euro.pipe';
 import { PensionResult } from '../../../core/models/pension-result.model';
 import { ShockNumberComponent } from './shock-number.component';
 import { DeductionBreakdownComponent } from './deduction-breakdown.component';
+import { RentenScoreComponent } from './renten-score.component';
 
 /**
  * Result panel showing the full calculation result.
- * Composes ShockNumber + DeductionBreakdown.
+ * Composes ShockNumber + RentenScore + DeductionBreakdown.
  */
 @Component({
   selector: 'app-result-panel',
   standalone: true,
-  imports: [EuroPipe, ShockNumberComponent, DeductionBreakdownComponent],
+  imports: [EuroPipe, ShockNumberComponent, DeductionBreakdownComponent, RentenScoreComponent],
   template: `
     <div class="result-panel">
       <h2 class="panel-title">
@@ -38,6 +39,9 @@ import { DeductionBreakdownComponent } from './deduction-breakdown.component';
 
       <!-- The Shock Number -->
       <app-shock-number [result]="result()" />
+
+      <!-- Renten-Score Gauge -->
+      <app-renten-score [result]="result()" [gewuenschteRente]="gewuenschteRente()" />
 
       <!-- Tax Info Badges -->
       <div class="tax-info">
@@ -183,5 +187,6 @@ import { DeductionBreakdownComponent } from './deduction-breakdown.component';
 })
 export class ResultPanelComponent {
   readonly result = input.required<PensionResult>();
+  readonly gewuenschteRente = input<number>(2500);
 }
 

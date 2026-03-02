@@ -5,6 +5,8 @@ import { ResultPanelComponent } from './result-panel/result-panel.component';
 import { WaterfallChartComponent } from '../chart/waterfall-chart.component';
 import { ProjectionChartComponent } from '../chart/projection-chart.component';
 import { PricingTierComponent } from './pricing-tier/pricing-tier.component';
+import { ActionTipsComponent } from './action-tips/action-tips.component';
+import { PremiumTeaserComponent } from './premium-teaser/premium-teaser.component';
 import { PensionCalculatorService } from '../../core/services/pension-calculator.service';
 import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
 
@@ -22,6 +24,8 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
     WaterfallChartComponent,
     ProjectionChartComponent,
     PricingTierComponent,
+    ActionTipsComponent,
+    PremiumTeaserComponent,
   ],
   template: `
     <!-- Compact Navbar -->
@@ -69,9 +73,16 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
 
         <!-- Right Column: Results -->
         <div class="card result-card animate-fade-in-up" style="animation-delay: 0.15s">
-          <app-result-panel [result]="pensionResult()" />
+          <app-result-panel [result]="pensionResult()" [gewuenschteRente]="gewuenschteRente()" />
         </div>
       </div>
+
+      <!-- Action Tips Section -->
+      @if (pensionResult().rentenluecke > 0) {
+        <div class="action-tips-section animate-fade-in-up" style="animation-delay: 0.25s">
+          <app-action-tips [result]="pensionResult()" />
+        </div>
+      }
 
       <!-- Charts Section -->
       <div class="charts-section animate-fade-in-up" style="animation-delay: 0.3s">
@@ -81,6 +92,11 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
         <div class="card chart-card">
           <app-projection-chart [result]="pensionResult()" />
         </div>
+      </div>
+
+      <!-- Premium Teasers -->
+      <div class="premium-teaser-section animate-fade-in-up" style="animation-delay: 0.4s">
+        <app-premium-teaser (unlock)="onTierSelected($event)" />
       </div>
 
       <!-- Pricing Section -->
@@ -283,6 +299,20 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
     }
 
     /* ==========================================
+       Action Tips Section
+       ========================================== */
+    .action-tips-section {
+      margin-bottom: 1.75rem;
+    }
+
+    /* ==========================================
+       Premium Teaser Section
+       ========================================== */
+    .premium-teaser-section {
+      margin-bottom: 1.75rem;
+    }
+
+    /* ==========================================
        Footer
        ========================================== */
     .footer {
@@ -396,6 +426,12 @@ export class CalculatorPageComponent {
 
   /** Default result used before the input panel viewChild is resolved */
   private readonly defaultResult = this.calculatorService.calculate(DEFAULT_PENSION_INPUT);
+
+  /** Expose gewuenschte Rente for the RentenScore */
+  readonly gewuenschteRente = computed(() => {
+    const panel = this.inputPanel();
+    return panel ? panel.pensionInput().gewuenschteMonatlicheRente : DEFAULT_PENSION_INPUT.gewuenschteMonatlicheRente;
+  });
 
   /**
    * Reactive pension result — recomputes instantly whenever any input signal changes.
