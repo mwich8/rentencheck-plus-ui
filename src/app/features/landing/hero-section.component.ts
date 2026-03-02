@@ -1,0 +1,425 @@
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { CountUpDirective } from '../../shared/directives/count-up.directive';
+
+@Component({
+  selector: 'app-hero-section',
+  standalone: true,
+  imports: [RouterLink, CountUpDirective],
+  template: `
+    <section class="hero-landing">
+      <!-- Animated background particles -->
+      <div class="hero-particles">
+        <div class="particle particle-1"></div>
+        <div class="particle particle-2"></div>
+        <div class="particle particle-3"></div>
+        <div class="particle particle-4"></div>
+        <div class="particle particle-5"></div>
+      </div>
+
+      <div class="hero-inner container">
+        <div class="hero-badge-top">
+          <span class="badge-icon">🇩🇪</span>
+          <span>Deutscher Rentenrechner — 100% kostenloser Schnell-Check</span>
+        </div>
+
+        <h1 class="hero-headline">
+          Die
+          <span class="hero-word-rotate">
+            <span class="word-slide">brutale&nbsp;</span>
+          </span>
+          Wahrheit<br>
+          <span class="hero-gradient-text">über Ihre Rente</span>
+        </h1>
+
+        <p class="hero-description">
+          Erfahren Sie in Sekunden, was von Ihrer gesetzlichen Rente
+          <strong>wirklich übrig bleibt</strong> — nach Steuern, Sozialabgaben
+          und 30 Jahren Inflation. Basierend auf §32a EStG und aktuellen KVdR-Sätzen.
+        </p>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-number" [appCountUp]="48" countUpSuffix="%"></span>
+            <span class="stat-label">Kaufkraftverlust<br>durch Inflation</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-number" [appCountUp]="780" countUpPrefix="~" countUpSuffix="€"></span>
+            <span class="stat-label">Durchschnittliche<br>Rentenlücke/Monat</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-number" [appCountUp]="87" countUpSuffix="%"></span>
+            <span class="stat-label">der Deutschen<br>unterschätzen die Lücke</span>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <a routerLink="/rechner" class="cta-primary">
+            <span>Jetzt Rente berechnen</span>
+            <span class="cta-arrow">→</span>
+          </a>
+          <a href="#so-funktionierts" class="cta-secondary">
+            <span class="play-icon">▶</span>
+            So funktioniert's
+          </a>
+        </div>
+
+        <div class="hero-trust">
+          <span class="trust-item">✓ Kostenlos</span>
+          <span class="trust-item">✓ Keine Registrierung</span>
+          <span class="trust-item">✓ Sofort-Ergebnis</span>
+          <span class="trust-item">✓ DSGVO-konform</span>
+        </div>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="scroll-indicator">
+        <div class="scroll-mouse">
+          <div class="scroll-wheel"></div>
+        </div>
+        <span class="scroll-text">Mehr erfahren</span>
+      </div>
+    </section>
+  `,
+  styles: [`
+    .hero-landing {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%);
+      padding: 2rem 0;
+    }
+
+    /* Animated particles */
+    .hero-particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(233, 69, 96, 0.15);
+      animation: floatParticle 20s ease-in-out infinite;
+    }
+
+    .particle-1 { width: 300px; height: 300px; top: -5%; right: -5%; animation-delay: 0s; background: rgba(233, 69, 96, 0.08); }
+    .particle-2 { width: 200px; height: 200px; bottom: 10%; left: -3%; animation-delay: -5s; background: rgba(15, 52, 96, 0.3); }
+    .particle-3 { width: 150px; height: 150px; top: 30%; right: 10%; animation-delay: -10s; background: rgba(243, 156, 18, 0.06); }
+    .particle-4 { width: 100px; height: 100px; bottom: 30%; right: 20%; animation-delay: -15s; background: rgba(233, 69, 96, 0.06); }
+    .particle-5 { width: 250px; height: 250px; top: 60%; left: 10%; animation-delay: -8s; background: rgba(15, 52, 96, 0.15); }
+
+    @keyframes floatParticle {
+      0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+      25% { transform: translate(30px, -40px) rotate(90deg) scale(1.1); }
+      50% { transform: translate(-20px, 20px) rotate(180deg) scale(0.95); }
+      75% { transform: translate(40px, 10px) rotate(270deg) scale(1.05); }
+    }
+
+    .hero-inner {
+      text-align: center;
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      animation: heroFadeIn 1s ease-out;
+    }
+
+    @keyframes heroFadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-badge-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.25rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 30px;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 2rem;
+      backdrop-filter: blur(10px);
+      animation: heroFadeIn 1s ease-out 0.2s both;
+    }
+
+    .badge-icon {
+      font-size: 1.1rem;
+    }
+
+    .hero-headline {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 900;
+      color: white;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.03em;
+      animation: heroFadeIn 1s ease-out 0.3s both;
+    }
+
+    .hero-word-rotate {
+      display: inline-block;
+      position: relative;
+    }
+
+    .word-slide {
+      background: linear-gradient(135deg, #e94560, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-style: italic;
+    }
+
+    .hero-gradient-text {
+      background: linear-gradient(135deg, #e94560 0%, #f39c12 50%, #e94560 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 0% center; }
+      50% { background-position: 100% center; }
+      100% { background-position: 0% center; }
+    }
+
+    .hero-description {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: rgba(255, 255, 255, 0.75);
+      max-width: 650px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.8;
+      animation: heroFadeIn 1s ease-out 0.4s both;
+    }
+
+    .hero-description strong {
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 600;
+    }
+
+    /* Stats counter */
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      animation: heroFadeIn 1s ease-out 0.5s both;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      display: block;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900;
+      color: #e94560;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 1.4;
+      margin-top: 0.25rem;
+      display: block;
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* CTAs */
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      animation: heroFadeIn 1s ease-out 0.6s both;
+      flex-wrap: wrap;
+    }
+
+    .cta-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #e94560, #c73e54);
+      color: white;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .cta-primary:hover::before {
+      opacity: 1;
+    }
+
+    .cta-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(233, 69, 96, 0.5);
+    }
+
+    .cta-arrow {
+      font-size: 1.3rem;
+      transition: transform 0.3s;
+    }
+
+    .cta-primary:hover .cta-arrow {
+      transform: translateX(4px);
+    }
+
+    .cta-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 1.75rem;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 1rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .cta-secondary:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    .play-icon {
+      font-size: 0.75rem;
+      color: #e94560;
+    }
+
+    /* Trust badges */
+    .hero-trust {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      animation: heroFadeIn 1s ease-out 0.7s both;
+    }
+
+    .trust-item {
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 500;
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      animation: heroFadeIn 1s ease-out 1s both;
+    }
+
+    .scroll-mouse {
+      width: 24px;
+      height: 38px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      padding-top: 6px;
+    }
+
+    .scroll-wheel {
+      width: 3px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 3px;
+      animation: scrollWheel 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollWheel {
+      0% { transform: translateY(0); opacity: 1; }
+      50% { transform: translateY(8px); opacity: 0.3; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    .scroll-text {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.35);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-landing {
+        padding: 3rem 0;
+        min-height: 100svh;
+      }
+
+      .hero-stats {
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+
+      .stat-divider {
+        width: 60px;
+        height: 1px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .hero-trust {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .hero-badge-top {
+        font-size: 0.75rem;
+      }
+
+      .scroll-indicator {
+        display: none;
+      }
+    }
+  `]
+})
+export class HeroSectionComponent {}
+
