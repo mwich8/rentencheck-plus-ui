@@ -14,6 +14,24 @@ export const routes: Routes = [
     title: 'RentenCheck+ — Rentenrechner',
   },
   {
+    path: 'impressum',
+    loadComponent: () =>
+      import('./features/legal/impressum-page.component').then(m => m.ImpressumPageComponent),
+    title: 'RentenCheck+ — Impressum',
+  },
+  {
+    path: 'datenschutz',
+    loadComponent: () =>
+      import('./features/legal/datenschutz-page.component').then(m => m.DatenschutzPageComponent),
+    title: 'RentenCheck+ — Datenschutzerklärung',
+  },
+  {
+    path: 'haftungsausschluss',
+    loadComponent: () =>
+      import('./features/legal/haftungsausschluss-page.component').then(m => m.HaftungsausschlussPageComponent),
+    title: 'RentenCheck+ — Haftungsausschluss',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

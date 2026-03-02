@@ -125,6 +125,13 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
           </ul>
         </div>
         <div class="footer-bottom">
+          <div class="footer-legal-links">
+            <a routerLink="/impressum">Impressum</a>
+            <span class="footer-dot">·</span>
+            <a routerLink="/datenschutz">Datenschutz</a>
+            <span class="footer-dot">·</span>
+            <a routerLink="/haftungsausschluss">Haftungsausschluss</a>
+          </div>
           <p>© {{ currentYear }} RentenCheck+ — Alle Rechte vorbehalten</p>
         </div>
       </div>
@@ -365,6 +372,31 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
       border-top: 1px solid rgba(255, 255, 255, 0.12);
       padding-top: 1.25rem;
       text-align: center;
+    }
+
+    .footer-legal-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-legal-links a {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-legal-links a:hover {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .footer-dot {
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.8rem;
     }
 
     .footer-bottom p {

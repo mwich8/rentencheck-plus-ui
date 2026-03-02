@@ -54,9 +54,9 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
           <div class="footer-col">
             <h4>Rechtliches</h4>
             <ul>
-              <li><a href="#">Datenschutz</a></li>
-              <li><a href="#">Impressum</a></li>
-              <li><a href="#">Haftungsausschluss</a></li>
+              <li><a routerLink="/datenschutz">Datenschutz</a></li>
+              <li><a routerLink="/impressum">Impressum</a></li>
+              <li><a routerLink="/haftungsausschluss">Haftungsausschluss</a></li>
             </ul>
           </div>
         </div>
