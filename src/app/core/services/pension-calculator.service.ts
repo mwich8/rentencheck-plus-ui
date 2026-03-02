@@ -1,0 +1,187 @@
+import { Injectable, inject } from '@angular/core';
+import { PensionInput } from '../models/pension-input.model';
+import { PensionResult, DeductionItem } from '../models/pension-result.model';
+import { TaxService } from './tax.service';
+import { SocialInsuranceService } from './social-insurance.service';
+import { InflationService } from './inflation.service';
+import { getBesteuerungsanteil } from '../constants/insurance-rates.const';
+
+/**
+ * Main pension calculator orchestrator.
+ *
+ * Calculation pipeline:
+ * 1. Gross annual pension = monthly × 12
+ * 2. Determine Besteuerungsanteil based on Rentenbeginn year
+ * 3. Taxable income = gross annual × Besteuerungsanteil
+ * 4. Calculate Einkommensteuer + Solidaritätszuschlag on taxable income
+ * 5. Calculate KVdR + Pflegeversicherung on gross monthly pension
+ * 6. Net monthly = gross monthly - (taxes/12) - social insurance
+ * 7. Real purchasing power = net monthly × (1-i)^n (inflation decay)
+ * 8. Rentenlücke = desired income - real purchasing power
+ */
+@Injectable({ providedIn: 'root' })
+export class PensionCalculatorService {
+  private readonly taxService = inject(TaxService);
+  private readonly insuranceService = inject(SocialInsuranceService);
+  private readonly inflationService = inject(InflationService);
+
+  /**
+   * Run the full pension calculation pipeline.
+   */
+  calculate(input: PensionInput): PensionResult {
+    const bruttoMonatlich = input.bruttoMonatlicheRente;
+    const bruttoJaehrlich = bruttoMonatlich * 12;
+
+    // Step 1: Determine taxable share of pension
+    const besteuerungsanteil = getBesteuerungsanteil(input.rentenbeginnJahr);
+    const rentenfreibetrag = bruttoJaehrlich * (1 - besteuerungsanteil);
+    const zuVersteuerndesEinkommen = bruttoJaehrlich * besteuerungsanteil;
+
+    // Step 2: Calculate income tax
+    // Subtract Werbungskostenpauschale (€102 for Rentner) and Sonderausgabenpauschale (€36)
+    const werbungskosten = 102;
+    const sonderausgaben = 36;
+    const zvE = Math.max(0, zuVersteuerndesEinkommen - werbungskosten - sonderausgaben);
+
+    const taxResult = this.taxService.calculateIncomeTax(zvE, input.steuerJahr);
+
+    // Step 3: Calculate social insurance
+    const insuranceResult = this.insuranceService.calculate(
+      bruttoMonatlich,
+      input.hatKinder,
+      input.zusatzbeitragssatz,
+      input.steuerJahr,
+    );
+
+    // Step 4: Compute net monthly pension
+    const steuerMonatlich = (taxResult.einkommensteuer + taxResult.solidaritaetszuschlag) / 12;
+    const gesamtAbzuegeMonatlich = steuerMonatlich + insuranceResult.gesamtMonatlich;
+    const nettoMonatlich = bruttoMonatlich - gesamtAbzuegeMonatlich;
+
+    // Step 5: Calculate years to retirement and inflation impact
+    // Standard retirement age in Germany: 67
+    const rentenAlter = this.getRentenalter(input.rentenbeginnJahr);
+    const jahresBisRente = Math.max(0, rentenAlter - input.aktuellesAlter);
+
+    // Inflation decay on the net pension over years until retirement
+    const realeKaufkraftMonatlich = this.inflationService.computeRealValue(
+      nettoMonatlich,
+      input.inflationsrate,
+      jahresBisRente,
+    );
+
+    // Step 6: Compute pension gap
+    const rentenluecke = Math.max(0, input.gewuenschteMonatlicheRente - realeKaufkraftMonatlich);
+    const deckungsquote = input.gewuenschteMonatlicheRente > 0
+      ? (realeKaufkraftMonatlich / input.gewuenschteMonatlicheRente) * 100
+      : 0;
+
+    // Step 7: Build deduction breakdown for visualization
+    const abzuege = this.buildDeductionBreakdown(
+      bruttoMonatlich,
+      taxResult.einkommensteuer / 12,
+      taxResult.solidaritaetszuschlag / 12,
+      insuranceResult.kvdrMonatlich,
+      insuranceResult.pflegeMonatlich,
+      nettoMonatlich,
+      realeKaufkraftMonatlich,
+    );
+
+    // Step 8: Generate inflation projection
+    const inflationsVerlauf = this.inflationService.projectInflation(
+      nettoMonatlich,
+      input.inflationsrate,
+      rentenAlter,
+      input.rentenbeginnJahr,
+      30,
+    );
+
+    return {
+      bruttoJaehrlich,
+      bruttoMonatlich,
+      besteuerungsanteil,
+      zuVersteuerndesEinkommen,
+      rentenfreibetrag,
+      einkommensteuer: taxResult.einkommensteuer,
+      solidaritaetszuschlag: taxResult.solidaritaetszuschlag,
+      kvdrBeitragMonatlich: insuranceResult.kvdrMonatlich,
+      pflegeBeitragMonatlich: insuranceResult.pflegeMonatlich,
+      gesamtAbzuegeMonatlich,
+      nettoMonatlich: Math.round(nettoMonatlich * 100) / 100,
+      realeKaufkraftMonatlich: Math.round(realeKaufkraftMonatlich * 100) / 100,
+      rentenluecke: Math.round(rentenluecke * 100) / 100,
+      deckungsquote: Math.round(deckungsquote * 10) / 10,
+      jahresBisRente,
+      abzuege,
+      inflationsVerlauf,
+    };
+  }
+
+  /**
+   * Get the legal retirement age based on birth year / retirement year.
+   * Germany is transitioning to 67 by 2031.
+   */
+  private getRentenalter(rentenbeginnJahr: number): number {
+    // Simplified: Everyone born after 1964 retires at 67
+    // Earlier birth years have slightly lower retirement ages
+    if (rentenbeginnJahr >= 2031) return 67;
+    if (rentenbeginnJahr >= 2029) return 67;
+    return 67; // Simplified for calculator purposes
+  }
+
+  /**
+   * Build the deduction breakdown for the waterfall chart.
+   */
+  private buildDeductionBreakdown(
+    bruttoMonatlich: number,
+    estMonatlich: number,
+    soliMonatlich: number,
+    kvdrMonatlich: number,
+    pflegeMonatlich: number,
+    nettoMonatlich: number,
+    realeKaufkraft: number,
+  ): DeductionItem[] {
+    const inflationVerlust = nettoMonatlich - realeKaufkraft;
+
+    const items: DeductionItem[] = [
+      {
+        label: 'Einkommensteuer',
+        betrag: Math.round(estMonatlich * 100) / 100,
+        prozent: bruttoMonatlich > 0 ? Math.round((estMonatlich / bruttoMonatlich) * 1000) / 10 : 0,
+        farbe: '#e74c3c',
+        typ: 'steuer',
+      },
+      {
+        label: 'Solidaritätszuschlag',
+        betrag: Math.round(soliMonatlich * 100) / 100,
+        prozent: bruttoMonatlich > 0 ? Math.round((soliMonatlich / bruttoMonatlich) * 1000) / 10 : 0,
+        farbe: '#c0392b',
+        typ: 'steuer',
+      },
+      {
+        label: 'Krankenversicherung (KVdR)',
+        betrag: Math.round(kvdrMonatlich * 100) / 100,
+        prozent: bruttoMonatlich > 0 ? Math.round((kvdrMonatlich / bruttoMonatlich) * 1000) / 10 : 0,
+        farbe: '#e67e22',
+        typ: 'sozial',
+      },
+      {
+        label: 'Pflegeversicherung',
+        betrag: Math.round(pflegeMonatlich * 100) / 100,
+        prozent: bruttoMonatlich > 0 ? Math.round((pflegeMonatlich / bruttoMonatlich) * 1000) / 10 : 0,
+        farbe: '#f39c12',
+        typ: 'sozial',
+      },
+      {
+        label: 'Inflationsverlust',
+        betrag: Math.round(inflationVerlust * 100) / 100,
+        prozent: bruttoMonatlich > 0 ? Math.round((inflationVerlust / bruttoMonatlich) * 1000) / 10 : 0,
+        farbe: '#8e44ad',
+        typ: 'inflation',
+      },
+    ];
+
+    return items.filter(item => item.betrag > 0);
+  }
+}
+
