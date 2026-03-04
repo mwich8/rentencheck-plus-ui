@@ -7,9 +7,15 @@ import { ProjectionChartComponent } from '../chart/projection-chart.component';
 import { PricingTierComponent } from './pricing-tier/pricing-tier.component';
 import { ActionTipsComponent } from './action-tips/action-tips.component';
 import { PremiumTeaserComponent } from './premium-teaser/premium-teaser.component';
+import { ScenarioComparisonComponent } from './premium/scenario-comparison.component';
+import { WhatIfAnalysisComponent } from './premium/what-if-analysis.component';
+import { OptimizationStrategiesComponent } from './premium/optimization-strategies.component';
 import { PensionCalculatorService } from '../../core/services/pension-calculator.service';
 import { PdfReportService } from '../../core/services/pdf-report.service';
 import { StripePaymentService } from '../../core/services/stripe-payment.service';
+import { SavingsCalculatorService } from '../../core/services/savings-calculator.service';
+import { PremiumUnlockService } from '../../core/services/premium-unlock.service';
+import { EuroPipe } from '../../shared/pipes/euro.pipe';
 import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
 
 /**
@@ -28,6 +34,10 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
     PricingTierComponent,
     ActionTipsComponent,
     PremiumTeaserComponent,
+    ScenarioComparisonComponent,
+    WhatIfAnalysisComponent,
+    OptimizationStrategiesComponent,
+    EuroPipe,
   ],
   template: `
     <!-- Compact Navbar -->
@@ -81,66 +91,145 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
 
       <!-- PDF Download Button -->
       <div class="pdf-download-section animate-fade-in-up" style="animation-delay: 0.2s">
-        <button class="pdf-download-btn" (click)="purchaseReport()" [disabled]="isProcessingPayment()">
-          @if (isProcessingPayment()) {
-            <span class="pdf-icon spinner-icon">⏳</span>
-            <span class="pdf-text">
-              <strong>Weiterleitung zur Bezahlung...</strong>
-              <small>Sie werden gleich zu Stripe weitergeleitet</small>
-            </span>
-          } @else {
+        @if (isPremiumUnlocked()) {
+          <button class="pdf-download-btn pdf-unlocked-btn" (click)="downloadReport()">
             <span class="pdf-icon">📄</span>
             <span class="pdf-text">
-              <strong>PDF-Report kaufen — 14,90 €</strong>
-              <small>3-seitiger Report · Inflationsprognose · Persönliche Handlungsempfehlungen</small>
+              <strong>PDF-Report herunterladen</strong>
+              <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen</small>
+            </span>
+            <span class="pdf-arrow">↓</span>
+          </button>
+        } @else {
+          <button class="pdf-download-btn" (click)="purchaseReport()">
+            <span class="pdf-icon">📄</span>
+            <span class="pdf-text">
+              <strong>Kostenloser PDF-Report</strong>
+              <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen · Sofort-Download</small>
             </span>
             <span class="pdf-arrow">→</span>
-          }
-        </button>
+          </button>
+        }
       </div>
+
+      <!-- Urgency Banner (only when not unlocked) -->
+      @if (!isPremiumUnlocked() && pensionResult().rentenluecke > 0 && monthlyCostOfWaiting() > 0) {
+        <div class="urgency-banner animate-fade-in-up" style="animation-delay: 0.22s">
+          <div class="urgency-icon">⏳</div>
+          <div class="urgency-content">
+            <strong class="urgency-headline">Jeder Monat, den Sie warten, kostet Sie ca. {{ monthlyCostOfWaiting() | euro }}</strong>
+            <span class="urgency-detail">an entgangenem Vermögensaufbau durch den Zinseszinseffekt.</span>
+          </div>
+          <button class="urgency-cta" (click)="purchaseReport()">Jetzt Report sichern →</button>
+        </div>
+      }
 
       <!-- Action Tips Section -->
       <div class="action-tips-section animate-fade-in-up" style="animation-delay: 0.25s">
-        <app-action-tips [result]="pensionResult()" [hatKinder]="hatKinder()" />
+        <app-action-tips [result]="pensionResult()" [hatKinder]="hatKinder()" [unlocked]="isPremiumUnlocked()" (unlock)="onTierSelected($event)" />
       </div>
+
+      <!-- What You Get Preview (only when not unlocked) -->
+      @if (!isPremiumUnlocked()) {
+        <div class="report-preview-section animate-fade-in-up" style="animation-delay: 0.28s">
+          <h3 class="preview-title">
+            <span class="preview-icon">📋</span> Was Sie im PDF-Report erhalten
+          </h3>
+          <div class="preview-grid">
+            <div class="preview-card">
+              <span class="preview-card-icon">📊</span>
+              <h4>30-Jahre-Inflationsprognose</h4>
+              <p>Sehen Sie exakt, wie Inflation Ihre Rente über 30 Jahre entwertet — Jahr für Jahr aufgeschlüsselt.</p>
+            </div>
+            <div class="preview-card">
+              <span class="preview-card-icon">🎯</span>
+              <h4>Persönliche Handlungsempfehlungen</h4>
+              <p>Alle Tipps mit konkreten Beträgen — inkl. ETF-Sparplan, staatliche Förderung und Kindererziehungszeiten.</p>
+            </div>
+            <div class="preview-card">
+              <span class="preview-card-icon">📄</span>
+              <h4>Professionelles PDF</h4>
+              <p>3-seitiger Report zum Ausdrucken, Teilen oder für Ihren Finanz- oder Steuerberater.</p>
+            </div>
+          </div>
+          <div class="preview-cta-wrap">
+            <button class="preview-cta" (click)="purchaseReport()">
+              Kostenlos herunterladen →
+            </button>
+          </div>
+        </div>
+      }
 
       <!-- Charts Section -->
       <div class="charts-section animate-fade-in-up" style="animation-delay: 0.3s">
         <div class="card chart-card">
           <app-waterfall-chart [result]="pensionResult()" />
         </div>
-        <div class="card chart-card locked-chart-card">
-          <div class="locked-chart-wrapper">
-            <div class="locked-chart-blur">
-              <app-projection-chart [result]="pensionResult()" />
-            </div>
-            <div class="locked-chart-overlay">
-              <div class="locked-chart-content">
-                <span class="locked-icon">🔒</span>
-                <h4 class="locked-title">30-Jahre-Inflationsprognose</h4>
-                <p class="locked-description">
-                  Sehen Sie, wie Inflation Ihre Rente über 30 Jahre entwertet — im Detail-Report enthalten.
-                </p>
-                <button class="locked-cta" (click)="purchaseReport()" [disabled]="isProcessingPayment()">
-                  @if (isProcessingPayment()) {
-                    ⏳ Weiterleitung...
-                  } @else {
-                    PDF-Report kaufen — 14,90 € →
-                  }
-                </button>
+        @if (isPremiumUnlocked()) {
+          <div class="card chart-card">
+            <app-projection-chart [result]="pensionResult()" />
+          </div>
+        } @else {
+          <div class="card chart-card locked-chart-card">
+            <div class="locked-chart-wrapper">
+              <div class="locked-chart-blur">
+                <app-projection-chart [result]="pensionResult()" />
+              </div>
+              <div class="locked-chart-overlay">
+                <div class="locked-chart-content">
+                  <span class="locked-icon">🔒</span>
+                  <h4 class="locked-title">30-Jahre-Inflationsprognose</h4>
+                  <p class="locked-description">
+                    Sehen Sie, wie Inflation Ihre Rente über 30 Jahre entwertet — im Detail-Report enthalten.
+                  </p>
+                  <button class="locked-cta" (click)="purchaseReport()">
+                    Kostenlos freischalten →
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+        }
+      </div>
+
+      <!-- Premium Features (unlocked after PDF download) -->
+      @if (isPremiumUnlocked()) {
+        <div class="premium-features-section">
+          <div class="premium-features-header animate-fade-in-up">
+            <span class="premium-badge-inline">✅ Premium freigeschaltet</span>
+          </div>
+
+          <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.1s">
+            <app-scenario-comparison
+              [pensionInput]="currentInput()"
+              [baselineResult]="pensionResult()"
+            />
+          </div>
+
+          <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.2s">
+            <app-what-if-analysis
+              [pensionInput]="currentInput()"
+              [baselineResult]="pensionResult()"
+            />
+          </div>
+
+          <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.3s">
+            <app-optimization-strategies
+              [pensionInput]="currentInput()"
+              [baselineResult]="pensionResult()"
+            />
+          </div>
         </div>
-      </div>
+      }
 
-      <!-- Premium Teasers -->
-      <div class="premium-teaser-section animate-fade-in-up" style="animation-delay: 0.4s">
-        <app-premium-teaser (unlock)="onTierSelected($event)" />
-      </div>
+      <!-- Premium Teasers & Pricing (only when not unlocked) -->
+      @if (!isPremiumUnlocked()) {
+        <div class="premium-teaser-section animate-fade-in-up" style="animation-delay: 0.4s">
+          <app-premium-teaser (unlock)="onTierSelected($event)" />
+        </div>
 
-      <!-- Pricing Section -->
-      <app-pricing-tier (tierSelected)="onTierSelected($event)" />
+        <app-pricing-tier (tierSelected)="onTierSelected($event)" />
+      }
     </main>
 
     <!-- Footer -->
@@ -351,6 +440,7 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
       cursor: pointer;
       transition: all 0.3s ease;
       text-align: left;
+      animation: subtlePulse 3s ease-in-out infinite;
     }
 
     .pdf-download-btn:hover {
@@ -367,6 +457,17 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
       opacity: 0.75;
       cursor: wait;
       transform: none !important;
+      animation: none;
+    }
+
+    .pdf-unlocked-btn {
+      background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+      animation: none !important;
+    }
+
+    .pdf-unlocked-btn:hover {
+      background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+      box-shadow: 0 8px 25px rgba(39, 174, 96, 0.35) !important;
     }
 
     .spinner-icon {
@@ -406,6 +507,165 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
       opacity: 0.6;
       flex-shrink: 0;
       animation: bounceDown 2s ease-in-out infinite;
+    }
+
+    .pdf-guarantee {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 500;
+      margin-top: 0.15rem;
+    }
+
+    @keyframes subtlePulse {
+      0%, 100% { box-shadow: 0 4px 15px rgba(15, 52, 96, 0.2); }
+      50% { box-shadow: 0 4px 25px rgba(15, 52, 96, 0.4); }
+    }
+
+    /* ==========================================
+       Urgency Banner
+       ========================================== */
+    .urgency-banner {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      border: 1px solid #fcd34d;
+      border-left: 4px solid #f59e0b;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.75rem;
+    }
+
+    .urgency-icon {
+      font-size: 1.75rem;
+      flex-shrink: 0;
+    }
+
+    .urgency-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .urgency-headline {
+      display: block;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 0.15rem;
+    }
+
+    .urgency-detail {
+      font-size: 0.82rem;
+      color: #a16207;
+    }
+
+    .urgency-cta {
+      flex-shrink: 0;
+      padding: 0.55rem 1.25rem;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .urgency-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+    }
+
+    /* ==========================================
+       Report Preview Section
+       ========================================== */
+    .report-preview-section {
+      padding: 2rem;
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border: 1px solid #bae6fd;
+      border-radius: var(--radius-lg);
+      margin-bottom: 1.75rem;
+    }
+
+    .preview-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--color-primary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .preview-icon { font-size: 1.3rem; }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .preview-card {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      border: 1px solid #e2e8f0;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .preview-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .preview-card-icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+
+    .preview-card h4 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 0.4rem;
+    }
+
+    .preview-card p {
+      font-size: 0.8rem;
+      color: var(--color-text-light);
+      line-height: 1.55;
+    }
+
+    .preview-cta-wrap {
+      text-align: center;
+    }
+
+    .preview-cta {
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, #0f3460, #1a5276);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .preview-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(15, 52, 96, 0.35);
+    }
+
+    .preview-cta:disabled {
+      opacity: 0.7;
+      cursor: wait;
+      transform: none;
     }
 
     /* ==========================================
@@ -521,6 +781,35 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
     }
 
     /* ==========================================
+       Premium Features Section (unlocked)
+       ========================================== */
+    .premium-features-section {
+      margin-bottom: 1.75rem;
+    }
+
+    .premium-features-header {
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .premium-badge-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1.25rem;
+      background: linear-gradient(135deg, rgba(39, 174, 96, 0.08), rgba(46, 204, 113, 0.05));
+      border: 1px solid rgba(39, 174, 96, 0.25);
+      border-radius: 20px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--color-success);
+    }
+
+    .premium-feature-card {
+      margin-bottom: 1.75rem;
+    }
+
+    /* ==========================================
        Footer
        ========================================== */
     .footer {
@@ -620,6 +909,10 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
       .charts-section {
         grid-template-columns: 1fr;
       }
+
+      .preview-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 768px) {
@@ -648,6 +941,20 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
       .nav-badges {
         display: none;
       }
+
+      .urgency-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+      }
+
+      .urgency-cta {
+        width: 100%;
+      }
+
+      .preview-grid {
+        grid-template-columns: 1fr;
+      }
     }
   `],
 })
@@ -655,10 +962,13 @@ export class CalculatorPageComponent {
   private readonly calculatorService = inject(PensionCalculatorService);
   private readonly pdfService = inject(PdfReportService);
   private readonly paymentService = inject(StripePaymentService);
+  private readonly savingsService = inject(SavingsCalculatorService);
+  private readonly premiumService = inject(PremiumUnlockService);
   private readonly inputPanel = viewChild(InputPanelComponent);
 
   readonly currentYear = new Date().getFullYear();
   readonly isProcessingPayment = signal(false);
+  readonly isPremiumUnlocked = this.premiumService.isUnlocked;
 
   /** Default result used before the input panel viewChild is resolved */
   private readonly defaultResult = this.calculatorService.calculate(DEFAULT_PENSION_INPUT);
@@ -686,35 +996,48 @@ export class CalculatorPageComponent {
     return this.calculatorService.calculate(panel.pensionInput());
   });
 
+  /** Expose current input for premium components */
+  readonly currentInput = computed(() => {
+    const panel = this.inputPanel();
+    return panel ? panel.pensionInput() : DEFAULT_PENSION_INPUT;
+  });
+
+  /**
+   * Opportunity cost of waiting one month — how much future wealth is lost
+   * by not starting to save one month earlier.
+   * Formula: one month's required ETF savings × compound growth over remaining years.
+   */
+  readonly monthlyCostOfWaiting = computed(() => {
+    const r = this.pensionResult();
+    if (r.rentenluecke <= 0 || r.jahresBisRente <= 1) return 0;
+    const monthlySavings = this.savingsService.calculateRequiredMonthlySavings(
+      r.rentenluecke, 0.07, r.jahresBisRente, 25
+    );
+    // One month's contribution compounded over remaining years
+    const monthlyRate = 0.07 / 12;
+    const months = r.jahresBisRente * 12;
+    const futureValueOfOneMonth = monthlySavings * Math.pow(1 + monthlyRate, months);
+    return Math.round(futureValueOfOneMonth);
+  });
+
   onTierSelected(tier: string): void {
-    if (tier === 'report') {
+    if (tier === 'report' || tier === 'premium') {
       this.purchaseReport();
-    } else {
-      alert(`Das Premium-Paket wird bald verfügbar sein! 🚀`);
     }
   }
 
   /**
-   * Start the Stripe Checkout flow for the PDF report.
-   * Saves inputs to sessionStorage, redirects to Stripe,
-   * then the success page generates the PDF.
+   * Purchase / download the PDF report.
+   * Currently bypasses Stripe and generates the PDF directly for testing.
+   * TODO: Re-enable Stripe checkout for production.
    */
   async purchaseReport(): Promise<void> {
-    const panel = this.inputPanel();
-    const input = panel ? panel.pensionInput() : DEFAULT_PENSION_INPUT;
-
-    this.isProcessingPayment.set(true);
-    try {
-      await this.paymentService.startCheckout('report', input);
-    } catch (err) {
-      console.error('Payment error:', err);
-      this.isProcessingPayment.set(false);
-      alert('Bezahlung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.');
-    }
+    this.downloadReport();
+    this.premiumService.unlock();
   }
 
   /**
-   * Direct download — used for free/testing scenarios.
+   * Direct download — generates the PDF client-side.
    */
   downloadReport(): void {
     const panel = this.inputPanel();

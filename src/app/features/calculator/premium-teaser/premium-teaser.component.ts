@@ -52,8 +52,8 @@ import { Component, output } from '@angular/core';
               <li>✓ Was-wäre-wenn-Analyse</li>
               <li>✓ Optimale Strategie finden</li>
             </ul>
-            <button class="teaser-cta premium coming-soon" disabled>
-              Bald verfügbar 🚀
+            <button class="teaser-cta premium" (click)="unlock.emit('premium')">
+              Kostenlos freischalten →
             </button>
           </div>
         </div>
@@ -108,7 +108,7 @@ import { Component, output } from '@angular/core';
               <li>✓ Professionelles Layout</li>
             </ul>
             <button class="teaser-cta report" (click)="unlock.emit('report')">
-              PDF-Report kaufen — 14,90 € →
+              Kostenlos herunterladen →
             </button>
           </div>
         </div>

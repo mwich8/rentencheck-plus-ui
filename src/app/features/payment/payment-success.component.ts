@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { StripePaymentService } from '../../core/services/stripe-payment.service';
 import { PensionCalculatorService } from '../../core/services/pension-calculator.service';
 import { PdfReportService } from '../../core/services/pdf-report.service';
+import { PremiumUnlockService } from '../../core/services/premium-unlock.service';
 import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
 
 /**
@@ -195,6 +196,7 @@ export class PaymentSuccessComponent implements OnInit {
   private readonly paymentService = inject(StripePaymentService);
   private readonly calculatorService = inject(PensionCalculatorService);
   private readonly pdfService = inject(PdfReportService);
+  private readonly premiumService = inject(PremiumUnlockService);
 
   readonly status = signal<'generating' | 'done' | 'error'>('generating');
   readonly errorMessage = signal('');
@@ -219,6 +221,7 @@ export class PaymentSuccessComponent implements OnInit {
       const input = this.paymentService.restoreInput() ?? DEFAULT_PENSION_INPUT;
       const result = this.calculatorService.calculate(input);
       this.pdfService.generateReport(input, result);
+      this.premiumService.unlock();
       this.status.set('done');
     } catch (err) {
       console.error('PDF generation error:', err);

@@ -44,8 +44,8 @@ export type PricingTier = 'free' | 'report' | 'premium';
           <div class="tier-badge report-badge">EINMAL-REPORT</div>
           <h3 class="tier-name">Detail-Analyse</h3>
           <div class="tier-price">
-            <span class="price-amount">14,90 €</span>
-            <span class="price-period">einmalig</span>
+            <span class="price-amount">0 €</span>
+            <span class="price-period">aktuell kostenlos</span>
           </div>
           <ul class="tier-features">
             <li class="included">✓ Alles aus Schnell-Check</li>
@@ -65,8 +65,8 @@ export type PricingTier = 'free' | 'report' | 'premium';
           <div class="tier-badge premium-badge">PREMIUM</div>
           <h3 class="tier-name">Renten-Strategie</h3>
           <div class="tier-price">
-            <span class="price-amount">29,90 €</span>
-            <span class="price-period">einmalig</span>
+            <span class="price-amount">0 €</span>
+            <span class="price-period">aktuell kostenlos</span>
           </div>
           <ul class="tier-features">
             <li class="included">✓ Alles aus Detail-Analyse</li>
@@ -75,8 +75,8 @@ export type PricingTier = 'free' | 'report' | 'premium';
             <li class="included">✓ Optimierungsvorschläge</li>
             <li class="included">✓ Vergleich verschiedener Strategien</li>
           </ul>
-          <button class="tier-button premium-btn coming-soon" disabled>
-            Bald verfügbar 🚀
+          <button class="tier-button premium-btn" (click)="tierSelected.emit('premium')">
+            Kostenlos freischalten →
           </button>
         </div>
       </div>

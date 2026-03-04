@@ -1,4 +1,4 @@
-import { Component, input, computed, inject } from '@angular/core';
+import { Component, input, computed, inject, output } from '@angular/core';
 import { EuroPipe } from '../../../shared/pipes/euro.pipe';
 import { PensionResult } from '../../../core/models/pension-result.model';
 import { SavingsCalculatorService } from '../../../core/services/savings-calculator.service';
@@ -32,8 +32,9 @@ interface ActionTip {
         }
       </p>
 
+      <!-- Free tips (first 2) -->
       <div class="tips-grid">
-        @for (tip of tips(); track tip.title) {
+        @for (tip of freeTips(); track tip.title) {
           <div class="tip-card" [attr.data-type]="tip.type">
             <div class="tip-icon-wrap" [attr.data-type]="tip.type">
               <span class="tip-icon">{{ tip.icon }}</span>
@@ -48,6 +49,40 @@ interface ActionTip {
           </div>
         }
       </div>
+
+      <!-- Locked tips (remaining) -->
+      @if (lockedTips().length > 0) {
+        <div class="locked-tips-section">
+          <div class="locked-tips-header">
+            <span class="locked-tips-icon">🔒</span>
+            <span>{{ lockedTips().length }} weitere Empfehlungen im PDF-Report</span>
+          </div>
+          <div class="locked-tips-grid">
+            @for (tip of lockedTips(); track tip.title) {
+              <div class="tip-card locked" [attr.data-type]="tip.type">
+                <div class="tip-icon-wrap" [attr.data-type]="tip.type">
+                  <span class="tip-icon">{{ tip.icon }}</span>
+                </div>
+                <div class="tip-content">
+                  <h4 class="tip-title">{{ tip.title }}</h4>
+                  <p class="tip-description">{{ tip.description }}</p>
+                  <div class="tip-highlight" [attr.data-type]="tip.type">
+                    {{ tip.highlight }}
+                  </div>
+                </div>
+              </div>
+            }
+            <div class="locked-tips-overlay">
+              <div class="locked-tips-overlay-content">
+                <span class="locked-overlay-badge">🔒 Im PDF-Report enthalten</span>
+                <button class="locked-tips-cta" (click)="unlock.emit('report')">
+                  Alle Empfehlungen freischalten →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
 
       @if (result().rentenluecke > 0) {
         <div class="savings-comparison">
@@ -275,6 +310,93 @@ interface ActionTip {
       .comparison-grid { flex-direction: column; }
       .comparison-vs { transform: rotate(90deg); }
       .comparison-card { width: 100%; }
+      .locked-tips-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Locked tips section */
+    .locked-tips-section {
+      margin-top: 1rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .locked-tips-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      background: rgba(15, 52, 96, 0.04);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--color-accent);
+    }
+
+    .locked-tips-icon {
+      font-size: 1rem;
+    }
+
+    .locked-tips-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .tip-card.locked {
+      filter: blur(4px);
+      opacity: 0.5;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .locked-tips-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(1px);
+      border-radius: var(--radius-md);
+    }
+
+    .locked-tips-overlay-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.5rem 2rem;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--color-border);
+      text-align: center;
+    }
+
+    .locked-overlay-badge {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .locked-tips-cta {
+      padding: 0.65rem 1.5rem;
+      background: linear-gradient(135deg, #0f3460, #1a5276);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .locked-tips-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(15, 52, 96, 0.3);
     }
   `],
 })
@@ -283,6 +405,18 @@ export class ActionTipsComponent {
 
   readonly result = input.required<PensionResult>();
   readonly hatKinder = input<boolean>(false);
+  readonly unlocked = input<boolean>(false);
+  readonly unlock = output<string>();
+
+  /** Show first 2 tips for free, gate the rest (unless unlocked) */
+  private readonly FREE_TIP_COUNT = 2;
+
+  readonly freeTips = computed(() =>
+    this.unlocked() ? this.tips() : this.tips().slice(0, this.FREE_TIP_COUNT)
+  );
+  readonly lockedTips = computed(() =>
+    this.unlocked() ? [] : this.tips().slice(this.FREE_TIP_COUNT)
+  );
 
   readonly etfMonthly = computed(() => {
     const r = this.result();

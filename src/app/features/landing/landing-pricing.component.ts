@@ -51,8 +51,8 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
               <span class="tier-badge report-badge">EINMAL-REPORT</span>
               <h3 class="tier-name">Detail-Analyse</h3>
               <div class="tier-price">
-                <span class="price-amount">14<span class="price-cents">,90 €</span></span>
-                <span class="price-period">einmalig</span>
+                <span class="price-amount">0 €</span>
+                <span class="price-period">aktuell kostenlos</span>
               </div>
               <p class="tier-desc">Ihr persönlicher Renten-Report</p>
             </div>
@@ -68,7 +68,7 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
               <li class="excluded"><span class="cross">✗</span> Strategievergleich</li>
             </ul>
             <button class="tier-button report-btn">
-              Report kaufen →
+              Kostenlos herunterladen →
             </button>
           </div>
 
@@ -78,8 +78,8 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
               <span class="tier-badge premium-badge">PREMIUM</span>
               <h3 class="tier-name">Renten-Strategie</h3>
               <div class="tier-price">
-                <span class="price-amount">29<span class="price-cents">,90 €</span></span>
-                <span class="price-period">einmalig</span>
+                <span class="price-amount">0 €</span>
+                <span class="price-period">aktuell kostenlos</span>
               </div>
               <p class="tier-desc">Ihr kompletter Renten-Fahrplan</p>
             </div>
@@ -94,7 +94,7 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
               <li class="included"><span class="check">✓</span> Zukünftige Updates inklusive</li>
             </ul>
             <button class="tier-button premium-btn">
-              Premium freischalten →
+              Kostenlos freischalten →
             </button>
           </div>
         </div>
