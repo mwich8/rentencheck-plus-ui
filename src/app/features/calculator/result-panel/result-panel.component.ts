@@ -49,10 +49,17 @@ import { RentenScoreComponent } from './renten-score.component';
           <span class="info-icon" aria-hidden="true">📅</span>
           <span>Besteuerungsanteil: {{ (result().besteuerungsanteil * 100).toFixed(1) }}%</span>
         </div>
-        <div class="info-badge">
-          <span class="info-icon" aria-hidden="true">🛡️</span>
-          <span>Freibetrag: {{ result().rentenfreibetrag | euro }}/Jahr</span>
-        </div>
+        @if (result().besteuerungsanteil < 1) {
+          <div class="info-badge">
+            <span class="info-icon" aria-hidden="true">🛡️</span>
+            <span>Freibetrag: {{ result().rentenfreibetrag | euro }}/Jahr</span>
+          </div>
+        } @else {
+          <div class="info-badge info-badge-muted">
+            <span class="info-icon" aria-hidden="true">🛡️</span>
+            <span>Kein Freibetrag (Rentenbeginn ab 2040)</span>
+          </div>
+        }
         <div class="info-badge">
           <span class="info-icon" aria-hidden="true">⏳</span>
           <span>{{ result().jahresBisRente }} Jahre bis Rente</span>
@@ -156,6 +163,12 @@ import { RentenScoreComponent } from './renten-score.component';
       font-weight: 500;
       color: #0369a1;
       white-space: nowrap;
+    }
+
+    .info-badge-muted {
+      background: #f8f9fa;
+      border-color: #dee2e6;
+      color: #6c757d;
     }
 
     .info-icon {

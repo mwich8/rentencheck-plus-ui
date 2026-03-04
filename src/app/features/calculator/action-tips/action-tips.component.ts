@@ -25,7 +25,11 @@ interface ActionTip {
         <span class="icon">🎯</span> Ihre persönlichen Handlungsempfehlungen
       </h3>
       <p class="tips-subtitle">
-        Basierend auf Ihrer Rentenlücke von <strong>{{ result().rentenluecke | euro }}</strong>/Monat
+        @if (result().rentenluecke > 0) {
+          Basierend auf Ihrer Rentenlücke von <strong>{{ result().rentenluecke | euro }}</strong>/Monat
+        } @else {
+          Ihre Rente deckt Ihren Wunsch — hier sind Tipps zur Optimierung
+        }
       </p>
 
       <div class="tips-grid">
@@ -278,6 +282,7 @@ export class ActionTipsComponent {
   private readonly savingsService = inject(SavingsCalculatorService);
 
   readonly result = input.required<PensionResult>();
+  readonly hatKinder = input<boolean>(false);
 
   readonly etfMonthly = computed(() => {
     const r = this.result();
@@ -312,6 +317,14 @@ export class ActionTipsComponent {
         description: `Um Ihre Rentenlücke vollständig zu schließen, bräuchten Sie einen monatlichen ETF-Sparplan bei durchschnittlich 7% Rendite p.a.`,
         highlight: `${this.etfMonthly().toLocaleString('de-DE')} € / Monat`,
         type: 'savings',
+      });
+    } else if (r.rentenluecke <= 0) {
+      tips.push({
+        icon: '🎉',
+        title: 'Hervorragende Ausgangslage',
+        description: `Ihre gesetzliche Rente übersteigt Ihren Wunsch. Nutzen Sie den Überschuss für Rücklagen oder vorzeitigen Ruhestand.`,
+        highlight: `Rente deckt ${r.deckungsquote.toFixed(0)}% Ihres Wunschs`,
+        type: 'info',
       });
     }
 
@@ -372,7 +385,17 @@ export class ActionTipsComponent {
       });
     }
 
-    return tips.slice(0, 4);
+    if (this.hatKinder()) {
+      tips.push({
+        icon: '👶',
+        title: 'Kindererziehungszeiten prüfen',
+        description: `Für Kindererziehung können bis zu 3 Rentenpunkte pro Kind gutgeschrieben werden — das sind ca. 111 €/Monat mehr Rente. Falls noch nicht beantragt, stellen Sie den Antrag mit dem Formular V0800 bei der Deutschen Rentenversicherung.`,
+        highlight: `Formular V0800 bei der DRV anfordern`,
+        type: 'strategy',
+      });
+    }
+
+    return tips.slice(0, 5);
   });
 }
 

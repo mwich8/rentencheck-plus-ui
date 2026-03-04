@@ -52,6 +52,7 @@ export type PricingTier = 'free' | 'report' | 'premium';
             <li class="included">✓ Detaillierter PDF-Report</li>
             <li class="included">✓ Steuerberechnung nach §32a</li>
             <li class="included">✓ 30-Jahre-Inflationsprognose</li>
+            <li class="included">✓ Persönliche Handlungsempfehlungen</li>
             <li class="excluded">✗ Multi-Szenario-Vergleich</li>
           </ul>
           <button class="tier-button report-btn" (click)="tierSelected.emit('report')">
@@ -74,8 +75,8 @@ export type PricingTier = 'free' | 'report' | 'premium';
             <li class="included">✓ Optimierungsvorschläge</li>
             <li class="included">✓ Vergleich verschiedener Strategien</li>
           </ul>
-          <button class="tier-button premium-btn" (click)="tierSelected.emit('premium')">
-            Premium freischalten →
+          <button class="tier-button premium-btn coming-soon" disabled>
+            Bald verfügbar 🚀
           </button>
         </div>
       </div>
@@ -266,6 +267,17 @@ export type PricingTier = 'free' | 'report' | 'premium';
     .premium-btn:hover {
       box-shadow: 0 4px 15px rgba(142, 68, 173, 0.4);
       transform: translateY(-1px);
+    }
+
+    .coming-soon {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background: #adb5bd !important;
+    }
+
+    .coming-soon:hover {
+      transform: none !important;
+      box-shadow: none !important;
     }
 
     @media (max-width: 768px) {

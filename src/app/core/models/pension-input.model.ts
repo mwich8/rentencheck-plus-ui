@@ -33,7 +33,7 @@ export interface PensionInput {
  */
 export const DEFAULT_PENSION_INPUT: PensionInput = {
   bruttoMonatlicheRente: 1500,
-  rentenbeginnJahr: 2030,
+  rentenbeginnJahr: 2058,
   aktuellesAlter: 35,
   gewuenschteMonatlicheRente: 2500,
   inflationsrate: 0.02,

@@ -1,4 +1,4 @@
-import { Component, inject, computed, viewChild } from '@angular/core';
+import { Component, inject, computed, viewChild, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { InputPanelComponent } from './input-panel/input-panel.component';
 import { ResultPanelComponent } from './result-panel/result-panel.component';
@@ -9,6 +9,7 @@ import { ActionTipsComponent } from './action-tips/action-tips.component';
 import { PremiumTeaserComponent } from './premium-teaser/premium-teaser.component';
 import { PensionCalculatorService } from '../../core/services/pension-calculator.service';
 import { PdfReportService } from '../../core/services/pdf-report.service';
+import { StripePaymentService } from '../../core/services/stripe-payment.service';
 import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
 
 /**
@@ -80,30 +81,56 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
 
       <!-- PDF Download Button -->
       <div class="pdf-download-section animate-fade-in-up" style="animation-delay: 0.2s">
-        <button class="pdf-download-btn" (click)="downloadReport()">
-          <span class="pdf-icon">📄</span>
-          <span class="pdf-text">
-            <strong>Kostenloser PDF-Report herunterladen</strong>
-            <small>Ihre komplette Rentenanalyse als PDF — zum Ausdrucken & Teilen</small>
-          </span>
-          <span class="pdf-arrow">↓</span>
+        <button class="pdf-download-btn" (click)="purchaseReport()" [disabled]="isProcessingPayment()">
+          @if (isProcessingPayment()) {
+            <span class="pdf-icon spinner-icon">⏳</span>
+            <span class="pdf-text">
+              <strong>Weiterleitung zur Bezahlung...</strong>
+              <small>Sie werden gleich zu Stripe weitergeleitet</small>
+            </span>
+          } @else {
+            <span class="pdf-icon">📄</span>
+            <span class="pdf-text">
+              <strong>PDF-Report kaufen — 14,90 €</strong>
+              <small>3-seitiger Report · Inflationsprognose · Persönliche Handlungsempfehlungen</small>
+            </span>
+            <span class="pdf-arrow">→</span>
+          }
         </button>
       </div>
 
       <!-- Action Tips Section -->
-      @if (pensionResult().rentenluecke > 0) {
-        <div class="action-tips-section animate-fade-in-up" style="animation-delay: 0.25s">
-          <app-action-tips [result]="pensionResult()" />
-        </div>
-      }
+      <div class="action-tips-section animate-fade-in-up" style="animation-delay: 0.25s">
+        <app-action-tips [result]="pensionResult()" [hatKinder]="hatKinder()" />
+      </div>
 
       <!-- Charts Section -->
       <div class="charts-section animate-fade-in-up" style="animation-delay: 0.3s">
         <div class="card chart-card">
           <app-waterfall-chart [result]="pensionResult()" />
         </div>
-        <div class="card chart-card">
-          <app-projection-chart [result]="pensionResult()" />
+        <div class="card chart-card locked-chart-card">
+          <div class="locked-chart-wrapper">
+            <div class="locked-chart-blur">
+              <app-projection-chart [result]="pensionResult()" />
+            </div>
+            <div class="locked-chart-overlay">
+              <div class="locked-chart-content">
+                <span class="locked-icon">🔒</span>
+                <h4 class="locked-title">30-Jahre-Inflationsprognose</h4>
+                <p class="locked-description">
+                  Sehen Sie, wie Inflation Ihre Rente über 30 Jahre entwertet — im Detail-Report enthalten.
+                </p>
+                <button class="locked-cta" (click)="purchaseReport()" [disabled]="isProcessingPayment()">
+                  @if (isProcessingPayment()) {
+                    ⏳ Weiterleitung...
+                  } @else {
+                    PDF-Report kaufen — 14,90 € →
+                  }
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -336,6 +363,20 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
       transform: translateY(0);
     }
 
+    .pdf-download-btn:disabled {
+      opacity: 0.75;
+      cursor: wait;
+      transform: none !important;
+    }
+
+    .spinner-icon {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     .pdf-icon {
       font-size: 2rem;
       flex-shrink: 0;
@@ -379,6 +420,90 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
 
     .chart-card {
       overflow: hidden;
+    }
+
+    /* Locked Projection Chart */
+    .locked-chart-card {
+      padding: 0 !important;
+    }
+
+    .locked-chart-wrapper {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+    }
+
+    .locked-chart-blur {
+      filter: blur(6px);
+      opacity: 0.5;
+      pointer-events: none;
+      user-select: none;
+      padding: 1.5rem;
+    }
+
+    .locked-chart-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(2px);
+      z-index: 2;
+    }
+
+    .locked-chart-content {
+      text-align: center;
+      max-width: 320px;
+      padding: 2rem 1.5rem;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--color-border);
+    }
+
+    .locked-icon {
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+
+    .locked-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .locked-description {
+      font-size: 0.85rem;
+      color: var(--color-text-light);
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+    }
+
+    .locked-cta {
+      display: inline-block;
+      padding: 0.65rem 1.5rem;
+      background: linear-gradient(135deg, #0f3460, #1a5276);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .locked-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(15, 52, 96, 0.3);
+    }
+
+    .locked-cta:disabled {
+      opacity: 0.7;
+      cursor: wait;
+      transform: none;
     }
 
     /* ==========================================
@@ -529,9 +654,11 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
 export class CalculatorPageComponent {
   private readonly calculatorService = inject(PensionCalculatorService);
   private readonly pdfService = inject(PdfReportService);
+  private readonly paymentService = inject(StripePaymentService);
   private readonly inputPanel = viewChild(InputPanelComponent);
 
   readonly currentYear = new Date().getFullYear();
+  readonly isProcessingPayment = signal(false);
 
   /** Default result used before the input panel viewChild is resolved */
   private readonly defaultResult = this.calculatorService.calculate(DEFAULT_PENSION_INPUT);
@@ -540,6 +667,12 @@ export class CalculatorPageComponent {
   readonly gewuenschteRente = computed(() => {
     const panel = this.inputPanel();
     return panel ? panel.pensionInput().gewuenschteMonatlicheRente : DEFAULT_PENSION_INPUT.gewuenschteMonatlicheRente;
+  });
+
+  /** Expose hatKinder for ActionTips */
+  readonly hatKinder = computed(() => {
+    const panel = this.inputPanel();
+    return panel ? panel.pensionInput().hatKinder : DEFAULT_PENSION_INPUT.hatKinder;
   });
 
   /**
@@ -555,12 +688,34 @@ export class CalculatorPageComponent {
 
   onTierSelected(tier: string): void {
     if (tier === 'report') {
-      this.downloadReport();
+      this.purchaseReport();
     } else {
       alert(`Das Premium-Paket wird bald verfügbar sein! 🚀`);
     }
   }
 
+  /**
+   * Start the Stripe Checkout flow for the PDF report.
+   * Saves inputs to sessionStorage, redirects to Stripe,
+   * then the success page generates the PDF.
+   */
+  async purchaseReport(): Promise<void> {
+    const panel = this.inputPanel();
+    const input = panel ? panel.pensionInput() : DEFAULT_PENSION_INPUT;
+
+    this.isProcessingPayment.set(true);
+    try {
+      await this.paymentService.startCheckout('report', input);
+    } catch (err) {
+      console.error('Payment error:', err);
+      this.isProcessingPayment.set(false);
+      alert('Bezahlung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.');
+    }
+  }
+
+  /**
+   * Direct download — used for free/testing scenarios.
+   */
   downloadReport(): void {
     const panel = this.inputPanel();
     const input = panel ? panel.pensionInput() : DEFAULT_PENSION_INPUT;

@@ -99,7 +99,7 @@ import { PensionInput, DEFAULT_PENSION_INPUT } from '../../../core/models/pensio
             id="slider-beginn"
             type="range"
             [min]="2025"
-            [max]="2058"
+            [max]="2075"
             [step]="1"
             [ngModel]="rentenbeginnJahr()"
             (ngModelChange)="rentenbeginnJahr.set($event)"
@@ -109,7 +109,7 @@ import { PensionInput, DEFAULT_PENSION_INPUT } from '../../../core/models/pensio
         </div>
         <div class="range-labels">
           <span>2025</span>
-          <span>2058</span>
+          <span>2075</span>
         </div>
       </div>
 

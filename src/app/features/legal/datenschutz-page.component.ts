@@ -137,15 +137,38 @@ import { RouterLink } from '@angular/router';
         </section>
 
         <section>
-          <h2>7. Zahlungsabwicklung</h2>
+          <h2>7. Zahlungsabwicklung (Stripe)</h2>
           <p>
-            Für kostenpflichtige Leistungen (Detail-Analyse, Premium-Paket) wird die
-            Zahlungsabwicklung über einen externen Zahlungsdienstleister durchgeführt.
-            Die Verarbeitung der Zahlungsdaten erfolgt ausschließlich durch den jeweiligen
-            Anbieter. Wir erhalten keine vollständigen Kreditkarten- oder Kontodaten.
+            Für kostenpflichtige Leistungen (Detail-Analyse PDF-Report) wird die
+            Zahlungsabwicklung über den externen Zahlungsdienstleister
+            <strong>Stripe, Inc.</strong> (510 Townsend Street, San Francisco, CA 94103, USA)
+            durchgeführt.
+          </p>
+          <p>
+            Bei einem Kaufvorgang werden Sie auf eine von Stripe gehostete Checkout-Seite
+            weitergeleitet. Die Verarbeitung der Zahlungsdaten (Kreditkartennummer, Bankdaten)
+            erfolgt ausschließlich durch Stripe. Wir erhalten keine vollständigen Zahlungsdaten —
+            lediglich eine Bestätigung über den erfolgreichen Zahlungseingang.
+          </p>
+          <p>
+            Stripe verarbeitet Ihre Daten gemäß der
+            <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener">
+              Stripe-Datenschutzerklärung</a>.
+            Die Datenübermittlung in die USA erfolgt auf Grundlage von
+            Standardvertragsklauseln (Art. 46 Abs. 2 lit. c DSGVO).
           </p>
           <p>
             <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).
+          </p>
+        </section>
+
+        <section>
+          <h2>7a. SessionStorage</h2>
+          <p>
+            Bei einem Kaufvorgang speichern wir Ihre Berechnungseingaben vorübergehend im
+            SessionStorage Ihres Browsers, damit der PDF-Report nach der Zahlung automatisch
+            generiert werden kann. Diese Daten werden nur lokal in Ihrem Browser gespeichert,
+            nicht an unsere Server übermittelt, und beim Schließen des Browser-Tabs automatisch gelöscht.
           </p>
         </section>
 

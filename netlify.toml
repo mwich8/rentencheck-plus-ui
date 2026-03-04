@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist/rentencheck-plus/browser"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# API proxy — route /.netlify/functions/* to serverless functions
+# (Netlify does this automatically, but explicit for clarity)
+
+# SPA fallback — serve index.html for all Angular routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

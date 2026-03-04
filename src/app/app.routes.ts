@@ -32,6 +32,12 @@ export const routes: Routes = [
     title: 'RentenCheck+ — Haftungsausschluss',
   },
   {
+    path: 'zahlung-erfolgreich',
+    loadComponent: () =>
+      import('./features/payment/payment-success.component').then(m => m.PaymentSuccessComponent),
+    title: 'RentenCheck+ — Zahlung erfolgreich',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

@@ -69,7 +69,7 @@ export class PdfReportService {
     doc.addPage();
     y = this.headerBar(doc, false, 'Handlungsempfehlungen & Rechtliches');
     y = this.savingsComparison(doc, y, result);
-    y = this.tipCards(doc, y, result);
+    y = this.tipCards(doc, y, result, input);
     y = this.disclaimer(doc, y);
     this.footer(doc);
 
@@ -598,7 +598,7 @@ export class PdfReportService {
     return y + 8;
   }
 
-  private tipCards(doc: jsPDF, y: number, r: PensionResult): number {
+  private tipCards(doc: jsPDF, y: number, r: PensionResult, inp: PensionInput): number {
     y = this.heading(doc, y, 'Pers\u00f6nliche Tipps', 'Konkrete n\u00e4chste Schritte f\u00fcr Ihre Altersvorsorge');
 
     const tips: { letter: string; title: string; body: string; col: RGB }[] = [];
@@ -610,9 +610,11 @@ export class PdfReportService {
       tips.push({ letter: 'S', title: 'Staatliche F\u00f6rderung pr\u00fcfen', body: 'Bei gr\u00f6\u00dferen L\u00fccken lohnen sich Riester-/R\u00fcrup-Vertr\u00e4ge mit Steuervorteilen.', col: this.c.navy });
     if (r.deckungsquote < 50)
       tips.push({ letter: '!', title: 'Beratung empfohlen',               body: `Mit nur ${r.deckungsquote.toFixed(0)} % Deckung ist eine individuelle Beratung sinnvoll.`, col: this.c.danger });
+    if (inp.hatKinder)
+      tips.push({ letter: 'K', title: 'Kindererziehungszeiten pr\u00fcfen', body: 'F\u00fcr Kindererziehung k\u00f6nnen bis zu 3 Rentenpunkte pro Kind (ca. +111 \u20ac/Monat) gutgeschrieben werden. Antrag per Formular V0800 bei der DRV.', col: this.c.accent });
     tips.push({ letter: '+', title: '1\u20132 Jahre l\u00e4nger arbeiten', body: 'Jedes Extra-Arbeitsjahr erh\u00f6ht die Rente und verk\u00fcrzt die Bezugsdauer \u2014 doppelter Effekt.', col: this.c.warning });
 
-    const th = 14, tg = 3, max = Math.min(tips.length, 4);
+    const th = 14, tg = 3, max = Math.min(tips.length, 5);
     for (let i = 0; i < max; i++) {
       if (y + th > 235) break;
       const t = tips[i], ty = y + i * (th + tg);

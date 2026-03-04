@@ -52,8 +52,8 @@ import { Component, output } from '@angular/core';
               <li>✓ Was-wäre-wenn-Analyse</li>
               <li>✓ Optimale Strategie finden</li>
             </ul>
-            <button class="teaser-cta premium" (click)="unlock.emit('premium')">
-              Für 29,90 € freischalten →
+            <button class="teaser-cta premium coming-soon" disabled>
+              Bald verfügbar 🚀
             </button>
           </div>
         </div>
@@ -104,10 +104,11 @@ import { Component, output } from '@angular/core';
             <ul class="teaser-features">
               <li>✓ 30-Jahre-Inflationsprognose</li>
               <li>✓ §32a-konforme Steuerberechnung</li>
+              <li>✓ Persönliche Handlungsempfehlungen</li>
               <li>✓ Professionelles Layout</li>
             </ul>
             <button class="teaser-cta report" (click)="unlock.emit('report')">
-              PDF herunterladen →
+              PDF-Report kaufen — 14,90 € →
             </button>
           </div>
         </div>
@@ -332,6 +333,17 @@ import { Component, output } from '@angular/core';
     .teaser-cta.report:hover {
       transform: translateY(-1px);
       box-shadow: 0 6px 20px rgba(15, 52, 96, 0.4);
+    }
+
+    .teaser-cta.coming-soon {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background: #adb5bd !important;
+      box-shadow: none !important;
+    }
+
+    .teaser-cta.coming-soon:hover {
+      transform: none !important;
     }
 
     @media (max-width: 768px) {

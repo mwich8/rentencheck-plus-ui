@@ -181,7 +181,7 @@ export class LandingFaqComponent {
     },
     {
       question: 'Was unterscheidet die Detail-Analyse vom Premium-Paket?',
-      answer: 'Die Detail-Analyse (14,90€) liefert einen PDF-Report mit 30-Jahre-Inflationsprognose. Das Premium-Paket (29,90€) bietet zusätzlich Multi-Szenario-Vergleiche, Was-wäre-wenn-Analysen und individuelle Optimierungsvorschläge.',
+      answer: 'Die Detail-Analyse (14,90€) liefert einen PDF-Report mit 30-Jahre-Inflationsprognose und persönlichen Handlungsempfehlungen — z.\u00a0B. ob Sie Kindererziehungszeiten (Formular V0800) bei der DRV geltend machen können. Das Premium-Paket (29,90€) bietet zusätzlich Multi-Szenario-Vergleiche, Was-wäre-wenn-Analysen und individuelle Optimierungsvorschläge.',
     },
   ];
 

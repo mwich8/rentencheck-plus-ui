@@ -61,6 +61,7 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
               <li class="included highlight"><span class="check">✓</span> Detaillierter PDF-Report</li>
               <li class="included highlight"><span class="check">✓</span> Steuerberechnung nach §32a</li>
               <li class="included highlight"><span class="check">✓</span> 30-Jahre-Inflationsprognose</li>
+              <li class="included highlight"><span class="check">✓</span> Persönliche Handlungsempfehlungen</li>
               <li class="included"><span class="check">✓</span> Zum Ausdrucken & Teilen</li>
               <li class="excluded"><span class="cross">✗</span> Multi-Szenario-Vergleich</li>
               <li class="excluded"><span class="cross">✗</span> Optimierungsvorschläge</li>
@@ -335,6 +336,24 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
     .premium-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(142, 68, 173, 0.4);
+    }
+
+    .coming-soon {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background: #adb5bd !important;
+      box-shadow: none !important;
+    }
+
+    .coming-soon:hover {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    a.tier-button {
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
     }
 
     .pricing-guarantee {
