@@ -678,7 +678,7 @@ export class PdfReportService {
     // CTA URL
     doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5);
     doc.setTextColor(...this.c.accent);
-    const url = 'https://www.financeads.net/tc.php?t=41498C274449894T';
+    const url = 'https://refnocode.trade.re/xmgb600n';
     doc.textWithLink('Jetzt Depot er\u00f6ffnen \u2192', tx, y + 19, { url });
 
     return y + h + 4;

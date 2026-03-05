@@ -10,7 +10,7 @@ export const environment = {
     plausibleDomain: '', // Leave empty to disable in dev
   },
   affiliate: {
-    brokerUrl: 'https://www.financeads.net/tc.php?t=41498C274449894T',
+    brokerUrl: 'https://refnocode.trade.re/xmgb600n',
     brokerName: 'Online-Broker',
   },
 };
