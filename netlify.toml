@@ -6,11 +6,28 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# API proxy — route /.netlify/functions/* to serverless functions
-# (Netlify does this automatically, but explicit for clarity)
+# Static files must be served before the SPA fallback
+[[redirects]]
+  from = "/robots.txt"
+  to = "/robots.txt"
+  status = 200
+
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/sitemap.xml"
+  status = 200
 
 # SPA fallback — serve index.html for all Angular routes
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

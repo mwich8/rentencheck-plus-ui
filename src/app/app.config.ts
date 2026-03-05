@@ -7,12 +7,13 @@ import {
   GridComponent,
   TooltipComponent,
   LegendComponent,
+  MarkPointComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import * as echarts from 'echarts/core';
 import { routes } from './app.routes';
 
-echarts.use([BarChart, LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+echarts.use([BarChart, LineChart, GridComponent, TooltipComponent, LegendComponent, MarkPointComponent, CanvasRenderer]);
 
 export const appConfig: ApplicationConfig = {
   providers: [
