@@ -1,0 +1,21 @@
+<div class="waterfall-container">
+  <h3 class="chart-title">
+    <span class="icon">📉</span> So schmilzt Ihre Rente
+  </h3>
+  <p class="chart-subtitle">Vom Brutto zur realen Kaufkraft — Schritt für Schritt</p>
+  <div class="canvas-wrapper" #canvasWrapper>
+    <canvas #waterfallCanvas></canvas>
+  </div>
+  <!-- Legend -->
+  <div class="chart-legend">
+    @for (item of legendItems(); track item.label) {
+      <div class="legend-item">
+        <span class="legend-swatch" [style.background]="item.color"></span>
+        <span class="legend-label">{{ item.label }}</span>
+        @if (item.detail) {
+          <span class="legend-detail">{{ item.detail }}</span>
+        }
+      </div>
+    }
+  </div>
+</div>

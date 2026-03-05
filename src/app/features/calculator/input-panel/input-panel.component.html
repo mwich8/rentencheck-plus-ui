@@ -1,0 +1,160 @@
+<div class="input-panel">
+  <h2 class="panel-title">
+    <span class="icon">📊</span> Ihre Rentendaten
+  </h2>
+  <p class="panel-hint">Bewegen Sie die Regler — alle Ergebnisse aktualisieren sich sofort.</p>
+
+  <!-- Brutto Rente -->
+  <div class="input-group">
+    <label class="input-label" for="slider-brutto">
+      Prognostizierte Bruttorente
+      <span class="input-hint">monatlich, laut Rentenbescheid</span>
+    </label>
+    <div class="slider-row">
+      <input
+        id="slider-brutto"
+        type="range"
+        [min]="200"
+        [max]="4000"
+        [step]="25"
+        [ngModel]="bruttoRente()"
+        (ngModelChange)="bruttoRente.set($event)"
+        aria-label="Monatliche Bruttorente in Euro"
+      />
+      <output class="slider-output accent">{{ bruttoRente() | euro }}</output>
+    </div>
+    <div class="range-labels">
+      <span>200 €</span>
+      <span>4.000 €</span>
+    </div>
+  </div>
+
+  <!-- Gewünschte Rente -->
+  <div class="input-group">
+    <label class="input-label" for="slider-wunsch">
+      Gewünschtes Einkommen im Alter
+      <span class="input-hint">Ihr Wunsch-Nettoeinkommen</span>
+    </label>
+    <div class="slider-row">
+      <input
+        id="slider-wunsch"
+        type="range"
+        [min]="1000"
+        [max]="6000"
+        [step]="50"
+        [ngModel]="gewuenschteRente()"
+        (ngModelChange)="gewuenschteRente.set($event)"
+        aria-label="Gewünschtes monatliches Einkommen im Alter"
+      />
+      <output class="slider-output success">{{ gewuenschteRente() | euro }}</output>
+    </div>
+    <div class="range-labels">
+      <span>1.000 €</span>
+      <span>6.000 €</span>
+    </div>
+  </div>
+
+  <!-- Aktuelles Alter -->
+  <div class="input-group">
+    <label class="input-label" for="slider-alter">
+      Ihr aktuelles Alter
+    </label>
+    <div class="slider-row">
+      <input
+        id="slider-alter"
+        type="range"
+        [min]="18"
+        [max]="66"
+        [step]="1"
+        [ngModel]="aktuellesAlter()"
+        (ngModelChange)="aktuellesAlter.set($event)"
+        aria-label="Aktuelles Alter"
+      />
+      <output class="slider-output neutral">{{ aktuellesAlter() }} Jahre</output>
+    </div>
+    <div class="range-labels">
+      <span>18</span>
+      <span>66</span>
+    </div>
+  </div>
+
+  <!-- Rentenbeginn -->
+  <div class="input-group">
+    <label class="input-label" for="slider-beginn">
+      Voraussichtlicher Rentenbeginn
+      <span class="input-hint">Regelaltersgrenze: 67 Jahre</span>
+    </label>
+    <div class="slider-row">
+      <input
+        id="slider-beginn"
+        type="range"
+        [min]="2025"
+        [max]="2075"
+        [step]="1"
+        [ngModel]="rentenbeginnJahr()"
+        (ngModelChange)="rentenbeginnJahr.set($event)"
+        aria-label="Jahr des Rentenbeginns"
+      />
+      <output class="slider-output neutral">{{ rentenbeginnJahr() }}</output>
+    </div>
+    <div class="range-labels">
+      <span>2025</span>
+      <span>2075</span>
+    </div>
+  </div>
+
+  <!-- Inflationsrate -->
+  <div class="input-group">
+    <label class="input-label" for="slider-inflation">
+      Angenommene Inflationsrate
+      <span class="input-hint">EZB-Ziel: 2,0 % p.a.</span>
+    </label>
+    <div class="slider-row">
+      <input
+        id="slider-inflation"
+        type="range"
+        [min]="0"
+        [max]="0.06"
+        [step]="0.001"
+        [ngModel]="inflationsrate()"
+        (ngModelChange)="inflationsrate.set($event)"
+        aria-label="Jährliche Inflationsrate"
+      />
+      <output class="slider-output" [class.danger]="inflationsrate() > 0.03" [class.neutral]="inflationsrate() <= 0.03">
+        {{ (inflationsrate() * 100).toFixed(1) }} %
+      </output>
+    </div>
+    <div class="range-labels">
+      <span>0 %</span>
+      <span>6 %</span>
+    </div>
+  </div>
+
+  <!-- Kinder Toggle -->
+  <div class="input-group toggle-group">
+    <label class="input-label">Haben Sie Kinder?</label>
+    <div class="toggle-buttons" role="radiogroup" aria-label="Kinder vorhanden">
+      <button
+        role="radio"
+        [attr.aria-checked]="hatKinder()"
+        [class.active]="hatKinder()"
+        (click)="hatKinder.set(true)"
+        type="button"
+      >
+        Ja
+      </button>
+      <button
+        role="radio"
+        [attr.aria-checked]="!hatKinder()"
+        [class.active]="!hatKinder()"
+        (click)="hatKinder.set(false)"
+        type="button"
+      >
+        Nein
+      </button>
+    </div>
+    <p class="toggle-hint">
+      {{ hatKinder() ? 'Pflegeversicherung: 3,4 %' : 'Pflegeversicherung: 4,0 % (Zuschlag für Kinderlose)' }}
+    </p>
+  </div>
+</div>

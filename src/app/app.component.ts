@@ -10,14 +10,7 @@ import { CookieConsentComponent } from './shared/components/cookie-consent.compo
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, CookieConsentComponent],
-  template: `
-    <router-outlet />
-    <app-cookie-consent />
-  `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {}

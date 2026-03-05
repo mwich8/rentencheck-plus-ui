@@ -19,20 +19,8 @@ import { LandingCtaFooterComponent } from './landing-cta-footer.component';
     LandingFaqComponent,
     LandingCtaFooterComponent,
   ],
-  template: `
-    <app-hero-section />
-    <app-problem-section />
-    <app-features-section />
-    <app-landing-pricing />
-    <app-trust-section />
-    <app-landing-faq />
-    <app-landing-cta-footer />
-  `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  templateUrl: './landing-page.component.html',
+  styleUrls: ['./landing-page.component.scss'],
 })
 export class LandingPageComponent {}
 

@@ -1,0 +1,106 @@
+<div class="teaser-section">
+  <h3 class="teaser-header">
+    <span class="icon">🔒</span> Premium-Einblicke freischalten
+  </h3>
+  <p class="teaser-subtitle">
+    Sehen Sie, was Ihnen die Premium-Version bietet — für fundierte Entscheidungen.
+  </p>
+
+  <div class="teaser-grid">
+    <!-- Multi-Scenario Preview -->
+    <div class="teaser-card">
+      <div class="teaser-preview">
+        <div class="blurred-content">
+          <!-- Fake chart bars -->
+          <div class="fake-chart">
+            <div class="fake-bar" style="height: 70%; background: rgba(15,52,96,0.4);"></div>
+            <div class="fake-bar" style="height: 85%; background: rgba(39,174,96,0.4);"></div>
+            <div class="fake-bar" style="height: 55%; background: rgba(233,69,96,0.4);"></div>
+            <div class="fake-bar" style="height: 92%; background: rgba(243,156,18,0.4);"></div>
+            <div class="fake-bar" style="height: 65%; background: rgba(142,68,173,0.4);"></div>
+          </div>
+          <div class="fake-labels">
+            <span>Szenario A</span>
+            <span>Szenario B</span>
+            <span>Szenario C</span>
+            <span>Optimal</span>
+            <span>Konservativ</span>
+          </div>
+        </div>
+        <div class="lock-overlay">
+          <div class="lock-badge">
+            <span class="lock-icon">🔒</span>
+            <span class="lock-text">Premium</span>
+          </div>
+        </div>
+      </div>
+      <div class="teaser-info">
+        <h4>Multi-Szenario-Vergleich</h4>
+        <p>Vergleichen Sie verschiedene Renteneintrittsalter, Gehaltsverläufe und Sparstrategien nebeneinander.</p>
+        <ul class="teaser-features">
+          <li>✓ Bis zu 5 Szenarien parallel</li>
+          <li>✓ Persönlicher Renten-Zeitstrahl</li>
+          <li>✓ Optimale Strategie finden</li>
+        </ul>
+        <button class="teaser-cta premium" (click)="unlock.emit('premium')">
+          Kostenlos freischalten →
+        </button>
+      </div>
+    </div>
+
+    <!-- PDF Report Preview -->
+    <div class="teaser-card">
+      <div class="teaser-preview">
+        <div class="blurred-content">
+          <!-- Fake document -->
+          <div class="fake-document">
+            <div class="fake-doc-header">
+              <div class="fake-logo"></div>
+              <div class="fake-text-block" style="width: 60%;"></div>
+            </div>
+            <div class="fake-text-block" style="width: 100%;"></div>
+            <div class="fake-text-block" style="width: 90%;"></div>
+            <div class="fake-text-block" style="width: 75%;"></div>
+            <div class="fake-divider"></div>
+            <div class="fake-table">
+              <div class="fake-row">
+                <div class="fake-text-block" style="width: 40%;"></div>
+                <div class="fake-text-block" style="width: 25%;"></div>
+              </div>
+              <div class="fake-row">
+                <div class="fake-text-block" style="width: 50%;"></div>
+                <div class="fake-text-block" style="width: 20%;"></div>
+              </div>
+              <div class="fake-row">
+                <div class="fake-text-block" style="width: 35%;"></div>
+                <div class="fake-text-block" style="width: 30%;"></div>
+              </div>
+            </div>
+            <div class="fake-divider"></div>
+            <div class="fake-text-block" style="width: 85%;"></div>
+            <div class="fake-text-block" style="width: 95%;"></div>
+          </div>
+        </div>
+        <div class="lock-overlay">
+          <div class="lock-badge">
+            <span class="lock-icon">🔒</span>
+            <span class="lock-text">Detail-Analyse</span>
+          </div>
+        </div>
+      </div>
+      <div class="teaser-info">
+        <h4>Persönlicher PDF-Report</h4>
+        <p>Ihr individueller Renten-Report — zum Ausdrucken, Teilen oder für den Finanzberater.</p>
+        <ul class="teaser-features">
+          <li>✓ 30-Jahre-Inflationsprognose</li>
+          <li>✓ <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>-konforme Steuerberechnung</li>
+          <li>✓ Persönliche Handlungsempfehlungen</li>
+          <li>✓ Professionelles Layout</li>
+        </ul>
+        <button class="teaser-cta report" (click)="unlock.emit('report')">
+          Kostenlos herunterladen →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

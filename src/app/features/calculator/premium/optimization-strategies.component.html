@@ -1,0 +1,105 @@
+<div class="optimization-section">
+  <h3 class="section-title">
+    <span class="icon">🎯</span> Optimierungsvorschläge
+  </h3>
+  <p class="section-subtitle">
+    Personalisierte Empfehlungen basierend auf Ihrer Situation — sortiert nach größtem Effekt.
+  </p>
+
+  @if (suggestions().length > 0) {
+    <div class="suggestions-list">
+      @for (s of suggestions(); track s.title; let i = $index) {
+        <div class="suggestion-card" [class.highlight-card]="i === 0">
+          @if (i === 0) {
+            <div class="top-pick-badge">💡 Top-Empfehlung</div>
+          }
+          <div class="suggestion-main">
+            <div class="suggestion-left">
+              <div class="suggestion-rank">#{{ i + 1 }}</div>
+              <div class="suggestion-icon">{{ s.icon }}</div>
+            </div>
+            <div class="suggestion-content">
+              <h4>{{ s.title }}</h4>
+              <p>{{ s.description }}</p>
+              @if (s.actionStep) {
+                <div class="action-step">
+                  <span class="action-icon">→</span> {{ s.actionStep }}
+                </div>
+              }
+            </div>
+            <div class="suggestion-impact" [class.positive]="s.impact > 0" [class.negative]="s.impact < 0">
+              <span class="impact-value">{{ s.impact > 0 ? '+' : '' }}{{ s.impact.toLocaleString('de-DE') }} €</span>
+              <small>{{ s.impactLabel || '/Monat' }}</small>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="no-suggestions">
+      <span class="no-icon">🎉</span>
+      <p>Ihre Rente deckt Ihr Wunscheinkommen — keine Optimierung nötig!</p>
+    </div>
+  }
+
+  <!-- Strategy Comparison -->
+  @if (baselineResult().rentenluecke > 0 && baselineResult().jahresBisRente > 0) {
+    <div class="strategy-section">
+      <h3 class="section-title" style="margin-top: 2rem;">
+        <span class="icon">⚖️</span> Strategievergleich zur Lückendeckung
+      </h3>
+      <p class="section-subtitle">
+        So viel müssten Sie monatlich sparen, um Ihre Rentenlücke von
+        <strong>{{ baselineResult().rentenluecke | euro }}</strong>/Monat zu schließen
+        — bei {{ baselineResult().jahresBisRente }} Jahren Ansparzeit.
+      </p>
+
+      <div class="strategy-grid">
+        @for (s of strategies(); track s.label; let i = $index) {
+          <div class="strategy-card" [style.border-top-color]="s.color" [class.best-strategy]="i === 0">
+            @if (i === 0) {
+              <div class="best-strategy-badge">Empfohlen</div>
+            }
+            <div class="strategy-icon">{{ s.icon }}</div>
+            <h4 class="strategy-label">{{ s.label }}</h4>
+            <div class="strategy-rate">{{ s.rateLabel }}</div>
+
+            <div class="strategy-monthly">
+              {{ s.monthlyRequired | euro }}
+              <small>/Monat</small>
+            </div>
+
+            <div class="strategy-details">
+              <div class="detail-row">
+                <span>Endkapital</span>
+                <strong>{{ s.projection.endkapital | euro }}</strong>
+              </div>
+              <div class="detail-row">
+                <span>davon Eigenanteil</span>
+                <strong>{{ s.projection.eigenanteil | euro }}</strong>
+              </div>
+              <div class="detail-row highlight-row">
+                <span>davon Rendite</span>
+                <strong class="text-success">{{ s.projection.renditeErtrag | euro }}</strong>
+              </div>
+              <div class="detail-row highlight-row">
+                <span>Auszahlung (25 J.)</span>
+                <strong>{{ s.projection.monatlicheAuszahlung | euro }}/M</strong>
+              </div>
+            </div>
+
+            <div class="strategy-ratio">
+              Rendite-Anteil: <strong>{{ s.renditeAnteil | number:'1.0-0' }}%</strong>
+            </div>
+          </div>
+        }
+      </div>
+
+      <p class="strategy-note">
+        * Berechnung basierend auf {{ baselineResult().jahresBisRente }} Jahren Ansparzeit
+        und 25 Jahren Auszahlung mit gleichbleibender Rendite. Keine Anlageberatung.
+        Historische Renditen sind keine Garantie für zukünftige Ergebnisse.
+      </p>
+    </div>
+  }
+</div>

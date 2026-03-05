@@ -1,0 +1,51 @@
+<div class="score-container">
+  <div class="score-gauge">
+    <!-- SVG circular gauge -->
+    <svg viewBox="0 0 120 120" class="gauge-svg">
+      <!-- Background circle -->
+      <circle
+        cx="60" cy="60" r="50"
+        fill="none"
+        stroke="#f1f5f9"
+        stroke-width="10"
+      />
+      <!-- Progress arc -->
+      <circle
+        cx="60" cy="60" r="50"
+        fill="none"
+        [attr.stroke]="scoreData().color"
+        stroke-width="10"
+        stroke-linecap="round"
+        [attr.stroke-dasharray]="circumference"
+        [attr.stroke-dashoffset]="dashOffset()"
+        class="gauge-progress"
+        transform="rotate(-90 60 60)"
+      />
+    </svg>
+
+    <div class="gauge-content">
+      <span class="gauge-score">{{ scoreData().score }}</span>
+      <span class="gauge-label">von 100</span>
+    </div>
+  </div>
+
+  <div class="score-info">
+    <div class="grade-badge" [style.background]="scoreData().bgColor" [style.color]="scoreData().color">
+      <span class="grade-letter">{{ scoreData().grade }}</span>
+      <span class="grade-label">{{ scoreData().label }}</span>
+    </div>
+
+    <div class="benchmark">
+      <div class="benchmark-bar">
+        <div class="benchmark-fill" [style.width.%]="scoreData().percentile"></div>
+        <div class="benchmark-marker" [style.left.%]="scoreData().percentile">
+          <span class="marker-dot"></span>
+        </div>
+      </div>
+      <p class="benchmark-text">
+        Besser als <strong>{{ scoreData().percentile }}%</strong> der Deutschen*
+      </p>
+      <p class="benchmark-disclaimer">* Schätzung basierend auf Durchschnittswerten</p>
+    </div>
+  </div>
+</div>

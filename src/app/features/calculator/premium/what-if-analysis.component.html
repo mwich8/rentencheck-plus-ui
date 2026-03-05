@@ -1,0 +1,92 @@
+<div class="timeline-section">
+  <h3 class="section-title">
+    <span class="icon">🗓️</span> Ihr Renten-Zeitstrahl
+  </h3>
+  <p class="section-subtitle">
+    Ihre persönliche Rentenreise — von heute bis zum Ruhestand und darüber hinaus.
+    Sehen Sie wichtige Meilensteine, Handlungsfenster und wie sich Ihre Rente über die Zeit entwickelt.
+  </p>
+
+  <div class="timeline">
+    @for (milestone of milestones(); track milestone.year + milestone.label; let i = $index; let last = $last) {
+      <div class="timeline-item" [attr.data-type]="milestone.type">
+        <!-- Timeline line -->
+        <div class="timeline-track">
+          <div class="timeline-dot" [attr.data-type]="milestone.type" [attr.data-urgency]="milestone.urgency || ''">
+            <span class="dot-icon">{{ milestone.icon }}</span>
+          </div>
+          @if (!last) {
+            <div class="timeline-connector"></div>
+          }
+        </div>
+
+        <!-- Content -->
+        <div class="timeline-content" [attr.data-type]="milestone.type">
+          <div class="milestone-header">
+            <div class="milestone-year">{{ milestone.year }}</div>
+            <div class="milestone-info">
+              <h4 class="milestone-label">{{ milestone.label }}</h4>
+              <span class="milestone-age">Alter: {{ milestone.age }} Jahre</span>
+            </div>
+            @if (milestone.urgency) {
+              <span class="urgency-badge" [attr.data-urgency]="milestone.urgency">
+                {{ milestone.urgency === 'high' ? '⚡ Dringend' : milestone.urgency === 'medium' ? '⏰ Bald' : 'ℹ️ Planen' }}
+              </span>
+            }
+          </div>
+
+          <p class="milestone-sublabel">{{ milestone.sublabel }}</p>
+
+          @if (milestone.metrics && milestone.metrics.length > 0) {
+            <div class="milestone-metrics">
+              @for (m of milestone.metrics; track m.label) {
+                <div class="metric-pill" [style.color]="m.color || 'var(--color-primary)'">
+                  <span class="metric-label">{{ m.label }}</span>
+                  <span class="metric-value">{{ m.value }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          @if (milestone.actionHint) {
+            <div class="action-hint">
+              <span class="action-arrow">→</span> {{ milestone.actionHint }}
+            </div>
+          }
+
+          @if (milestone.legalRef) {
+            <a class="legal-ref" [href]="milestone.legalRef.url" target="_blank" rel="noopener">
+              📖 {{ milestone.legalRef.label }}
+            </a>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="summary-strip">
+    <div class="summary-stat">
+      <span class="stat-label">Gesamtzeitraum</span>
+      <span class="stat-value">{{ totalYears() }} Jahre</span>
+    </div>
+    <div class="summary-stat">
+      <span class="stat-label">Kaufkraftverlust bis Rente</span>
+      @if (inflationLoss() > 0) {
+        <span class="stat-value text-danger">−{{ inflationLoss() }}%</span>
+      } @else {
+        <span class="stat-value text-success">0%</span>
+      }
+    </div>
+    <div class="summary-stat">
+      <span class="stat-label">Handlungsfenster</span>
+      <span class="stat-value" [class.text-danger]="actionWindowYears() <= 5" [class.text-success]="actionWindowYears() > 10">
+        {{ actionWindowYears() }} Jahre
+      </span>
+    </div>
+    <div class="summary-stat">
+      <span class="stat-label">Meilensteine</span>
+      <span class="stat-value">{{ milestones().length }}</span>
+    </div>
+  </div>
+</div>

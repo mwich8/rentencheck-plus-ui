@@ -1,0 +1,50 @@
+<div class="success-page">
+  <nav class="success-nav">
+    <a routerLink="/" class="nav-brand">
+      RentenCheck<span class="brand-plus">+</span>
+    </a>
+  </nav>
+
+  <div class="success-container">
+    @if (status() === 'generating') {
+      <div class="success-card">
+        <div class="spinner"></div>
+        <h1>Ihr PDF wird erstellt...</h1>
+        <p>Vielen Dank für Ihren Kauf! Ihr persönlicher Renten-Report wird jetzt generiert.</p>
+      </div>
+    }
+
+    @if (status() === 'done') {
+      <div class="success-card">
+        <div class="success-icon">✅</div>
+        <h1>Report erfolgreich erstellt!</h1>
+        <p>Ihr PDF-Report wurde heruntergeladen. Prüfen Sie Ihren Downloads-Ordner.</p>
+        <div class="success-actions">
+          <button class="btn-download" (click)="regenerate()">
+            📄 Erneut herunterladen
+          </button>
+          <a routerLink="/rechner" class="btn-back">
+            ← Zurück zum Rechner
+          </a>
+        </div>
+      </div>
+    }
+
+    @if (status() === 'error') {
+      <div class="success-card error">
+        <div class="success-icon">⚠️</div>
+        <h1>Etwas ist schiefgelaufen</h1>
+        <p>{{ errorMessage() }}</p>
+        <div class="success-actions">
+          <a routerLink="/rechner" class="btn-back">
+            ← Zurück zum Rechner
+          </a>
+        </div>
+        <p class="support-hint">
+          Bei Problemen kontaktieren Sie uns unter
+          <a href="mailto:marten.wichmann@gmail.com">marten.wichmann&#64;gmail.com</a>
+        </p>
+      </div>
+    }
+  </div>
+</div>

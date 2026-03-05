@@ -1,0 +1,80 @@
+.waterfall-container {
+  margin-top: 1.5rem;
+}
+
+.chart-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  font-size: 1.3rem;
+}
+
+.chart-subtitle {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.canvas-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 320px;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  padding: 0.85rem 0 0;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.legend-detail {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-light);
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .chart-legend {
+    gap: 0.35rem 0.75rem;
+  }
+
+  .legend-label {
+    font-size: 0.72rem;
+  }
+}

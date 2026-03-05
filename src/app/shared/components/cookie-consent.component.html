@@ -1,0 +1,26 @@
+@if (visible()) {
+  <div class="consent-backdrop">
+    <div class="consent-banner" role="dialog" aria-label="Cookie-Einstellungen">
+      <div class="consent-content">
+        <div class="consent-icon">🍪</div>
+        <div class="consent-text">
+          <h3>Datenschutz-Einstellungen</h3>
+          <p>
+            Wir verwenden nur technisch notwendige Cookies, um die Funktion
+            dieser Website sicherzustellen. Ihre Berechnungsdaten verlassen
+            niemals Ihren Browser.
+            <a routerLink="/datenschutz" (click)="visible.set(false)">Mehr erfahren</a>
+          </p>
+        </div>
+      </div>
+      <div class="consent-actions">
+        <button class="btn-accept" (click)="accept('all')">
+          Alle akzeptieren
+        </button>
+        <button class="btn-necessary" (click)="accept('necessary')">
+          Nur notwendige
+        </button>
+      </div>
+    </div>
+  </div>
+}

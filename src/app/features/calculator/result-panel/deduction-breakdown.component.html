@@ -1,0 +1,34 @@
+<div class="breakdown">
+  <h3 class="breakdown-title">
+    <span class="icon">💸</span> Abzüge im Detail
+  </h3>
+
+  <div class="deduction-list">
+    @for (item of abzuege(); track item.label; let i = $index) {
+      <div class="deduction-item" [style.animation-delay.ms]="i * 80">
+        <div class="deduction-info">
+          <span class="deduction-label">{{ item.label }}</span>
+          <span class="deduction-type-badge" [attr.data-type]="item.typ">
+            {{ item.typ === 'steuer' ? 'Steuer' : item.typ === 'sozial' ? 'Sozialabgabe' : 'Inflation' }}
+          </span>
+        </div>
+        <div class="deduction-bar-bg">
+          <div
+            class="deduction-bar"
+            [style.width.%]="getBarWidth(item.prozent)"
+            [style.background-color]="item.farbe"
+          ></div>
+        </div>
+        <div class="deduction-values">
+          <span class="deduction-amount">−{{ item.betrag | euro }}</span>
+          <span class="deduction-percent">{{ item.prozent }}%</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="total-deductions">
+    <span class="total-label">Gesamte Abzüge</span>
+    <span class="total-amount">−{{ totalAbzuege() | euro }} / Monat</span>
+  </div>
+</div>

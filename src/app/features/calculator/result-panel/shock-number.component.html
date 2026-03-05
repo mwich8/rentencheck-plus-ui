@@ -1,0 +1,29 @@
+<div class="shock-container">
+  <div class="shock-label">Ihre reale Kaufkraft im Alter</div>
+  <div class="shock-number" [class.critical]="isCritical()">
+    {{ displayValue() | euro }}
+    <span class="per-month">/ Monat</span>
+  </div>
+  <div class="shock-sublabel">
+    nach Steuern, Sozialabgaben & Inflation
+  </div>
+
+  @if (result().rentenluecke > 0) {
+    <div class="gap-display">
+      <div class="gap-icon">⚠️</div>
+      <div class="gap-content">
+        <div class="gap-label">Ihre monatliche Rentenlücke</div>
+        <div class="gap-amount">{{ result().rentenluecke | euro }}</div>
+        <div class="gap-coverage">
+          Ihre Rente deckt nur
+          <strong [class.text-danger]="result().deckungsquote < 60"
+                  [class.text-warning]="result().deckungsquote >= 60 && result().deckungsquote < 80"
+                  [class.text-success]="result().deckungsquote >= 80">
+            {{ result().deckungsquote | number:'1.1-1' }}%
+          </strong>
+          Ihres gewünschten Einkommens
+        </div>
+      </div>
+    </div>
+  }
+</div>

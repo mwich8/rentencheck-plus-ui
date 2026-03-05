@@ -1,0 +1,95 @@
+<section class="problem-section" id="so-funktionierts">
+  <div class="container">
+    <div class="section-header" appScrollAnimate>
+      <span class="section-tag">⚠️ Das Problem</span>
+      <h2 class="section-title">Warum Sie Ihre Rente <span class="text-danger-gradient">jetzt prüfen</span> müssen</h2>
+      <p class="section-subtitle">
+        Die meisten Deutschen verlassen sich auf ihre gesetzliche Rente — ohne zu wissen,
+        wie viel nach allen Abzügen tatsächlich übrig bleibt.
+      </p>
+    </div>
+
+    <div class="problem-grid">
+      <div class="problem-card" appScrollAnimate appScrollAnimateDelay="delay-1">
+        <div class="problem-icon-wrap danger">
+          <span class="problem-icon">📉</span>
+        </div>
+        <h3 class="problem-card-title">Inflation frisst Ihre Rente</h3>
+        <p class="problem-card-text">
+          Bei nur 2% Inflation verliert Ihre Rente in 30 Jahren fast die Hälfte ihrer Kaufkraft.
+          Aus 1.500€ werden real nur noch ~830€.
+        </p>
+        <div class="problem-stat">
+          <span class="stat-big" [appCountUp]="48" countUpSuffix="%" [countUpDuration]="2500"></span>
+          <span class="stat-desc">Kaufkraftverlust in 30 Jahren</span>
+        </div>
+      </div>
+
+      <div class="problem-card" appScrollAnimate appScrollAnimateDelay="delay-2">
+        <div class="problem-icon-wrap warning">
+          <span class="problem-icon">🏛️</span>
+        </div>
+        <h3 class="problem-card-title">Steuern & Sozialabgaben</h3>
+        <p class="problem-card-text">
+          Von Ihrer Bruttorente gehen noch Einkommensteuer (<a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>), Krankenversicherung (<a href="https://www.gkv-spitzenverband.de" target="_blank" rel="noopener">KVdR</a>)
+          und Pflegeversicherung ab.
+        </p>
+        <div class="problem-stat">
+          <span class="stat-big" [appCountUp]="22" countUpSuffix="%" [countUpDuration]="2500"></span>
+          <span class="stat-desc">durchschnittliche Abzüge</span>
+        </div>
+      </div>
+
+      <div class="problem-card" appScrollAnimate appScrollAnimateDelay="delay-3">
+        <div class="problem-icon-wrap accent">
+          <span class="problem-icon">🕳️</span>
+        </div>
+        <h3 class="problem-card-title">Die versteckte Rentenlücke</h3>
+        <p class="problem-card-text">
+          Die Differenz zwischen dem gewünschten Lebensstandard und der realen Rente
+          ist bei den meisten Deutschen alarmierend groß.
+        </p>
+        <div class="problem-stat">
+          <span class="stat-big" [appCountUp]="780" countUpPrefix="~" countUpSuffix="€" [countUpDuration]="2500"></span>
+          <span class="stat-desc">monatliche Lücke im Schnitt</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual comparison -->
+    <div class="comparison-bar" appScrollAnimate>
+      <div class="comparison-header">
+        <h3>Was Sie erwarten vs. was Sie bekommen</h3>
+      </div>
+      <div class="comparison-visual">
+        <div class="bar-group">
+          <div class="bar-label">Bruttorente</div>
+          <div class="bar-track">
+            <div class="bar-fill full" style="width: 100%">
+              <span>1.500 €</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-label">Nach Steuern & Abgaben</div>
+          <div class="bar-track">
+            <div class="bar-fill medium" style="width: 78%">
+              <span>1.170 €</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-label">Reale Kaufkraft (30 J.)</div>
+          <div class="bar-track">
+            <div class="bar-fill low" style="width: 45%">
+              <span>~680 €</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="comparison-note">
+        * Beispielrechnung: Bruttorente 1.500€, Renteneintritt 2040, Alleinstehend, 2% Inflation
+      </p>
+    </div>
+  </div>
+</section>

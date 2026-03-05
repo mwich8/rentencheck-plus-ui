@@ -1,0 +1,58 @@
+<div class="result-panel">
+  <h2 class="panel-title">
+    <span class="icon">🎯</span> Ihr Ergebnis
+  </h2>
+
+  <!-- Quick Stats Pipeline -->
+  <div class="quick-stats">
+    <div class="stat">
+      <span class="stat-label">Brutto</span>
+      <span class="stat-value brutto">{{ result().bruttoMonatlich | euro }}</span>
+    </div>
+    <div class="stat-arrow" aria-hidden="true">→</div>
+    <div class="stat">
+      <span class="stat-label">Netto</span>
+      <span class="stat-value netto">{{ result().nettoMonatlich | euro }}</span>
+    </div>
+    <div class="stat-arrow" aria-hidden="true">→</div>
+    <div class="stat">
+      <span class="stat-label">Real</span>
+      <span class="stat-value real">{{ result().realeKaufkraftMonatlich | euro }}</span>
+    </div>
+  </div>
+
+  <!-- The Shock Number -->
+  <app-shock-number [result]="result()" />
+
+  <!-- Renten-Score Gauge -->
+  <app-renten-score [result]="result()" [gewuenschteRente]="gewuenschteRente()" />
+
+  <!-- Tax Info Badges -->
+  <div class="tax-info">
+    <div class="info-badge">
+      <span class="info-icon" aria-hidden="true">📅</span>
+      <span>Besteuerungsanteil: {{ (result().besteuerungsanteil * 100).toFixed(1) }}%</span>
+    </div>
+    @if (result().besteuerungsanteil < 1) {
+      <div class="info-badge">
+        <span class="info-icon" aria-hidden="true">🛡️</span>
+        <span>Freibetrag: {{ result().rentenfreibetrag | euro }}/Jahr</span>
+      </div>
+    } @else {
+      <div class="info-badge info-badge-muted">
+        <span class="info-icon" aria-hidden="true">🛡️</span>
+        <span>Kein Freibetrag (Rentenbeginn ab 2040)</span>
+      </div>
+    }
+    <div class="info-badge">
+      <span class="info-icon" aria-hidden="true">⏳</span>
+      <span>{{ result().jahresBisRente }} Jahre bis Rente</span>
+    </div>
+  </div>
+
+  <!-- Deduction Breakdown -->
+  <app-deduction-breakdown
+    [abzuege]="result().abzuege"
+    [bruttoMonatlich]="result().bruttoMonatlich"
+  />
+</div>

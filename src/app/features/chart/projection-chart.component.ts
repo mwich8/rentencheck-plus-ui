@@ -11,58 +11,8 @@ import type { EChartsOption } from 'echarts';
   selector: 'app-projection-chart',
   standalone: true,
   imports: [NgxEchartsDirective],
-  template: `
-    <div class="projection-container">
-      <h3 class="chart-title">
-        <span class="icon">📈</span> Kaufkraftverlust über die Jahre
-      </h3>
-      <div class="chart-subtitle">
-        So verliert Ihre Rente durch Inflation an Wert — selbst wenn der Betrag gleich bleibt
-      </div>
-      <div
-        echarts
-        [options]="chartOptions()"
-        class="chart"
-      ></div>
-    </div>
-  `,
-  styles: [`
-    .projection-container {
-      margin-top: 1.5rem;
-    }
-
-    .chart-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--color-primary);
-      margin-bottom: 0.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .icon {
-      font-size: 1.3rem;
-    }
-
-    .chart-subtitle {
-      font-size: 0.85rem;
-      color: var(--color-text-light);
-      margin-bottom: 1rem;
-      font-style: italic;
-    }
-
-    .chart {
-      width: 100%;
-      height: 380px;
-    }
-
-    @media (max-width: 768px) {
-      .chart {
-        height: 280px;
-      }
-    }
-  `],
+  templateUrl: './projection-chart.component.html',
+  styleUrls: ['./projection-chart.component.scss'],
 })
 export class ProjectionChartComponent {
   readonly result = input.required<PensionResult>();

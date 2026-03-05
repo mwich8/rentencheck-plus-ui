@@ -1,0 +1,332 @@
+.timeline-section {
+  padding: 2rem;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.icon { font-size: 1.3rem; }
+
+.section-subtitle {
+  font-size: 0.88rem;
+  color: var(--color-text-light);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* Timeline */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 2rem;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 1.25rem;
+  min-height: 80px;
+}
+
+.timeline-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 48px;
+}
+
+.timeline-dot {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 3px solid var(--color-border);
+  background: white;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.timeline-dot[data-type="now"] {
+  border-color: var(--color-accent);
+  background: linear-gradient(135deg, #0f3460, #1a5276);
+  box-shadow: 0 0 0 4px rgba(15, 52, 96, 0.12);
+}
+
+.timeline-dot[data-type="action"] {
+  border-color: #f39c12;
+  background: #fffbeb;
+}
+
+.timeline-dot[data-type="action"][data-urgency="high"] {
+  border-color: var(--color-danger);
+  background: #fef2f2;
+  box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.1);
+}
+
+.timeline-dot[data-type="deadline"] {
+  border-color: var(--color-danger);
+  background: #fef2f2;
+}
+
+.timeline-dot[data-type="retirement"] {
+  border-color: var(--color-success);
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.12);
+}
+
+.timeline-dot[data-type="projection"] {
+  border-color: #bae6fd;
+  background: #f0f9ff;
+}
+
+.dot-icon {
+  font-size: 1.15rem;
+}
+
+.timeline-connector {
+  width: 3px;
+  flex: 1;
+  min-height: 20px;
+  background: linear-gradient(to bottom, var(--color-border), rgba(15, 52, 96, 0.08));
+  border-radius: 2px;
+}
+
+/* Content */
+.timeline-content {
+  flex: 1;
+  padding: 0.5rem 1.25rem 1.5rem;
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+
+.timeline-content[data-type="now"] {
+  background: linear-gradient(135deg, rgba(15, 52, 96, 0.03), rgba(15, 52, 96, 0.06));
+  border-left: 3px solid var(--color-accent);
+  padding-left: 1rem;
+}
+
+.timeline-content[data-type="retirement"] {
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.03), rgba(39, 174, 96, 0.06));
+  border-left: 3px solid var(--color-success);
+  padding-left: 1rem;
+}
+
+.milestone-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.milestone-year {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: white;
+  background: var(--color-primary);
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.milestone-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.milestone-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.milestone-age {
+  font-size: 0.72rem;
+  color: var(--color-text-light);
+  font-weight: 500;
+}
+
+.urgency-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.urgency-badge[data-urgency="high"] {
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--color-danger);
+}
+
+.urgency-badge[data-urgency="medium"] {
+  background: rgba(243, 156, 18, 0.1);
+  color: #e67e22;
+}
+
+.urgency-badge[data-urgency="low"] {
+  background: rgba(52, 152, 219, 0.1);
+  color: #2980b9;
+}
+
+.milestone-sublabel {
+  font-size: 0.82rem;
+  color: var(--color-text-light);
+  line-height: 1.6;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.milestone-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.metric-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.45rem 0.75rem;
+  background: #f8fafc;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  min-width: 90px;
+}
+
+.metric-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-light) !important;
+}
+
+.metric-value {
+  font-size: 0.92rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.action-hint {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.25rem;
+}
+
+.action-arrow {
+  font-weight: 900;
+  font-size: 0.85rem;
+}
+
+.legal-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--color-accent);
+  text-decoration: none;
+  margin-top: 0.35rem;
+  transition: color 0.2s;
+}
+
+.legal-ref:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+/* Summary Strip */
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #f8fafc, #f0f4ff);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(15, 52, 96, 0.08);
+}
+
+.summary-stat {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.stat-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-light);
+}
+
+.stat-value {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.text-danger { color: var(--color-danger) !important; }
+.text-success { color: var(--color-success) !important; }
+
+@media (max-width: 768px) {
+  .summary-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .milestone-header {
+    flex-wrap: wrap;
+  }
+
+  .milestone-metrics {
+    flex-direction: column;
+  }
+
+  .metric-pill {
+    flex-direction: row;
+    justify-content: space-between;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 480px) {
+  .timeline-item {
+    gap: 0.75rem;
+  }
+
+  .timeline-track {
+    width: 38px;
+  }
+
+  .timeline-dot {
+    width: 36px;
+    height: 36px;
+  }
+
+  .dot-icon {
+    font-size: 1rem;
+  }
+}

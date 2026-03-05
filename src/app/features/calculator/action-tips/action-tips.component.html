@@ -1,0 +1,97 @@
+<div class="tips-section">
+  <h3 class="tips-title">
+    <span class="icon">🎯</span> Ihre persönlichen Handlungsempfehlungen
+  </h3>
+  <p class="tips-subtitle">
+    @if (result().rentenluecke > 0) {
+      Basierend auf Ihrer Rentenlücke von <strong>{{ result().rentenluecke | euro }}</strong>/Monat
+    } @else {
+      Ihre Rente deckt Ihren Wunsch — hier sind Tipps zur Optimierung
+    }
+  </p>
+
+  <!-- Free tips (first 2) -->
+  <div class="tips-grid">
+    @for (tip of freeTips(); track tip.title) {
+      <div class="tip-card" [attr.data-type]="tip.type">
+        <div class="tip-icon-wrap" [attr.data-type]="tip.type">
+          <span class="tip-icon">{{ tip.icon }}</span>
+        </div>
+        <div class="tip-content">
+          <h4 class="tip-title">{{ tip.title }}</h4>
+          <p class="tip-description">{{ tip.description }}</p>
+          <div class="tip-highlight" [attr.data-type]="tip.type">
+            {{ tip.highlight }}
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Locked tips (remaining) -->
+  @if (lockedTips().length > 0) {
+    <div class="locked-tips-section">
+      <div class="locked-tips-header">
+        <span class="locked-tips-icon">🔒</span>
+        <span>{{ lockedTips().length }} weitere Empfehlungen im PDF-Report</span>
+      </div>
+      <div class="locked-tips-grid">
+        @for (tip of lockedTips(); track tip.title) {
+          <div class="tip-card locked" [attr.data-type]="tip.type">
+            <div class="tip-icon-wrap" [attr.data-type]="tip.type">
+              <span class="tip-icon">{{ tip.icon }}</span>
+            </div>
+            <div class="tip-content">
+              <h4 class="tip-title">{{ tip.title }}</h4>
+              <p class="tip-description">{{ tip.description }}</p>
+              <div class="tip-highlight" [attr.data-type]="tip.type">
+                {{ tip.highlight }}
+              </div>
+            </div>
+          </div>
+        }
+        <div class="locked-tips-overlay">
+          <div class="locked-tips-overlay-content">
+            <span class="locked-overlay-badge">🔒 Im PDF-Report enthalten</span>
+            <button class="locked-tips-cta" (click)="unlock.emit('report')">
+              Alle Empfehlungen freischalten →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (result().rentenluecke > 0) {
+    <div class="savings-comparison">
+      <h4 class="comparison-title">💡 ETF-Sparplan vs. Sparkonto im Vergleich</h4>
+      <div class="comparison-grid">
+        <div class="comparison-card etf">
+          <div class="comparison-label">ETF-Sparplan (7% p.a.)</div>
+          <div class="comparison-amount">{{ etfMonthly() | euro }}<span class="per-month">/Monat</span></div>
+          <div class="comparison-detail">
+            → {{ etfProjection().endkapital | euro }} Endkapital
+          </div>
+          <div class="comparison-payout">
+            = {{ etfProjection().monatlicheAuszahlung | euro }}/Monat Auszahlung
+          </div>
+        </div>
+        <div class="comparison-vs">vs.</div>
+        <div class="comparison-card savings">
+          <div class="comparison-label">Sparkonto (1,5% p.a.)</div>
+          <div class="comparison-amount">{{ savingsMonthly() | euro }}<span class="per-month">/Monat</span></div>
+          <div class="comparison-detail">
+            → {{ savingsProjection().endkapital | euro }} Endkapital
+          </div>
+          <div class="comparison-payout">
+            = {{ savingsProjection().monatlicheAuszahlung | euro }}/Monat Auszahlung
+          </div>
+        </div>
+      </div>
+      <p class="comparison-note">
+        * Bei {{ result().jahresBisRente }} Jahren Ansparzeit und 25 Jahren Auszahlungsdauer.
+        Keine Anlageberatung — nur zur Orientierung.
+      </p>
+    </div>
+  }
+</div>

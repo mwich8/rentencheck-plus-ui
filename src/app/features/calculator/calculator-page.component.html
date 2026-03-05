@@ -1,0 +1,232 @@
+<!-- Compact Navbar -->
+<nav class="calc-navbar">
+  <div class="container nav-inner">
+    <a routerLink="/" class="nav-brand">
+      RentenCheck<span class="brand-plus">+</span>
+    </a>
+    <div class="nav-badges">
+      <span class="nav-badge">✓ Kostenlos</span>
+      <span class="nav-badge">✓ <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>-konform</span>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Header -->
+<header class="hero bg-gradient-dark">
+  <div class="container hero-content">
+    <h1 class="hero-title">
+      Die brutale Wahrheit<br>
+      <span class="hero-highlight">über Ihre Rente</span>
+    </h1>
+    <p class="hero-subtitle">
+      Erfahren Sie, was von Ihrer gesetzlichen Rente wirklich übrig bleibt —
+      nach Steuern, Sozialabgaben und Inflation.
+    </p>
+    <div class="hero-cta">
+      <span class="hero-badge">✓ Kostenlos</span>
+      <span class="hero-badge">✓ Sofort-Ergebnis</span>
+      <span class="hero-badge">✓ <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>-konform</span>
+    </div>
+    <a href="#rechner" class="scroll-cta" aria-label="Zum Rechner scrollen">
+      <span class="scroll-arrow">↓</span>
+    </a>
+  </div>
+</header>
+
+<!-- Main Calculator Grid -->
+<main class="container calculator-section" id="rechner">
+  <div class="calculator-grid">
+    <!-- Left Column: Input -->
+    <div class="card input-card animate-fade-in-up">
+      <app-input-panel />
+    </div>
+
+    <!-- Right Column: Results -->
+    <div class="card result-card animate-fade-in-up" style="animation-delay: 0.15s">
+      <app-result-panel [result]="pensionResult()" [gewuenschteRente]="gewuenschteRente()" />
+    </div>
+  </div>
+
+  <!-- PDF Download Button -->
+  <div class="pdf-download-section animate-fade-in-up" style="animation-delay: 0.2s">
+    @if (isPremiumUnlocked()) {
+      <button class="pdf-download-btn pdf-unlocked-btn" (click)="downloadReport()">
+        <span class="pdf-icon">📄</span>
+        <span class="pdf-text">
+          <strong>PDF-Report herunterladen</strong>
+          <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen</small>
+        </span>
+        <span class="pdf-arrow">↓</span>
+      </button>
+    } @else {
+      <button class="pdf-download-btn" (click)="purchaseReport()">
+        <span class="pdf-icon">📄</span>
+        <span class="pdf-text">
+          <strong>Kostenloser PDF-Report</strong>
+          <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen · Sofort-Download</small>
+        </span>
+        <span class="pdf-arrow">→</span>
+      </button>
+    }
+  </div>
+
+  <!-- Urgency Banner (only when not unlocked) -->
+  @if (!isPremiumUnlocked() && pensionResult().rentenluecke > 0 && monthlyCostOfWaiting() > 0) {
+    <div class="urgency-banner animate-fade-in-up" style="animation-delay: 0.22s">
+      <div class="urgency-icon">⏳</div>
+      <div class="urgency-content">
+        <strong class="urgency-headline">Jeder Monat, den Sie warten, kostet Sie ca. {{ monthlyCostOfWaiting() | euro }}</strong>
+        <span class="urgency-detail">an entgangenem Vermögensaufbau durch den Zinseszinseffekt.</span>
+      </div>
+      <button class="urgency-cta" (click)="purchaseReport()">Jetzt Report sichern →</button>
+    </div>
+  }
+
+  <!-- Action Tips Section -->
+  <div class="action-tips-section animate-fade-in-up" style="animation-delay: 0.25s">
+    <app-action-tips [result]="pensionResult()" [hatKinder]="hatKinder()" [unlocked]="isPremiumUnlocked()" (unlock)="onTierSelected($event)" />
+  </div>
+
+  <!-- ETF Explainer (only when pension gap exists) -->
+  @if (pensionResult().rentenluecke > 0 && pensionResult().jahresBisRente > 0) {
+    <div class="etf-explainer-section animate-fade-in-up" style="animation-delay: 0.27s">
+      <app-etf-explainer [result]="pensionResult()" />
+    </div>
+  }
+
+  <!-- What You Get Preview (only when not unlocked) -->
+  @if (!isPremiumUnlocked()) {
+    <div class="report-preview-section animate-fade-in-up" style="animation-delay: 0.28s">
+      <h3 class="preview-title">
+        <span class="preview-icon">📋</span> Was Sie im PDF-Report erhalten
+      </h3>
+      <div class="preview-grid">
+        <div class="preview-card">
+          <span class="preview-card-icon">📊</span>
+          <h4>30-Jahre-Inflationsprognose</h4>
+          <p>Sehen Sie exakt, wie Inflation Ihre Rente über 30 Jahre entwertet — Jahr für Jahr aufgeschlüsselt.</p>
+        </div>
+        <div class="preview-card">
+          <span class="preview-card-icon">🎯</span>
+          <h4>Persönliche Handlungsempfehlungen</h4>
+          <p>Alle Tipps mit konkreten Beträgen — inkl. ETF-Sparplan, staatliche Förderung und Kindererziehungszeiten.</p>
+        </div>
+        <div class="preview-card">
+          <span class="preview-card-icon">📄</span>
+          <h4>Professionelles PDF</h4>
+          <p>3-seitiger Report zum Ausdrucken, Teilen oder für Ihren Finanz- oder Steuerberater.</p>
+        </div>
+      </div>
+      <div class="preview-cta-wrap">
+        <button class="preview-cta" (click)="purchaseReport()">
+          Kostenlos herunterladen →
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Charts Section -->
+  <div class="charts-section animate-fade-in-up" style="animation-delay: 0.3s">
+    <div class="card chart-card">
+      <app-waterfall-chart [result]="pensionResult()" />
+    </div>
+    @if (isPremiumUnlocked()) {
+      <div class="card chart-card">
+        <app-projection-chart [result]="pensionResult()" />
+      </div>
+    } @else {
+      <div class="card chart-card locked-chart-card">
+        <div class="locked-chart-wrapper">
+          <div class="locked-chart-blur">
+            <app-projection-chart [result]="pensionResult()" />
+          </div>
+          <div class="locked-chart-overlay">
+            <div class="locked-chart-content">
+              <span class="locked-icon">🔒</span>
+              <h4 class="locked-title">30-Jahre-Inflationsprognose</h4>
+              <p class="locked-description">
+                Sehen Sie, wie Inflation Ihre Rente über 30 Jahre entwertet — im Detail-Report enthalten.
+              </p>
+              <button class="locked-cta" (click)="purchaseReport()">
+                Kostenlos freischalten →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Premium Features (unlocked after PDF download) -->
+  @if (isPremiumUnlocked()) {
+    <div class="premium-features-section">
+      <div class="premium-features-header animate-fade-in-up">
+        <span class="premium-badge-inline">✅ Premium freigeschaltet</span>
+      </div>
+
+      <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.1s">
+        <app-scenario-comparison
+          [pensionInput]="currentInput()"
+          [baselineResult]="pensionResult()"
+        />
+      </div>
+
+      <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.2s">
+        <app-what-if-analysis
+          [pensionInput]="currentInput()"
+          [baselineResult]="pensionResult()"
+        />
+      </div>
+
+      <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.3s">
+        <app-optimization-strategies
+          [pensionInput]="currentInput()"
+          [baselineResult]="pensionResult()"
+        />
+      </div>
+    </div>
+  }
+
+  <!-- Premium Teasers & Pricing (only when not unlocked) -->
+  @if (!isPremiumUnlocked()) {
+    <div class="premium-teaser-section animate-fade-in-up" style="animation-delay: 0.4s">
+      <app-premium-teaser (unlock)="onTierSelected($event)" />
+    </div>
+
+    <app-pricing-tier (tierSelected)="onTierSelected($event)" />
+  }
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container footer-content">
+    <div class="footer-disclaimer">
+      <h4>⚖️ Haftungsausschluss</h4>
+      <p>
+        RentenCheck+ ist ein Informationstool und ersetzt keine individuelle Steuer- oder
+        Finanzberatung. Die Berechnungen basieren auf den aktuellen gesetzlichen Grundlagen
+        (<a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>, KVdR-Sätze 2026) und können von Ihrer tatsächlichen steuerlichen
+        Situation abweichen. Keine Gewähr für die Richtigkeit der Berechnungen.
+      </p>
+    </div>
+    <div class="footer-sources">
+      <h4>📚 Datenquellen</h4>
+      <ul>
+        <li>Einkommensteuer: <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG 2025/2026</a></li>
+        <li>KVdR-Beitragssätze: <a href="https://www.gkv-spitzenverband.de" target="_blank" rel="noopener">GKV-Spitzenverband</a></li>
+        <li>Besteuerungsanteil: <a href="https://www.gesetze-im-internet.de/estg/__22.html" target="_blank" rel="noopener">§22 Nr. 1 EStG</a> (Wachstumschancengesetz)</li>
+        <li>Pflegeversicherung: <a href="https://www.gesetze-im-internet.de/sgb_11/__55.html" target="_blank" rel="noopener">§55 SGB XI</a></li>
+      </ul>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-legal-links">
+        <a routerLink="/impressum">Impressum</a>
+        <span class="footer-dot">·</span>
+        <a routerLink="/datenschutz">Datenschutz</a>
+        <span class="footer-dot">·</span>
+        <a routerLink="/haftungsausschluss">Haftungsausschluss</a>
+      </div>
+      <p>© {{ currentYear }} RentenCheck+ — Alle Rechte vorbehalten</p>
+    </div>
+  </div>
+</footer>

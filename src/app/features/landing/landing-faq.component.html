@@ -1,0 +1,26 @@
+<section class="faq-section">
+  <div class="container">
+    <div class="section-header" appScrollAnimate>
+      <span class="section-tag">❓ Häufige Fragen</span>
+      <h2 class="section-title">Ihre Fragen — <span class="text-gradient">unsere Antworten</span></h2>
+    </div>
+
+    <div class="faq-list" appScrollAnimate>
+      @for (item of faqs; track item.question; let i = $index) {
+        <details class="faq-item" (toggle)="onToggle(i, $event)">
+          <summary class="faq-question">
+            <span class="faq-q-text">{{ item.question }}</span>
+            <span class="faq-chevron" [class.open]="openIndex() === i">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            <p [innerHTML]="item.answer"></p>
+          </div>
+        </details>
+      }
+    </div>
+  </div>
+</section>

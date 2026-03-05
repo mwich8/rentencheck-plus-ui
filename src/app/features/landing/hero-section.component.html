@@ -1,0 +1,75 @@
+<section class="hero-landing">
+  <!-- Animated background particles -->
+  <div class="hero-particles">
+    <div class="particle particle-1"></div>
+    <div class="particle particle-2"></div>
+    <div class="particle particle-3"></div>
+    <div class="particle particle-4"></div>
+    <div class="particle particle-5"></div>
+  </div>
+
+  <div class="hero-inner container">
+    <div class="hero-badge-top">
+      <span class="badge-icon">🇩🇪</span>
+      <span>Deutscher Rentenrechner — 100% kostenloser Schnell-Check</span>
+    </div>
+
+    <h1 class="hero-headline">
+      Die
+      <span class="hero-word-rotate">
+        <span class="word-slide">brutale&nbsp;</span>
+      </span>
+      Wahrheit<br>
+      <span class="hero-gradient-text">über Ihre Rente</span>
+    </h1>
+
+    <p class="hero-description">
+      Erfahren Sie in Sekunden, was von Ihrer gesetzlichen Rente
+      <strong>wirklich übrig bleibt</strong> — nach Steuern, Sozialabgaben
+      und 30 Jahren Inflation. Basierend auf <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a> und aktuellen <a href="https://www.gkv-spitzenverband.de" target="_blank" rel="noopener">KVdR-Sätzen</a>.
+    </p>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-number" [appCountUp]="48" countUpSuffix="%"></span>
+        <span class="stat-label">Kaufkraftverlust<br>durch Inflation</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number" [appCountUp]="780" countUpPrefix="~" countUpSuffix="€"></span>
+        <span class="stat-label">Durchschnittliche<br>Rentenlücke/Monat</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number" [appCountUp]="87" countUpSuffix="%"></span>
+        <span class="stat-label">der Deutschen<br>unterschätzen die Lücke</span>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <a routerLink="/rechner" class="cta-primary">
+        <span>Jetzt Rente berechnen</span>
+        <span class="cta-arrow">→</span>
+      </a>
+      <a href="#so-funktionierts" class="cta-secondary">
+        <span class="play-icon">▶</span>
+        So funktioniert's
+      </a>
+    </div>
+
+    <div class="hero-trust">
+      <span class="trust-item">✓ Kostenlos</span>
+      <span class="trust-item">✓ Keine Registrierung</span>
+      <span class="trust-item">✓ Sofort-Ergebnis</span>
+      <span class="trust-item">✓ DSGVO-konform</span>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="scroll-indicator">
+    <div class="scroll-mouse">
+      <div class="scroll-wheel"></div>
+    </div>
+    <span class="scroll-text">Mehr erfahren</span>
+  </div>
+</section>

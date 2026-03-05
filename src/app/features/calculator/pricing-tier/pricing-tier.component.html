@@ -1,0 +1,71 @@
+<div class="pricing-section">
+  <h2 class="pricing-title">
+    <span class="icon">💡</span> Handeln Sie jetzt
+  </h2>
+  <p class="pricing-subtitle">
+    Verstehen Sie Ihre Rentenlücke im Detail — und schließen Sie sie.
+  </p>
+
+  <div class="pricing-grid">
+    <!-- Free Tier -->
+    <div class="pricing-card free">
+      <div class="tier-badge">KOSTENLOS</div>
+      <h3 class="tier-name">Schnell-Check</h3>
+      <div class="tier-price">
+        <span class="price-amount">0 €</span>
+      </div>
+      <ul class="tier-features">
+        <li class="included">✓ Reale Kaufkraft berechnen</li>
+        <li class="included">✓ Rentenlücke anzeigen</li>
+        <li class="included">✓ Steuer- & Abzugsübersicht</li>
+        <li class="excluded">✗ Detaillierter PDF-Report</li>
+        <li class="excluded">✗ Multi-Szenario-Vergleich</li>
+      </ul>
+      <button class="tier-button free-btn" disabled>
+        Aktiv
+      </button>
+    </div>
+
+    <!-- Report Tier -->
+    <div class="pricing-card report featured">
+      <div class="popular-badge">BELIEBT</div>
+      <div class="tier-badge report-badge">EINMAL-REPORT</div>
+      <h3 class="tier-name">Detail-Analyse</h3>
+      <div class="tier-price">
+        <span class="price-amount">0 €</span>
+        <span class="price-period">aktuell kostenlos</span>
+      </div>
+      <ul class="tier-features">
+        <li class="included">✓ Alles aus Schnell-Check</li>
+        <li class="included">✓ Detaillierter PDF-Report</li>
+        <li class="included">✓ Steuerberechnung nach <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a></li>
+        <li class="included">✓ 30-Jahre-Inflationsprognose</li>
+        <li class="included">✓ Persönliche Handlungsempfehlungen</li>
+        <li class="excluded">✗ Multi-Szenario-Vergleich</li>
+      </ul>
+      <button class="tier-button report-btn" (click)="tierSelected.emit('report')">
+        PDF herunterladen →
+      </button>
+    </div>
+
+    <!-- Premium Tier -->
+    <div class="pricing-card premium">
+      <div class="tier-badge premium-badge">PREMIUM</div>
+      <h3 class="tier-name">Renten-Strategie</h3>
+      <div class="tier-price">
+        <span class="price-amount">0 €</span>
+        <span class="price-period">aktuell kostenlos</span>
+      </div>
+      <ul class="tier-features">
+        <li class="included">✓ Alles aus Detail-Analyse</li>
+        <li class="included">✓ Multi-Szenario-Modellierung</li>
+        <li class="included">✓ Persönlicher Renten-Zeitstrahl</li>
+        <li class="included">✓ Optimierungsvorschläge</li>
+        <li class="included">✓ Vergleich verschiedener Strategien</li>
+      </ul>
+      <button class="tier-button premium-btn" (click)="tierSelected.emit('premium')">
+        Kostenlos freischalten →
+      </button>
+    </div>
+  </div>
+</div>

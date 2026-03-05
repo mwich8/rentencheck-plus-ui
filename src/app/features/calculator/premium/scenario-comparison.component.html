@@ -1,0 +1,63 @@
+<div class="scenario-section">
+  <h3 class="section-title">
+    <span class="icon">🔮</span> Multi-Szenario-Vergleich
+  </h3>
+  <p class="section-subtitle">
+    Wie verändert sich Ihre Rente bei anderen Voraussetzungen?
+  </p>
+
+  <div class="scenario-grid">
+    @for (s of scenarios(); track s.label) {
+      <div class="scenario-card" [class.baseline]="s.isBaseline" [style.border-top-color]="s.color">
+        @if (s.isBaseline) {
+          <span class="baseline-badge">Aktuell</span>
+        }
+        @if (bestScenarioLabel() === s.label && !s.isBaseline) {
+          <span class="best-badge">✅ Beste Option</span>
+        }
+        <div class="scenario-icon">{{ s.icon }}</div>
+        <h4 class="scenario-label">{{ s.label }}</h4>
+
+        <div class="scenario-metrics">
+          <div class="metric">
+            <span class="metric-label">Netto/Monat</span>
+            <span class="metric-value">{{ s.result.nettoMonatlich | euro }}</span>
+            @if (!s.isBaseline) {
+              <span class="metric-delta" [class.positive]="s.result.nettoMonatlich > baselineResult().nettoMonatlich" [class.negative]="s.result.nettoMonatlich < baselineResult().nettoMonatlich">
+                {{ formatDelta(s.result.nettoMonatlich - baselineResult().nettoMonatlich) }}
+              </span>
+            }
+          </div>
+          <div class="metric">
+            <span class="metric-label">Kaufkraft</span>
+            <span class="metric-value">{{ s.result.realeKaufkraftMonatlich | euro }}</span>
+            @if (!s.isBaseline) {
+              <span class="metric-delta" [class.positive]="s.result.realeKaufkraftMonatlich > baselineResult().realeKaufkraftMonatlich" [class.negative]="s.result.realeKaufkraftMonatlich < baselineResult().realeKaufkraftMonatlich">
+                {{ formatDelta(s.result.realeKaufkraftMonatlich - baselineResult().realeKaufkraftMonatlich) }}
+              </span>
+            }
+          </div>
+          <div class="metric">
+            <span class="metric-label">Rentenlücke</span>
+            <span class="metric-value" [class.text-danger]="s.result.rentenluecke > 0" [class.text-success]="s.result.rentenluecke === 0">
+              {{ s.result.rentenluecke | euro }}
+            </span>
+            @if (!s.isBaseline) {
+              <span class="metric-delta" [class.positive]="s.result.rentenluecke < baselineResult().rentenluecke" [class.negative]="s.result.rentenluecke > baselineResult().rentenluecke">
+                {{ formatDelta(baselineResult().rentenluecke - s.result.rentenluecke) }}
+              </span>
+            }
+          </div>
+          <div class="metric">
+            <span class="metric-label">Deckungsquote</span>
+            <span class="metric-value">{{ s.result.deckungsquote.toFixed(1) }}%</span>
+          </div>
+        </div>
+
+        <div class="scenario-detail">
+          <small>Brutto {{ s.input.bruttoMonatlicheRente | euro }} · Rente ab {{ s.input.rentenbeginnJahr }}</small>
+        </div>
+      </div>
+    }
+  </div>
+</div>
