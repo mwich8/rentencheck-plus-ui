@@ -10,6 +10,7 @@ import { PremiumTeaserComponent } from './premium-teaser/premium-teaser.componen
 import { ScenarioComparisonComponent } from './premium/scenario-comparison.component';
 import { WhatIfAnalysisComponent } from './premium/what-if-analysis.component';
 import { OptimizationStrategiesComponent } from './premium/optimization-strategies.component';
+import { EtfExplainerComponent } from './etf-explainer/etf-explainer.component';
 import { PensionCalculatorService } from '../../core/services/pension-calculator.service';
 import { PdfReportService } from '../../core/services/pdf-report.service';
 import { StripePaymentService } from '../../core/services/stripe-payment.service';
@@ -37,6 +38,7 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
     ScenarioComparisonComponent,
     WhatIfAnalysisComponent,
     OptimizationStrategiesComponent,
+    EtfExplainerComponent,
     EuroPipe,
   ],
   template: `
@@ -128,6 +130,13 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
       <div class="action-tips-section animate-fade-in-up" style="animation-delay: 0.25s">
         <app-action-tips [result]="pensionResult()" [hatKinder]="hatKinder()" [unlocked]="isPremiumUnlocked()" (unlock)="onTierSelected($event)" />
       </div>
+
+      <!-- ETF Explainer (only when pension gap exists) -->
+      @if (pensionResult().rentenluecke > 0 && pensionResult().jahresBisRente > 0) {
+        <div class="etf-explainer-section animate-fade-in-up" style="animation-delay: 0.27s">
+          <app-etf-explainer [result]="pensionResult()" />
+        </div>
+      }
 
       <!-- What You Get Preview (only when not unlocked) -->
       @if (!isPremiumUnlocked()) {
@@ -780,6 +789,13 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
        Action Tips Section
        ========================================== */
     .action-tips-section {
+      margin-bottom: 1.75rem;
+    }
+
+    /* ==========================================
+       ETF Explainer Section
+       ========================================== */
+    .etf-explainer-section {
       margin-bottom: 1.75rem;
     }
 

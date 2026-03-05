@@ -77,6 +77,18 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
           </div>
 
           <div class="feature-card premium-feature" appScrollAnimate appScrollAnimateDelay="delay-2">
+            <div class="feature-icon-wrap blue">
+              <span class="feature-icon">📘</span>
+            </div>
+            <div class="feature-label free-label">Kostenlos</div>
+            <h3 class="feature-title">ETF-Sparplan erklärt</h3>
+            <p class="feature-desc">
+              Verständlich erklärt: Was ETFs sind, warum sie langfristig funktionieren —
+              mit Ihrem persönlichen Vermögensaufbau-Rechner.
+            </p>
+          </div>
+
+          <div class="feature-card premium-feature" appScrollAnimate appScrollAnimateDelay="delay-3">
             <div class="feature-icon-wrap purple">
               <span class="feature-icon">🔮</span>
             </div>
