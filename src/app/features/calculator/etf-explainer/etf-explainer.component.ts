@@ -3,6 +3,8 @@ import { NgxEchartsDirective } from 'ngx-echarts';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
 import { PensionResult } from '@core/models/pension-result.model';
 import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
+import { AnalyticsService } from '@core/services/analytics.service';
+import { environment } from '@env/environment';
 import type { EChartsOption } from 'echarts';
 
 /**
@@ -20,10 +22,13 @@ import type { EChartsOption } from 'echarts';
 })
 export class EtfExplainerComponent {
   private readonly savingsService = inject(SavingsCalculatorService);
+  private readonly analytics = inject(AnalyticsService);
 
   readonly result = input.required<PensionResult>();
+  readonly affiliateUrl = environment.affiliate.brokerUrl;
 
-  readonly activePanel = signal<number | null>(0);
+  readonly activePanel = signal<number | null>(null);
+  readonly sectionExpanded = signal(false);
 
   /** Required monthly ETF savings to close the gap */
   readonly etfMonthly = computed(() => {
@@ -51,7 +56,7 @@ export class EtfExplainerComponent {
     return Math.round((proj.renditeErtrag / proj.endkapital) * 100);
   });
 
-  /** Year-by-year growth data for the chart */
+  /** Year-by-year growth data for the personalized chart */
   readonly chartOptions = computed<EChartsOption>(() => {
     const monthly = this.etfMonthly();
     const years = this.result().jahresBisRente;
@@ -96,8 +101,8 @@ export class EtfExplainerComponent {
           const y = params[0].dataIndex;
           return `
             <div style="font-weight:700;margin-bottom:6px">Jahr ${y}</div>
-            <div style="color:#27ae60">● ETF (7%): ${euroFormatter.format(etfValues[y])}</div>
-            <div style="color:#f39c12">● Sparkonto (1,5%): ${euroFormatter.format(savingsValues[y])}</div>
+            <div style="color:#27ae60">\u25cf ETF (7%): ${euroFormatter.format(etfValues[y])}</div>
+            <div style="color:#f39c12">\u25cf Sparkonto (1,5%): ${euroFormatter.format(savingsValues[y])}</div>
             <div style="color:#94a3b8;margin-top:4px">Eingezahlt: ${euroFormatter.format(eigenanteilValues[y])}</div>
             <div style="color:#27ae60;font-weight:600;margin-top:4px">
               Rendite-Vorteil ETF: ${euroFormatter.format(etfValues[y] - savingsValues[y])}
@@ -133,7 +138,7 @@ export class EtfExplainerComponent {
           fontFamily: 'Inter, sans-serif',
           fontSize: 10,
           color: '#7f8c8d',
-          formatter: (v: number) => v >= 1000 ? `${Math.round(v / 1000)}k €` : `${v} €`,
+          formatter: (v: number) => v >= 1000 ? `${Math.round(v / 1000)}k \u20ac` : `${v} \u20ac`,
         },
         splitLine: { lineStyle: { color: '#f1f5f9', type: 'dashed' } },
         axisLine: { show: false },
@@ -182,20 +187,147 @@ export class EtfExplainerComponent {
     };
   });
 
+  /**
+   * MSCI World historic performance chart (1975-2025).
+   * Data: MSCI World Net Total Return Index, year-end values normalized to 100 in 1975.
+   */
+  readonly msciHistoryChartOptions = computed<EChartsOption>(() => {
+    // Labels — 'Q1 20' is the Corona crash low (March 2020)
+    const labels = [
+      '1975', '1976', '1977', '1978', '1979', '1980',
+      '1981', '1982', '1983', '1984', '1985', '1986', '1987', '1988', '1989', '1990',
+      '1991', '1992', '1993', '1994', '1995', '1996', '1997', '1998', '1999', '2000',
+      '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010',
+      '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019',
+      'Q1 20', '2020',
+      '2021', '2022', '2023', '2024', '2025',
+    ];
+    // Values — 'Q1 20' = Corona crash low (~34% drop from Feb 2020 peak)
+    const values = [
+      100, 115, 117, 141, 152, 178,
+      172, 183, 209, 215, 281, 395, 414, 490, 557, 471,
+      547, 524, 643, 678, 818, 924, 1094, 1363, 1684, 1488,
+      1261, 997, 1312, 1503, 1627, 1951, 1996, 1159, 1501, 1677,
+      1580, 1828, 2303, 2418, 2357, 2549, 3103, 2862, 3633,
+      2398, 4222,
+      5122, 4178, 5176, 5850, 6200,
+    ];
+
+    // Crisis data-point indices (for markPoint coord references)
+    // '2002' = index 27, '2008' = index 33, 'Q1 20' = index 45, '2022' = index 48
+    const crisisPoints: Array<{ idx: number; label: string }> = [
+      { idx: 27, label: 'Dotcom' },
+      { idx: 33, label: 'Finanzkrise' },
+      { idx: 45, label: 'Corona' },
+      { idx: 48, label: 'Zinswende' },
+    ];
+
+    const euroFormatter = new Intl.NumberFormat('de-DE', {
+      style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0,
+    });
+
+    return {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(26, 26, 46, 0.95)',
+        borderColor: '#0f3460',
+        borderWidth: 1,
+        textStyle: { color: '#f8f9fa', fontFamily: 'Inter, sans-serif', fontSize: 12 },
+        formatter: (params: any) => {
+          if (!Array.isArray(params) || params.length === 0) return '';
+          const idx = params[0].dataIndex;
+          const label = labels[idx];
+          const val = values[idx];
+          const pct = ((val / 100 - 1) * 100).toFixed(0);
+          return '<div style="font-weight:700;margin-bottom:4px">' + label + '</div>'
+            + '<div>Wert: ' + euroFormatter.format(val) + '</div>'
+            + '<div style="color:' + (val >= 100 ? '#27ae60' : '#e74c3c') + '">'
+            + (val >= 100 ? '+' : '') + pct + '% seit 1975</div>'
+            + '<div style="color:#94a3b8;font-size:11px;margin-top:3px">Aus 100 \u20ac wurden '
+            + euroFormatter.format(val) + '</div>';
+        },
+      },
+      grid: { left: 55, right: 20, top: 30, bottom: 55 },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: {
+          fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#7f8c8d',
+          interval: (index: number) => {
+            const l = labels[index];
+            if (l === 'Q1 20') return false; // hide 'Q1 20' from axis
+            const n = parseInt(l, 10);
+            return !isNaN(n) && n % 5 === 0;
+          },
+          rotate: 45,
+        },
+        axisLine: { lineStyle: { color: '#e9ecef' } },
+        axisTick: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#7f8c8d',
+          formatter: (v: number) => v.toLocaleString('de-DE') + ' \u20ac',
+        },
+        splitLine: { lineStyle: { color: '#f1f5f9', type: 'dashed' } },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      series: [
+        {
+          type: 'line',
+          // Use [label, value] tuples so markPoint coord references work reliably
+          data: labels.map((l, i) => [l, values[i]]),
+          smooth: false,
+          symbol: 'none',
+          lineStyle: { width: 2.5, color: '#0f3460' },
+          itemStyle: { color: '#0f3460' },
+          areaStyle: {
+            color: {
+              type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+              colorStops: [
+                { offset: 0, color: 'rgba(15, 52, 96, 0.15)' },
+                { offset: 1, color: 'rgba(15, 52, 96, 0.01)' },
+              ],
+            },
+          },
+          markPoint: {
+            symbol: 'circle',
+            symbolSize: 8,
+            itemStyle: { color: '#e74c3c', borderColor: '#fff', borderWidth: 1.5 },
+            label: {
+              show: true,
+              fontSize: 9,
+              fontWeight: 'bold' as const,
+              color: '#e74c3c',
+              fontFamily: 'Inter, sans-serif',
+              position: 'bottom',
+              distance: 12,
+              formatter: (p: any) => p.name,
+            },
+            data: crisisPoints.map(cp => ({
+              name: cp.label,
+              coord: [labels[cp.idx], values[cp.idx]],
+            })),
+          },
+        },
+      ],
+      animationDuration: 1200,
+      animationEasing: 'cubicOut',
+    };
+  });
+
+  toggleSection(): void {
+    this.sectionExpanded.update(v => !v);
+  }
+
   togglePanel(index: number): void {
     this.activePanel.update(current => current === index ? null : index);
   }
 
   onAffiliateClick(): void {
-    // Track affiliate link click for analytics
-    try {
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'affiliate_click', {
-          event_category: 'monetization',
-          event_label: 'broker_depot',
-        });
-      }
-    } catch { /* ignore tracking errors */ }
+    this.analytics.trackAffiliateClick('etf_explainer');
   }
 }
 

@@ -70,6 +70,7 @@ export class PdfReportService {
     y = this.headerBar(doc, false, 'Handlungsempfehlungen & Rechtliches');
     y = this.savingsComparison(doc, y, result);
     y = this.tipCards(doc, y, result, input);
+    y = this.affiliateBox(doc, y, result);
     y = this.disclaimer(doc, y);
     this.footer(doc);
 
@@ -638,6 +639,49 @@ export class PdfReportService {
     doc.text('F\u00fcr individuelle Beratung wenden Sie sich an einen qualifizierten Steuer- oder Rentenberater.', this.MID, y + 2, { align: 'center' });
 
     return y + 8;
+  }
+
+  /**
+   * Affiliate CTA box — only shown when user has a pension gap.
+   * Labeled as "Anzeige" per German UWG/TMG requirements.
+   */
+  private affiliateBox(doc: jsPDF, y: number, result: PensionResult): number {
+    if (result.rentenluecke <= 0) return y;
+    if (y > 235) { doc.addPage(); y = this.headerBar(doc, false, 'Nächste Schritte'); }
+
+    const h = 22;
+    this.card(doc, this.M, y, this.CW, h, [245, 249, 255] as RGB);
+
+    // "Anzeige" label
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(5);
+    doc.setTextColor(...this.c.muted);
+    doc.text('Anzeige', this.M + 4, y + 4);
+
+    // Icon — draw a small depot icon (jsPDF can't render emoji)
+    const ix = this.M + 5;
+    const iy = y + 8;
+    doc.setFillColor(...this.c.accent);
+    doc.roundedRect(ix, iy, 8, 8, 1.5, 1.5, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(5.5);
+    doc.setTextColor(255, 255, 255);
+    doc.text('\u20ac', ix + 2.8, iy + 5.5);
+
+    // Text
+    const tx = this.M + 16;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
+    doc.setTextColor(...this.c.navy);
+    doc.text('N\u00e4chster Schritt: Kostenloses Depot er\u00f6ffnen', tx, y + 10);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5);
+    doc.setTextColor(...this.c.textSec);
+    doc.text('Starten Sie Ihren ETF-Sparplan \u2014 bei vielen Anbietern dauerhaft geb\u00fchrenfrei.', tx, y + 14.5);
+
+    // CTA URL
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5);
+    doc.setTextColor(...this.c.accent);
+    const url = 'https://www.financeads.net/tc.php?t=41498C274449894T';
+    doc.textWithLink('Jetzt Depot er\u00f6ffnen \u2192', tx, y + 19, { url });
+
+    return y + h + 4;
   }
 
   private disclaimer(doc: jsPDF, y: number): number {

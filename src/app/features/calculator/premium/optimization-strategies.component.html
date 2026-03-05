@@ -100,6 +100,25 @@
         und 25 Jahren Auszahlung mit gleichbleibender Rendite. Keine Anlageberatung.
         Historische Renditen sind keine Garantie für zukünftige Ergebnisse.
       </p>
+
+      <!-- Affiliate CTA within strategies -->
+      <div class="strategy-affiliate">
+        <span class="strategy-affiliate-label">Anzeige</span>
+        <div class="strategy-affiliate-card">
+          <span class="strategy-affiliate-icon">🚀</span>
+          <div class="strategy-affiliate-text">
+            <strong>Jetzt mit dem ETF-Sparplan starten</strong>
+            <span>Kostenloses Depot eröffnen und sofort mit dem Vermögensaufbau beginnen.</span>
+          </div>
+          <a class="strategy-affiliate-cta"
+             [href]="affiliateUrl"
+             target="_blank"
+             rel="noopener sponsored"
+             (click)="onAffiliateClick()">
+            Depot eröffnen →
+          </a>
+        </div>
+      </div>
     </div>
   }
 </div>

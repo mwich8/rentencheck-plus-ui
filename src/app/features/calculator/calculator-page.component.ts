@@ -16,8 +16,10 @@ import { PdfReportService } from '@core/services/pdf-report.service';
 import { StripePaymentService } from '@core/services/stripe-payment.service';
 import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
 import { PremiumUnlockService } from '@core/services/premium-unlock.service';
+import { AnalyticsService } from '@core/services/analytics.service';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
 import { DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
+import { environment } from '@env/environment';
 
 /**
  * Calculator page — the main pension calculator tool.
@@ -50,11 +52,13 @@ export class CalculatorPageComponent {
   private readonly paymentService = inject(StripePaymentService);
   private readonly savingsService = inject(SavingsCalculatorService);
   private readonly premiumService = inject(PremiumUnlockService);
+  private readonly analytics = inject(AnalyticsService);
   private readonly inputPanel = viewChild(InputPanelComponent);
 
   readonly currentYear = new Date().getFullYear();
   readonly isProcessingPayment = signal(false);
   readonly isPremiumUnlocked = this.premiumService.isUnlocked;
+  readonly affiliateUrl = environment.affiliate.brokerUrl;
 
   /** Default result used before the input panel viewChild is resolved */
   private readonly defaultResult = this.calculatorService.calculate(DEFAULT_PENSION_INPUT);
@@ -106,6 +110,10 @@ export class CalculatorPageComponent {
     return Math.round(futureValueOfOneMonth);
   });
 
+  onAffiliateBannerClick(): void {
+    this.analytics.trackAffiliateClick('action_tips_banner');
+  }
+
   onTierSelected(tier: string): void {
     if (tier === 'report' || tier === 'premium') {
       this.purchaseReport();
@@ -120,6 +128,7 @@ export class CalculatorPageComponent {
   async purchaseReport(): Promise<void> {
     this.downloadReport();
     this.premiumService.unlock();
+    this.analytics.trackPremiumUnlock();
   }
 
   /**
@@ -130,6 +139,7 @@ export class CalculatorPageComponent {
     const input = panel ? panel.pensionInput() : DEFAULT_PENSION_INPUT;
     const result = this.pensionResult();
     this.pdfService.generateReport(input, result);
+    this.analytics.trackPdfDownload();
   }
 }
 

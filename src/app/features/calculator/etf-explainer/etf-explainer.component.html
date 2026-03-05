@@ -1,250 +1,282 @@
 <div class="explainer-section">
-  <div class="explainer-header">
-    <h3 class="explainer-title">
-      <span class="icon">📘</span> ETF-Sparplan einfach erklärt
-    </h3>
-    <p class="explainer-subtitle">
-      In unseren Empfehlungen sprechen wir häufig von ETFs. Hier erfahren Sie,
-      was das genau ist und warum Millionen Deutsche damit für die Rente vorsorgen.
-    </p>
-  </div>
-
-  <!-- Personalized headline numbers -->
-  <div class="hero-numbers">
-    <div class="hero-number-card">
-      <span class="hero-number-label">Ihre Rentenlücke</span>
-      <span class="hero-number-value text-danger">{{ result().rentenluecke | euro }}/M</span>
-    </div>
-    <div class="hero-number-card">
-      <span class="hero-number-label">Benötigter ETF-Sparplan</span>
-      <span class="hero-number-value text-accent">{{ etfMonthly() | euro }}/M</span>
-    </div>
-    <div class="hero-number-card">
-      <span class="hero-number-label">Davon Ihr Geld</span>
-      <span class="hero-number-value">{{ etfProjection().eigenanteil | euro }}</span>
-    </div>
-    <div class="hero-number-card highlight">
-      <span class="hero-number-label">Davon Rendite (geschenkt)</span>
-      <span class="hero-number-value text-success">{{ etfProjection().renditeErtrag | euro }}</span>
-    </div>
-  </div>
-
-  <!-- Accordion panels -->
-  <div class="accordion">
-    <!-- Panel 1: Was ist ein ETF? -->
-    <div class="accordion-item" [class.open]="activePanel() === 0">
-      <button class="accordion-header" (click)="togglePanel(0)">
-        <span class="accordion-icon">📦</span>
-        <span class="accordion-label">Was ist ein ETF?</span>
-        <span class="accordion-chevron">{{ activePanel() === 0 ? '−' : '+' }}</span>
-      </button>
-      <div class="accordion-body">
-        <div class="accordion-content">
-          <p>
-            Ein <strong>ETF</strong> (Exchange Traded Fund) ist ein Investmentfonds, der an der Börse gehandelt wird —
-            wie eine Aktie, aber mit einem entscheidenden Vorteil: <strong>Ein einzelner ETF enthält hunderte
-            oder sogar tausende Aktien gleichzeitig.</strong>
-          </p>
-          <div class="info-box">
-            <span class="info-icon">💡</span>
-            <div>
-              <strong>Einfach erklärt:</strong> Stellen Sie sich einen Obstkorb vor. Statt nur einen Apfel zu kaufen
-              (= eine einzelne Aktie), kaufen Sie einen ganzen Korb mit Äpfeln, Birnen, Orangen und Bananen.
-              Wenn eine Frucht schlecht wird, haben Sie noch viele andere.
-            </div>
-          </div>
-          <div class="feature-pills">
-            <div class="pill">
-              <span class="pill-icon">🌍</span>
-              <div>
-                <strong>Breit gestreut</strong>
-                <span>z.B. MSCI World = 1.500+ Unternehmen aus 23 Ländern</span>
-              </div>
-            </div>
-            <div class="pill">
-              <span class="pill-icon">💰</span>
-              <div>
-                <strong>Günstig</strong>
-                <span>Nur 0,1–0,3% Kosten/Jahr (vs. 1,5–2% bei aktiven Fonds)</span>
-              </div>
-            </div>
-            <div class="pill">
-              <span class="pill-icon">🔄</span>
-              <div>
-                <strong>Automatisch</strong>
-                <span>Sparplan ab 25 €/Monat einrichten und vergessen</span>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- Collapsible header -->
+  <button class="explainer-toggle" (click)="toggleSection()" [class.expanded]="sectionExpanded()">
+    <div class="explainer-toggle-left">
+      <span class="icon">📘</span>
+      <div>
+        <h3 class="explainer-title">ETF-Sparplan einfach erklärt</h3>
+        <p class="explainer-subtitle-inline">
+          Was ETFs sind, warum sie funktionieren & wie Sie starten
+        </p>
       </div>
     </div>
+    <span class="explainer-chevron">{{ sectionExpanded() ? '−' : '+' }}</span>
+  </button>
 
-    <!-- Panel 2: Warum langfristig sinnvoll? -->
-    <div class="accordion-item" [class.open]="activePanel() === 1">
-      <button class="accordion-header" (click)="togglePanel(1)">
-        <span class="accordion-icon">📈</span>
-        <span class="accordion-label">Warum sind ETFs langfristig sinnvoll?</span>
-        <span class="accordion-chevron">{{ activePanel() === 1 ? '−' : '+' }}</span>
-      </button>
-      <div class="accordion-body">
-        <div class="accordion-content">
-          <p>
-            Der MSCI World Index hat in den letzten <strong>50 Jahren durchschnittlich ca. 7% Rendite pro Jahr</strong>
-            erzielt — trotz aller Krisen (Dotcom, Finanzkrise 2008, Corona).
-          </p>
+  <!-- Collapsible body -->
+  <div class="explainer-body" [class.expanded]="sectionExpanded()">
+    <div class="explainer-body-inner">
+      <p class="explainer-intro">
+        In unseren Empfehlungen sprechen wir häufig von ETFs. Hier erfahren Sie,
+        was das genau ist und warum Millionen Deutsche damit für die Rente vorsorgen.
+      </p>
 
-          <div class="stat-row">
-            <div class="stat-card">
-              <span class="stat-big">~7%</span>
-              <span class="stat-desc">Ø Rendite p.a.<br>(MSCI World, 1975–2025)</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-big">0</span>
-              <span class="stat-desc">Verlustperioden<br>bei 15+ Jahren Haltedauer</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-big">{{ renditeAnteil() }}%</span>
-              <span class="stat-desc">Ihres Vermögens<br>wäre Rendite (nicht eingezahlt)</span>
-            </div>
-          </div>
-
-          <!-- Personalized growth chart -->
-          <h4 class="chart-label">Ihr persönlicher Vermögensaufbau über {{ result().jahresBisRente }} Jahre</h4>
-          <div
-            echarts
-            [options]="chartOptions()"
-            class="growth-chart"
-          ></div>
-          <p class="chart-note">
-            Vergleich: {{ etfMonthly() | euro }}/Monat in einen MSCI-World-ETF (7% p.a.)
-            vs. Sparkonto (1,5% p.a.) über {{ result().jahresBisRente }} Jahre.
-          </p>
+      <!-- Personalized headline numbers -->
+      <div class="hero-numbers">
+        <div class="hero-number-card">
+          <span class="hero-number-label">Ihre Rentenlücke</span>
+          <span class="hero-number-value text-danger">{{ result().rentenluecke | euro }}/M</span>
+        </div>
+        <div class="hero-number-card">
+          <span class="hero-number-label">Benötigter ETF-Sparplan</span>
+          <span class="hero-number-value text-accent">{{ etfMonthly() | euro }}/M</span>
+        </div>
+        <div class="hero-number-card">
+          <span class="hero-number-label">Davon Ihr Geld</span>
+          <span class="hero-number-value">{{ etfProjection().eigenanteil | euro }}</span>
+        </div>
+        <div class="hero-number-card highlight">
+          <span class="hero-number-label">Davon Rendite (geschenkt)</span>
+          <span class="hero-number-value text-success">{{ etfProjection().renditeErtrag | euro }}</span>
         </div>
       </div>
-    </div>
 
-    <!-- Panel 3: Sind ETFs nicht riskant? -->
-    <div class="accordion-item" [class.open]="activePanel() === 2">
-      <button class="accordion-header" (click)="togglePanel(2)">
-        <span class="accordion-icon">🛡️</span>
-        <span class="accordion-label">Sind ETFs nicht riskant?</span>
-        <span class="accordion-chevron">{{ activePanel() === 2 ? '−' : '+' }}</span>
-      </button>
-      <div class="accordion-body">
-        <div class="accordion-content">
-          <p>
-            Kurzfristig ja — Kurse schwanken. Aber langfristig sieht die Statistik überraschend klar aus:
-          </p>
-          <div class="risk-grid">
-            <div class="risk-card positive">
-              <span class="risk-icon">✅</span>
-              <div>
-                <strong>15+ Jahre Haltedauer</strong>
-                <p>Wer den MSCI World 15 Jahre oder länger gehalten hat, hat in der
-                  gesamten Geschichte <strong>nie Verlust</strong> gemacht — egal wann der Einstieg war.</p>
-              </div>
-            </div>
-            <div class="risk-card positive">
-              <span class="risk-icon">✅</span>
-              <div>
-                <strong>Sparplan-Effekt</strong>
-                <p>Durch monatliches Investieren kaufen Sie bei fallenden Kursen automatisch
-                  günstiger ein (Cost-Average-Effekt). Krisen werden so zu Kaufgelegenheiten.</p>
-              </div>
-            </div>
-            <div class="risk-card neutral">
-              <span class="risk-icon">⚖️</span>
-              <div>
-                <strong>Das wahre Risiko: Nicht investieren</strong>
-                <p>Inflation frisst Ihr Geld auf dem Sparkonto auf. Bei 2% Inflation verlieren
-                  10.000 € auf dem Tagesgeld in 20 Jahren ein Drittel ihrer Kaufkraft.</p>
-              </div>
-            </div>
-          </div>
-
-          @if (result().jahresBisRente >= 15) {
-            <div class="info-box success">
-              <span class="info-icon">🎯</span>
-              <div>
-                <strong>Ihr Zeitvorteil:</strong> Sie haben noch {{ result().jahresBisRente }} Jahre bis zur Rente —
-                deutlich mehr als die empfohlenen 15 Jahre Mindest-Haltedauer. Damit sind Sie
-                statistisch auf der sicheren Seite.
-              </div>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- Panel 4: Wie fange ich an? -->
-    <div class="accordion-item" [class.open]="activePanel() === 3">
-      <button class="accordion-header" (click)="togglePanel(3)">
-        <span class="accordion-icon">🚀</span>
-        <span class="accordion-label">Wie fange ich an? (3 einfache Schritte)</span>
-        <span class="accordion-chevron">{{ activePanel() === 3 ? '−' : '+' }}</span>
-      </button>
-      <div class="accordion-body">
-        <div class="accordion-content">
-          <div class="steps">
-            <div class="step">
-              <div class="step-number">1</div>
-              <div class="step-content">
-                <h4>Depot eröffnen</h4>
-                <p>Bei einer Direktbank oder einem Online-Broker. Dauert ca. 10 Minuten und ist
-                  in der Regel kostenlos. Bekannte Anbieter: Trade Republic, Scalable Capital, ING, comdirect.</p>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-number">2</div>
-              <div class="step-content">
-                <h4>ETF-Sparplan einrichten</h4>
-                <p>Suchen Sie nach <strong>"MSCI World"</strong> oder <strong>"FTSE All-World"</strong>.
-                  Legen Sie Ihren monatlichen Betrag fest (z.B. {{ etfMonthly() | euro }}) und
-                  wählen Sie ein Ausführungsdatum.</p>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-number">3</div>
-              <div class="step-content">
-                <h4>Laufen lassen</h4>
-                <p>Das ist der wichtigste Schritt: <strong>Nicht ständig reinschauen.</strong>
-                  Der Sparplan läuft automatisch. In Krisen: durchhalten. Der Zinseszinseffekt
-                  macht den Rest.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Affiliate CTA -->
-          <div class="affiliate-section">
-            <span class="affiliate-label">Anzeige</span>
-            <div class="affiliate-card">
-              <div class="affiliate-content">
-                <div class="affiliate-icon">🏦</div>
-                <div class="affiliate-info">
-                  <h4>Kostenloses Depot eröffnen</h4>
-                  <p>Starten Sie in wenigen Minuten mit einem kostenlosen Depot.
-                    ETF-Sparpläne sind bei vielen Anbietern dauerhaft gebührenfrei.</p>
+      <!-- Accordion panels -->
+      <div class="accordion">
+        <!-- Panel 1: Was ist ein ETF? -->
+        <div class="accordion-item" [class.open]="activePanel() === 0">
+          <button class="accordion-header" (click)="togglePanel(0)">
+            <span class="accordion-icon">📦</span>
+            <span class="accordion-label">Was ist ein ETF?</span>
+            <span class="accordion-chevron">{{ activePanel() === 0 ? '−' : '+' }}</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-content">
+              <p>
+                Ein <strong>ETF</strong> (Exchange Traded Fund) ist ein Investmentfonds, der an der Börse gehandelt wird —
+                wie eine Aktie, aber mit einem entscheidenden Vorteil: <strong>Ein einzelner ETF enthält hunderte
+                oder sogar tausende Aktien gleichzeitig.</strong>
+              </p>
+              <div class="info-box">
+                <span class="info-icon">💡</span>
+                <div>
+                  <strong>Einfach erklärt:</strong> Stellen Sie sich einen Obstkorb vor. Statt nur einen Apfel zu kaufen
+                  (= eine einzelne Aktie), kaufen Sie einen ganzen Korb mit Äpfeln, Birnen, Orangen und Bananen.
+                  Wenn eine Frucht schlecht wird, haben Sie noch viele andere.
                 </div>
-                <a class="affiliate-cta"
-                   href="https://www.financeads.net/tc.php?t=41498C274449894T"
-                   target="_blank"
-                   rel="noopener sponsored"
-                   (click)="onAffiliateClick()">
-                  Depot eröffnen →
-                </a>
+              </div>
+              <div class="feature-pills">
+                <div class="pill">
+                  <span class="pill-icon">🌍</span>
+                  <div>
+                    <strong>Breit gestreut</strong>
+                    <span>z.B. MSCI World = 1.500+ Unternehmen aus 23 Ländern</span>
+                  </div>
+                </div>
+                <div class="pill">
+                  <span class="pill-icon">💰</span>
+                  <div>
+                    <strong>Günstig</strong>
+                    <span>Nur 0,1–0,3% Kosten/Jahr (vs. 1,5–2% bei aktiven Fonds)</span>
+                  </div>
+                </div>
+                <div class="pill">
+                  <span class="pill-icon">🔄</span>
+                  <div>
+                    <strong>Automatisch</strong>
+                    <span>Sparplan ab 25 €/Monat einrichten und vergessen</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Warum langfristig sinnvoll? -->
+        <div class="accordion-item" [class.open]="activePanel() === 1">
+          <button class="accordion-header" (click)="togglePanel(1)">
+            <span class="accordion-icon">📈</span>
+            <span class="accordion-label">Warum sind ETFs langfristig sinnvoll?</span>
+            <span class="accordion-chevron">{{ activePanel() === 1 ? '−' : '+' }}</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-content">
+              <p>
+                Der MSCI World Index hat in den letzten <strong>50 Jahren durchschnittlich ca. 7% Rendite pro Jahr</strong>
+                erzielt — trotz aller Krisen (Dotcom, Finanzkrise 2008, Corona).
+              </p>
+
+              <div class="stat-row">
+                <div class="stat-card">
+                  <span class="stat-big">~7%</span>
+                  <span class="stat-desc">Ø Rendite p.a.<br>(MSCI World, 1975–2025)</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-big">0</span>
+                  <span class="stat-desc">Verlustperioden<br>bei 15+ Jahren Haltedauer</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-big">{{ renditeAnteil() }}%</span>
+                  <span class="stat-desc">Ihres Vermögens<br>wäre Rendite (nicht eingezahlt)</span>
+                </div>
+              </div>
+
+              <!-- MSCI World Historic Chart -->
+              <h4 class="chart-label">📊 MSCI World: 50 Jahre Wertentwicklung (1975–2025)</h4>
+              <p class="chart-intro">
+                Aus <strong>100 €</strong> im Jahr 1975 wären heute über <strong>6.200 €</strong> geworden —
+                trotz Dotcom-Blase, Finanzkrise und Corona-Crash.
+              </p>
+              <div
+                echarts
+                [options]="msciHistoryChartOptions()"
+                class="msci-history-chart"
+              ></div>
+              <div class="chart-crisis-legend">
+                <span class="crisis-dot"></span>
+                <span>Markierte Punkte = Krisen — der Kurs hat sich jedes Mal erholt</span>
+              </div>
+
+              <div class="chart-divider"></div>
+
+              <!-- Personalized growth chart -->
+              <h4 class="chart-label">💰 Ihr persönlicher Vermögensaufbau über {{ result().jahresBisRente }} Jahre</h4>
+              <div
+                echarts
+                [options]="chartOptions()"
+                class="growth-chart"
+              ></div>
+              <p class="chart-note">
+                Vergleich: {{ etfMonthly() | euro }}/Monat in einen MSCI-World-ETF (7% p.a.)
+                vs. Sparkonto (1,5% p.a.) über {{ result().jahresBisRente }} Jahre.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Sind ETFs nicht riskant? -->
+        <div class="accordion-item" [class.open]="activePanel() === 2">
+          <button class="accordion-header" (click)="togglePanel(2)">
+            <span class="accordion-icon">🛡️</span>
+            <span class="accordion-label">Sind ETFs nicht riskant?</span>
+            <span class="accordion-chevron">{{ activePanel() === 2 ? '−' : '+' }}</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-content">
+              <p>
+                Kurzfristig ja — Kurse schwanken. Aber langfristig sieht die Statistik überraschend klar aus:
+              </p>
+              <div class="risk-grid">
+                <div class="risk-card positive">
+                  <span class="risk-icon">✅</span>
+                  <div>
+                    <strong>15+ Jahre Haltedauer</strong>
+                    <p>Wer den MSCI World 15 Jahre oder länger gehalten hat, hat in der
+                      gesamten Geschichte <strong>nie Verlust</strong> gemacht — egal wann der Einstieg war.</p>
+                  </div>
+                </div>
+                <div class="risk-card positive">
+                  <span class="risk-icon">✅</span>
+                  <div>
+                    <strong>Sparplan-Effekt</strong>
+                    <p>Durch monatliches Investieren kaufen Sie bei fallenden Kursen automatisch
+                      günstiger ein (Cost-Average-Effekt). Krisen werden so zu Kaufgelegenheiten.</p>
+                  </div>
+                </div>
+                <div class="risk-card neutral">
+                  <span class="risk-icon">⚖️</span>
+                  <div>
+                    <strong>Das wahre Risiko: Nicht investieren</strong>
+                    <p>Inflation frisst Ihr Geld auf dem Sparkonto auf. Bei 2% Inflation verlieren
+                      10.000 € auf dem Tagesgeld in 20 Jahren ein Drittel ihrer Kaufkraft.</p>
+                  </div>
+                </div>
+              </div>
+
+              @if (result().jahresBisRente >= 15) {
+                <div class="info-box success">
+                  <span class="info-icon">🎯</span>
+                  <div>
+                    <strong>Ihr Zeitvorteil:</strong> Sie haben noch {{ result().jahresBisRente }} Jahre bis zur Rente —
+                    deutlich mehr als die empfohlenen 15 Jahre Mindest-Haltedauer. Damit sind Sie
+                    statistisch auf der sicheren Seite.
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 4: Wie fange ich an? -->
+        <div class="accordion-item" [class.open]="activePanel() === 3">
+          <button class="accordion-header" (click)="togglePanel(3)">
+            <span class="accordion-icon">🚀</span>
+            <span class="accordion-label">Wie fange ich an? (3 einfache Schritte)</span>
+            <span class="accordion-chevron">{{ activePanel() === 3 ? '−' : '+' }}</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-content">
+              <div class="steps">
+                <div class="step">
+                  <div class="step-number">1</div>
+                  <div class="step-content">
+                    <h4>Depot eröffnen</h4>
+                    <p>Bei einer Direktbank oder einem Online-Broker. Dauert ca. 10 Minuten und ist
+                      in der Regel kostenlos. Bekannte Anbieter: Trade Republic, Scalable Capital, ING, comdirect.</p>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-number">2</div>
+                  <div class="step-content">
+                    <h4>ETF-Sparplan einrichten</h4>
+                    <p>Suchen Sie nach <strong>"MSCI World"</strong> oder <strong>"FTSE All-World"</strong>.
+                      Legen Sie Ihren monatlichen Betrag fest (z.B. {{ etfMonthly() | euro }}) und
+                      wählen Sie ein Ausführungsdatum.</p>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-number">3</div>
+                  <div class="step-content">
+                    <h4>Laufen lassen</h4>
+                    <p>Das ist der wichtigste Schritt: <strong>Nicht ständig reinschauen.</strong>
+                      Der Sparplan läuft automatisch. In Krisen: durchhalten. Der Zinseszinseffekt
+                      macht den Rest.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Affiliate CTA -->
+              <div class="affiliate-section">
+                <span class="affiliate-label">Anzeige</span>
+                <div class="affiliate-card">
+                  <div class="affiliate-content">
+                    <div class="affiliate-icon">🏦</div>
+                    <div class="affiliate-info">
+                      <h4>Kostenloses Depot eröffnen</h4>
+                      <p>Starten Sie in wenigen Minuten mit einem kostenlosen Depot.
+                        ETF-Sparpläne sind bei vielen Anbietern dauerhaft gebührenfrei.</p>
+                    </div>
+                    <a class="affiliate-cta"
+                       [href]="affiliateUrl"
+                       target="_blank"
+                       rel="noopener sponsored"
+                       (click)="onAffiliateClick()">
+                      Depot eröffnen →
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Disclaimer -->
+      <p class="disclaimer">
+        Keine Anlageberatung. Historische Renditen sind keine Garantie für zukünftige Ergebnisse.
+        Kapitalanlagen sind mit Risiken verbunden. Die genannten Durchschnittswerte beziehen sich auf den
+        MSCI World Net Total Return Index (1975–2025).
+      </p>
     </div>
   </div>
-
-  <!-- Disclaimer -->
-  <p class="disclaimer">
-    Keine Anlageberatung. Historische Renditen sind keine Garantie für zukünftige Ergebnisse.
-    Kapitalanlagen sind mit Risiken verbunden. Die genannten Durchschnittswerte beziehen sich auf den
-    MSCI World Net Total Return Index (1975–2025).
-  </p>
 </div>

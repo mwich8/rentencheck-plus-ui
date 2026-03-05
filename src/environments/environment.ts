@@ -5,5 +5,9 @@ export const environment = {
   stripe: {
     publishableKey: '', // Add Stripe test key here
   },
+  affiliate: {
+    brokerUrl: 'https://www.financeads.net/tc.php?t=41498C274449894T',
+    brokerName: 'Online-Broker',
+  },
 };
 

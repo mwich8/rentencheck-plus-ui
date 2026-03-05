@@ -515,6 +515,96 @@
 }
 
 /* ==========================================
+   Affiliate Banner
+   ========================================== */
+.affiliate-banner {
+  margin-bottom: 1.75rem;
+  position: relative;
+}
+
+.affiliate-banner-label {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-light);
+  background: #f1f5f9;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  margin-bottom: 0.4rem;
+}
+
+.affiliate-banner-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1.5px dashed var(--color-border);
+  background: linear-gradient(135deg, #fafbfc, #f8fafc);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.affiliate-banner-inner:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 2px 12px rgba(15, 52, 96, 0.06);
+}
+
+.affiliate-banner-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.affiliate-banner-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.affiliate-banner-text strong {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.affiliate-banner-text span {
+  font-size: 0.78rem;
+  color: var(--color-text-light);
+  line-height: 1.4;
+}
+
+.affiliate-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.65rem 1.5rem;
+  background: var(--color-accent);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+
+.affiliate-banner-cta:hover {
+  background: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .affiliate-banner-inner {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+  }
+}
+
+/* ==========================================
    ETF Explainer Section
    ========================================== */
 .etf-explainer-section {

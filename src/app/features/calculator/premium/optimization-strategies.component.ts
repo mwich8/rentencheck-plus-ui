@@ -5,7 +5,9 @@ import { PensionInput } from '@core/models/pension-input.model';
 import { PensionResult } from '@core/models/pension-result.model';
 import { PensionCalculatorService } from '@core/services/pension-calculator.service';
 import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
+import { AnalyticsService } from '@core/services/analytics.service';
 import { OptimizationSuggestion } from '@core/models/scenario.model';
+import { environment } from '@env/environment';
 
 /**
  * Optimierungsvorschläge & Strategievergleich — personalized, quantified
@@ -21,9 +23,15 @@ import { OptimizationSuggestion } from '@core/models/scenario.model';
 export class OptimizationStrategiesComponent {
   private readonly calcService = inject(PensionCalculatorService);
   private readonly savingsService = inject(SavingsCalculatorService);
+  private readonly analytics = inject(AnalyticsService);
 
   readonly pensionInput = input.required<PensionInput>();
   readonly baselineResult = input.required<PensionResult>();
+  readonly affiliateUrl = environment.affiliate.brokerUrl;
+
+  onAffiliateClick(): void {
+    this.analytics.trackAffiliateClick('optimization_strategies');
+  }
 
   readonly suggestions = computed<OptimizationSuggestion[]>(() => {
     const inp = this.pensionInput();

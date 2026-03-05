@@ -87,6 +87,27 @@
     <app-action-tips [result]="pensionResult()" [hatKinder]="hatKinder()" [unlocked]="isPremiumUnlocked()" (unlock)="onTierSelected($event)" />
   </div>
 
+  <!-- Affiliate Banner (visible when pension gap exists) -->
+  @if (pensionResult().rentenluecke > 0) {
+    <div class="affiliate-banner animate-fade-in-up" style="animation-delay: 0.26s">
+      <span class="affiliate-banner-label">Anzeige</span>
+      <div class="affiliate-banner-inner">
+        <div class="affiliate-banner-icon">🏦</div>
+        <div class="affiliate-banner-text">
+          <strong>Rentenlücke schließen: Kostenloses Depot eröffnen</strong>
+          <span>ETF-Sparpläne ab 1 €/Monat — dauerhaft gebührenfrei. In wenigen Minuten starten.</span>
+        </div>
+        <a class="affiliate-banner-cta"
+           [href]="affiliateUrl"
+           target="_blank"
+           rel="noopener sponsored"
+           (click)="onAffiliateBannerClick()">
+          Depot eröffnen →
+        </a>
+      </div>
+    </div>
+  }
+
   <!-- ETF Explainer (only when pension gap exists) -->
   @if (pensionResult().rentenluecke > 0 && pensionResult().jahresBisRente > 0) {
     <div class="etf-explainer-section animate-fade-in-up" style="animation-delay: 0.27s">
