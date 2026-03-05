@@ -191,7 +191,7 @@ export class LandingFaqComponent {
     },
     {
       question: 'Was unterscheidet die Detail-Analyse vom Premium-Paket?',
-      answer: 'Die Detail-Analyse ist aktuell kostenlos und liefert einen PDF-Report mit 30-Jahre-Inflationsprognose und persönlichen Handlungsempfehlungen — z.\u00a0B. ob Sie Kindererziehungszeiten (<a href="https://www.deutsche-rentenversicherung.de/SharedDocs/Formulare/DE/_pdf/V0800.html" target="_blank" rel="noopener">Formular V0800</a>) bei der DRV geltend machen können. Das Premium-Paket bietet zukünftig zusätzlich Multi-Szenario-Vergleiche, Was-wäre-wenn-Analysen und individuelle Optimierungsvorschläge.',
+      answer: 'Die Detail-Analyse ist aktuell kostenlos und liefert einen PDF-Report mit 30-Jahre-Inflationsprognose und persönlichen Handlungsempfehlungen — z.\u00a0B. ob Sie Kindererziehungszeiten (<a href="https://www.deutsche-rentenversicherung.de/SharedDocs/Formulare/DE/_pdf/V0800.html" target="_blank" rel="noopener">Formular V0800</a>) bei der DRV geltend machen können. Das Premium-Paket bietet zukünftig zusätzlich Multi-Szenario-Vergleiche, einen persönlichen Renten-Zeitstrahl und individuelle Optimierungsvorschläge.',
     },
   ];
 

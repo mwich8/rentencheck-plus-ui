@@ -86,7 +86,7 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
             <ul class="tier-features">
               <li class="included"><span class="check">✓</span> Alles aus Detail-Analyse</li>
               <li class="included highlight"><span class="check">✓</span> Multi-Szenario-Modellierung</li>
-              <li class="included highlight"><span class="check">✓</span> Was-wäre-wenn-Szenarien</li>
+              <li class="included highlight"><span class="check">✓</span> Persönlicher Renten-Zeitstrahl</li>
               <li class="included highlight"><span class="check">✓</span> Optimierungsvorschläge</li>
               <li class="included highlight"><span class="check">✓</span> Strategievergleich</li>
               <li class="included"><span class="check">✓</span> Unbegrenzte Neuberechnung</li>

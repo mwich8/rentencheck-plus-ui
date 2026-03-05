@@ -71,7 +71,7 @@ export type PricingTier = 'free' | 'report' | 'premium';
           <ul class="tier-features">
             <li class="included">✓ Alles aus Detail-Analyse</li>
             <li class="included">✓ Multi-Szenario-Modellierung</li>
-            <li class="included">✓ Was-wäre-wenn-Szenarien</li>
+            <li class="included">✓ Persönlicher Renten-Zeitstrahl</li>
             <li class="included">✓ Optimierungsvorschläge</li>
             <li class="included">✓ Vergleich verschiedener Strategien</li>
           </ul>

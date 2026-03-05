@@ -49,7 +49,7 @@ import { Component, output } from '@angular/core';
             <p>Vergleichen Sie verschiedene Renteneintrittsalter, Gehaltsverläufe und Sparstrategien nebeneinander.</p>
             <ul class="teaser-features">
               <li>✓ Bis zu 5 Szenarien parallel</li>
-              <li>✓ Was-wäre-wenn-Analyse</li>
+              <li>✓ Persönlicher Renten-Zeitstrahl</li>
               <li>✓ Optimale Strategie finden</li>
             </ul>
             <button class="teaser-cta premium" (click)="unlock.emit('premium')">

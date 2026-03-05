@@ -459,7 +459,7 @@ export class OptimizationStrategiesComponent {
         impact: Math.round(impactKaufkraft),
         impactLabel: '/Monat Kaufkraft',
         category: 'pension',
-        actionStep: 'Nutzen Sie den Was-wäre-wenn-Regler oben, um verschiedene Renteneintritte zu testen.',
+        actionStep: 'Nutzen Sie den Renten-Zeitstrahl, um die Auswirkung verschiedener Renteneintritte auf einen Blick zu sehen.',
       });
     }
 

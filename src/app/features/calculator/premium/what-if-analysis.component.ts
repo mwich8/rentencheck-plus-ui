@@ -1,217 +1,129 @@
-import { Component, input, computed, signal, inject, effect } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { DecimalPipe } from '@angular/common';
-import { EuroPipe } from '../../../shared/pipes/euro.pipe';
+import { Component, input, computed, inject } from '@angular/core';
 import { PensionInput } from '../../../core/models/pension-input.model';
 import { PensionResult } from '../../../core/models/pension-result.model';
 import { PensionCalculatorService } from '../../../core/services/pension-calculator.service';
+import { InflationService } from '../../../core/services/inflation.service';
+import { SavingsCalculatorService } from '../../../core/services/savings-calculator.service';
+
+interface TimelineMilestone {
+  year: number;
+  age: number;
+  icon: string;
+  label: string;
+  sublabel: string;
+  type: 'now' | 'action' | 'deadline' | 'retirement' | 'projection';
+  urgency?: 'high' | 'medium' | 'low';
+  metrics?: { label: string; value: string; color?: string }[];
+  actionHint?: string;
+  legalRef?: { label: string; url: string };
+}
 
 /**
- * Was-wäre-wenn-Analyse — interactive sliders let the user explore
- * how changes to brutto pension, inflation, and retirement year affect
- * their real outcome, with live delta comparison.
+ * Renten-Zeitstrahl — a chronological timeline view of the user's
+ * pension journey. Shows key milestones, action windows, and projected
+ * values at different life stages. Unique value: answers "What happens WHEN?"
+ * vs. Scenario Comparison ("What IF?") and Optimization ("How to fix it?").
  */
 @Component({
   selector: 'app-what-if-analysis',
   standalone: true,
-  imports: [FormsModule, EuroPipe, DecimalPipe],
+  imports: [],
   template: `
-    <div class="whatif-section">
+    <div class="timeline-section">
       <h3 class="section-title">
-        <span class="icon">🧪</span> Was-wäre-wenn-Analyse
+        <span class="icon">🗓️</span> Ihr Renten-Zeitstrahl
       </h3>
       <p class="section-subtitle">
-        Bewegen Sie die Regler und sehen Sie sofort, wie Änderungen Ihre Rente beeinflussen.
+        Ihre persönliche Rentenreise — von heute bis zum Ruhestand und darüber hinaus.
+        Sehen Sie wichtige Meilensteine, Handlungsfenster und wie sich Ihre Rente über die Zeit entwickelt.
       </p>
 
-      <div class="whatif-layout">
-        <!-- Sliders -->
-        <div class="whatif-controls">
-          <div class="control-group">
-            <label>
-              Bruttorente
-              @if (whatIfBrutto() !== pensionInput().bruttoMonatlicheRente) {
-                <span class="label-delta" [class.positive]="whatIfBrutto() > pensionInput().bruttoMonatlicheRente" [class.negative]="whatIfBrutto() < pensionInput().bruttoMonatlicheRente">
-                  ({{ whatIfBrutto() > pensionInput().bruttoMonatlicheRente ? '+' : '' }}{{ whatIfBrutto() - pensionInput().bruttoMonatlicheRente }} €)
-                </span>
+      <div class="timeline">
+        @for (milestone of milestones(); track milestone.year + milestone.label; let i = $index; let last = $last) {
+          <div class="timeline-item" [attr.data-type]="milestone.type">
+            <!-- Timeline line -->
+            <div class="timeline-track">
+              <div class="timeline-dot" [attr.data-type]="milestone.type" [attr.data-urgency]="milestone.urgency || ''">
+                <span class="dot-icon">{{ milestone.icon }}</span>
+              </div>
+              @if (!last) {
+                <div class="timeline-connector"></div>
               }
-            </label>
-            <div class="slider-row">
-              <input type="range"
-                [min]="200" [max]="4000" [step]="25"
-                [ngModel]="whatIfBrutto()"
-                (ngModelChange)="whatIfBrutto.set($event)"
-              />
-              <output class="slider-output">{{ whatIfBrutto() | euro }}</output>
             </div>
-            <div class="range-labels">
-              <span>200 €</span><span>4.000 €</span>
+
+            <!-- Content -->
+            <div class="timeline-content" [attr.data-type]="milestone.type">
+              <div class="milestone-header">
+                <div class="milestone-year">{{ milestone.year }}</div>
+                <div class="milestone-info">
+                  <h4 class="milestone-label">{{ milestone.label }}</h4>
+                  <span class="milestone-age">Alter: {{ milestone.age }} Jahre</span>
+                </div>
+                @if (milestone.urgency) {
+                  <span class="urgency-badge" [attr.data-urgency]="milestone.urgency">
+                    {{ milestone.urgency === 'high' ? '⚡ Dringend' : milestone.urgency === 'medium' ? '⏰ Bald' : 'ℹ️ Planen' }}
+                  </span>
+                }
+              </div>
+
+              <p class="milestone-sublabel">{{ milestone.sublabel }}</p>
+
+              @if (milestone.metrics && milestone.metrics.length > 0) {
+                <div class="milestone-metrics">
+                  @for (m of milestone.metrics; track m.label) {
+                    <div class="metric-pill" [style.color]="m.color || 'var(--color-primary)'">
+                      <span class="metric-label">{{ m.label }}</span>
+                      <span class="metric-value">{{ m.value }}</span>
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (milestone.actionHint) {
+                <div class="action-hint">
+                  <span class="action-arrow">→</span> {{ milestone.actionHint }}
+                </div>
+              }
+
+              @if (milestone.legalRef) {
+                <a class="legal-ref" [href]="milestone.legalRef.url" target="_blank" rel="noopener">
+                  📖 {{ milestone.legalRef.label }}
+                </a>
+              }
             </div>
           </div>
+        }
+      </div>
 
-          <div class="control-group">
-            <label>
-              Inflationsrate
-              @if (whatIfInflationPct() !== baselineInflationPct()) {
-                <span class="label-delta" [class.positive]="whatIfInflationPct() < baselineInflationPct()" [class.negative]="whatIfInflationPct() > baselineInflationPct()">
-                  ({{ whatIfInflationPct() > baselineInflationPct() ? '+' : '' }}{{ ((whatIfInflationPct() - baselineInflationPct()) / 10).toFixed(1) }} pp)
-                </span>
-              }
-            </label>
-            <div class="slider-row">
-              <input type="range"
-                [min]="0" [max]="60" [step]="1"
-                [ngModel]="whatIfInflationPct()"
-                (ngModelChange)="whatIfInflationPct.set($event)"
-              />
-              <output class="slider-output">{{ (whatIfInflationPct() / 10).toFixed(1) }} %</output>
-            </div>
-            <div class="range-labels">
-              <span>0,0 %</span><span>6,0 %</span>
-            </div>
-          </div>
-
-          <div class="control-group">
-            <label>
-              Rentenbeginn
-              @if (whatIfRentenbeginn() !== pensionInput().rentenbeginnJahr) {
-                <span class="label-delta" [class.positive]="whatIfRentenbeginn() > pensionInput().rentenbeginnJahr" [class.negative]="whatIfRentenbeginn() < pensionInput().rentenbeginnJahr">
-                  ({{ whatIfRentenbeginn() > pensionInput().rentenbeginnJahr ? '+' : '' }}{{ whatIfRentenbeginn() - pensionInput().rentenbeginnJahr }} J.)
-                </span>
-              }
-            </label>
-            <div class="slider-row">
-              <input type="range"
-                [min]="2025" [max]="2075" [step]="1"
-                [ngModel]="whatIfRentenbeginn()"
-                (ngModelChange)="whatIfRentenbeginn.set($event)"
-              />
-              <output class="slider-output">{{ whatIfRentenbeginn() }}</output>
-            </div>
-            <div class="range-labels">
-              <span>2025</span><span>2075</span>
-            </div>
-          </div>
-
-          <div class="control-group">
-            <label>
-              Wunscheinkommen
-              @if (whatIfWunsch() !== pensionInput().gewuenschteMonatlicheRente) {
-                <span class="label-delta" [class.positive]="whatIfWunsch() < pensionInput().gewuenschteMonatlicheRente" [class.negative]="whatIfWunsch() > pensionInput().gewuenschteMonatlicheRente">
-                  ({{ whatIfWunsch() > pensionInput().gewuenschteMonatlicheRente ? '+' : '' }}{{ whatIfWunsch() - pensionInput().gewuenschteMonatlicheRente }} €)
-                </span>
-              }
-            </label>
-            <div class="slider-row">
-              <input type="range"
-                [min]="500" [max]="6000" [step]="50"
-                [ngModel]="whatIfWunsch()"
-                (ngModelChange)="whatIfWunsch.set($event)"
-              />
-              <output class="slider-output">{{ whatIfWunsch() | euro }}</output>
-            </div>
-            <div class="range-labels">
-              <span>500 €</span><span>6.000 €</span>
-            </div>
-          </div>
-
-          <button class="reset-btn" (click)="resetToBaseline()" [disabled]="!hasChanges()">
-            ↻ Zurücksetzen
-          </button>
+      <!-- Summary Stats -->
+      <div class="summary-strip">
+        <div class="summary-stat">
+          <span class="stat-label">Gesamtzeitraum</span>
+          <span class="stat-value">{{ totalYears() }} Jahre</span>
         </div>
-
-        <!-- Delta Dashboard -->
-        <div class="whatif-results">
-          <h4 class="results-title">
-            @if (hasChanges()) {
-              Vergleich zum aktuellen Stand
-            } @else {
-              Verändern Sie die Regler links
-            }
-          </h4>
-
-          <div class="delta-grid">
-            <div class="delta-card" [class.changed]="deltaNetto() !== 0">
-              <span class="delta-label">Netto/Monat</span>
-              <span class="delta-value">{{ whatIfResult().nettoMonatlich | euro }}</span>
-              <span class="delta-change" [class.positive]="deltaNetto() > 0" [class.negative]="deltaNetto() < 0" [class.neutral]="deltaNetto() === 0">
-                {{ formatDelta(deltaNetto()) }}
-              </span>
-            </div>
-
-            <div class="delta-card" [class.changed]="deltaKaufkraft() !== 0">
-              <span class="delta-label">Reale Kaufkraft</span>
-              <span class="delta-value">{{ whatIfResult().realeKaufkraftMonatlich | euro }}</span>
-              <span class="delta-change" [class.positive]="deltaKaufkraft() > 0" [class.negative]="deltaKaufkraft() < 0" [class.neutral]="deltaKaufkraft() === 0">
-                {{ formatDelta(deltaKaufkraft()) }}
-              </span>
-            </div>
-
-            <div class="delta-card" [class.changed]="deltaLuecke() !== 0">
-              <span class="delta-label">Rentenlücke</span>
-              <span class="delta-value" [class.text-danger]="whatIfResult().rentenluecke > 0" [class.text-success]="whatIfResult().rentenluecke <= 0">
-                {{ whatIfResult().rentenluecke | euro }}
-              </span>
-              <span class="delta-change" [class.positive]="deltaLuecke() < 0" [class.negative]="deltaLuecke() > 0" [class.neutral]="deltaLuecke() === 0">
-                {{ formatDelta(-deltaLuecke()) }}
-              </span>
-            </div>
-
-            <div class="delta-card" [class.changed]="deltaDeckung() !== 0">
-              <span class="delta-label">Deckungsquote</span>
-              <span class="delta-value" [class.text-success]="whatIfResult().deckungsquote >= 80" [class.text-danger]="whatIfResult().deckungsquote < 50">
-                {{ whatIfResult().deckungsquote | number:'1.1-1' }}%
-              </span>
-              <span class="delta-change" [class.positive]="deltaDeckung() > 0" [class.negative]="deltaDeckung() < 0" [class.neutral]="deltaDeckung() === 0">
-                {{ deltaDeckung() >= 0 ? '+' : '' }}{{ deltaDeckung() | number:'1.1-1' }} pp
-              </span>
-            </div>
-
-            <div class="delta-card" [class.changed]="deltaAbzuege() !== 0">
-              <span class="delta-label">Abzüge/Monat</span>
-              <span class="delta-value">{{ whatIfResult().gesamtAbzuegeMonatlich | euro }}</span>
-              <span class="delta-change" [class.positive]="deltaAbzuege() < 0" [class.negative]="deltaAbzuege() > 0" [class.neutral]="deltaAbzuege() === 0">
-                {{ formatDelta(-deltaAbzuege()) }}
-              </span>
-            </div>
-
-            <div class="delta-card" [class.changed]="deltaJahre() !== 0">
-              <span class="delta-label">Jahre bis Rente</span>
-              <span class="delta-value">{{ whatIfResult().jahresBisRente }} J.</span>
-              <span class="delta-change" [class.neutral]="deltaJahre() === 0" [class.positive]="deltaJahre() > 0" [class.negative]="deltaJahre() < 0">
-                {{ deltaJahre() >= 0 ? '+' : '' }}{{ deltaJahre() }} J.
-              </span>
-            </div>
-          </div>
-
-          @if (hasChanges()) {
-            <div class="summary-box" [class.improved]="deltaKaufkraft() > 5" [class.worsened]="deltaKaufkraft() < -5">
-              @if (deltaKaufkraft() > 5) {
-                <span class="summary-icon">📈</span>
-                <span>Ihre reale Kaufkraft verbessert sich um <strong>{{ formatDelta(deltaKaufkraft()) }}</strong>/Monat.
-                  @if (whatIfResult().rentenluecke <= 0 && baselineResult().rentenluecke > 0) {
-                    Ihre Rentenlücke wäre geschlossen! 🎉
-                  }
-                </span>
-              } @else if (deltaKaufkraft() < -5) {
-                <span class="summary-icon">📉</span>
-                <span>Ihre reale Kaufkraft sinkt um <strong>{{ formatDelta(-deltaKaufkraft()) }}</strong>/Monat.
-                  @if (whatIfResult().rentenluecke > baselineResult().rentenluecke) {
-                    Ihre Rentenlücke wächst auf {{ whatIfResult().rentenluecke | euro }}/Monat.
-                  }
-                </span>
-              } @else {
-                <span class="summary-icon">↔️</span>
-                <span>Nahezu keine Veränderung zur aktuellen Prognose.</span>
-              }
-            </div>
+        <div class="summary-stat">
+          <span class="stat-label">Kaufkraftverlust bis Rente</span>
+          @if (inflationLoss() > 0) {
+            <span class="stat-value text-danger">−{{ inflationLoss() }}%</span>
+          } @else {
+            <span class="stat-value text-success">0%</span>
           }
+        </div>
+        <div class="summary-stat">
+          <span class="stat-label">Handlungsfenster</span>
+          <span class="stat-value" [class.text-danger]="actionWindowYears() <= 5" [class.text-success]="actionWindowYears() > 10">
+            {{ actionWindowYears() }} Jahre
+          </span>
+        </div>
+        <div class="summary-stat">
+          <span class="stat-label">Meilensteine</span>
+          <span class="stat-value">{{ milestones().length }}</span>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .whatif-section {
+    .timeline-section {
       padding: 2rem;
       background: white;
       border-radius: var(--radius-lg);
@@ -233,299 +145,538 @@ import { PensionCalculatorService } from '../../../core/services/pension-calcula
     .section-subtitle {
       font-size: 0.88rem;
       color: var(--color-text-light);
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
     }
 
-    .whatif-layout {
-      display: grid;
-      grid-template-columns: 1fr 1.2fr;
-      gap: 2rem;
-    }
-
-    /* Controls */
-    .whatif-controls {
+    /* Timeline */
+    .timeline {
       display: flex;
       flex-direction: column;
+      gap: 0;
+      margin-bottom: 2rem;
+    }
+
+    .timeline-item {
+      display: flex;
       gap: 1.25rem;
+      min-height: 80px;
     }
 
-    .control-group label {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--color-primary);
-      margin-bottom: 0.5rem;
-    }
-
-    .label-delta {
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
-
-    .label-delta.positive { color: var(--color-success); }
-    .label-delta.negative { color: var(--color-danger); }
-
-    .slider-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .slider-row input[type="range"] {
-      flex: 1;
-      accent-color: var(--color-accent);
-      height: 6px;
-    }
-
-    .slider-output {
-      min-width: 80px;
-      text-align: right;
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: var(--color-primary);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .range-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.7rem;
-      color: var(--color-text-light);
-      margin-top: 0.15rem;
-    }
-
-    .reset-btn {
-      margin-top: 0.5rem;
-      padding: 0.55rem 1.25rem;
-      background: #f1f5f9;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--color-text-light);
-      cursor: pointer;
-      transition: all 0.2s;
-      align-self: flex-start;
-    }
-
-    .reset-btn:hover:not(:disabled) {
-      background: #e2e8f0;
-      color: var(--color-text);
-    }
-
-    .reset-btn:disabled {
-      opacity: 0.4;
-      cursor: default;
-    }
-
-    /* Results */
-    .whatif-results {
+    .timeline-track {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      align-items: center;
+      flex-shrink: 0;
+      width: 48px;
     }
 
-    .results-title {
+    .timeline-dot {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 3px solid var(--color-border);
+      background: white;
+      z-index: 1;
+      transition: all 0.3s ease;
+    }
+
+    .timeline-dot[data-type="now"] {
+      border-color: var(--color-accent);
+      background: linear-gradient(135deg, #0f3460, #1a5276);
+      box-shadow: 0 0 0 4px rgba(15, 52, 96, 0.12);
+    }
+
+    .timeline-dot[data-type="action"] {
+      border-color: #f39c12;
+      background: #fffbeb;
+    }
+
+    .timeline-dot[data-type="action"][data-urgency="high"] {
+      border-color: var(--color-danger);
+      background: #fef2f2;
+      box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.1);
+    }
+
+    .timeline-dot[data-type="deadline"] {
+      border-color: var(--color-danger);
+      background: #fef2f2;
+    }
+
+    .timeline-dot[data-type="retirement"] {
+      border-color: var(--color-success);
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.12);
+    }
+
+    .timeline-dot[data-type="projection"] {
+      border-color: #bae6fd;
+      background: #f0f9ff;
+    }
+
+    .dot-icon {
+      font-size: 1.15rem;
+    }
+
+    .timeline-connector {
+      width: 3px;
+      flex: 1;
+      min-height: 20px;
+      background: linear-gradient(to bottom, var(--color-border), rgba(15, 52, 96, 0.08));
+      border-radius: 2px;
+    }
+
+    /* Content */
+    .timeline-content {
+      flex: 1;
+      padding: 0.5rem 1.25rem 1.5rem;
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+
+    .timeline-content[data-type="now"] {
+      background: linear-gradient(135deg, rgba(15, 52, 96, 0.03), rgba(15, 52, 96, 0.06));
+      border-left: 3px solid var(--color-accent);
+      padding-left: 1rem;
+    }
+
+    .timeline-content[data-type="retirement"] {
+      background: linear-gradient(135deg, rgba(39, 174, 96, 0.03), rgba(39, 174, 96, 0.06));
+      border-left: 3px solid var(--color-success);
+      padding-left: 1rem;
+    }
+
+    .milestone-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .milestone-year {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: white;
+      background: var(--color-primary);
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.03em;
+      flex-shrink: 0;
+    }
+
+    .milestone-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .milestone-label {
       font-size: 0.92rem;
       font-weight: 700;
       color: var(--color-primary);
-      margin-bottom: 0.25rem;
+      margin: 0;
+      line-height: 1.3;
     }
 
-    .delta-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
+    .milestone-age {
+      font-size: 0.72rem;
+      color: var(--color-text-light);
+      font-weight: 500;
     }
 
-    .delta-card {
-      padding: 0.85rem;
-      border-radius: var(--radius-md);
-      background: #f8fafc;
-      border: 1px solid var(--color-border);
+    .urgency-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .urgency-badge[data-urgency="high"] {
+      background: rgba(231, 76, 60, 0.1);
+      color: var(--color-danger);
+    }
+
+    .urgency-badge[data-urgency="medium"] {
+      background: rgba(243, 156, 18, 0.1);
+      color: #e67e22;
+    }
+
+    .urgency-badge[data-urgency="low"] {
+      background: rgba(52, 152, 219, 0.1);
+      color: #2980b9;
+    }
+
+    .milestone-sublabel {
+      font-size: 0.82rem;
+      color: var(--color-text-light);
+      line-height: 1.6;
+      margin: 0.25rem 0 0.5rem;
+    }
+
+    .milestone-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .metric-pill {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.15rem;
-      transition: border-color 0.3s, background 0.3s;
+      padding: 0.45rem 0.75rem;
+      background: #f8fafc;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      min-width: 90px;
     }
 
-    .delta-card.changed {
-      border-color: var(--color-accent);
-      background: rgba(15, 52, 96, 0.02);
-    }
-
-    .delta-label {
-      font-size: 0.68rem;
+    .metric-label {
+      font-size: 0.65rem;
       font-weight: 600;
-      color: var(--color-text-light);
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      color: var(--color-text-light) !important;
     }
 
-    .delta-value {
-      font-size: 1.05rem;
+    .metric-value {
+      font-size: 0.92rem;
       font-weight: 800;
-      color: var(--color-primary);
       font-variant-numeric: tabular-nums;
     }
 
-    .delta-change {
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 0.12rem 0.45rem;
-      border-radius: 4px;
+    .action-hint {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--color-accent);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-top: 0.25rem;
     }
 
-    .delta-change.positive {
-      color: var(--color-success);
-      background: rgba(39, 174, 96, 0.08);
+    .action-arrow {
+      font-weight: 900;
+      font-size: 0.85rem;
     }
 
-    .delta-change.negative {
-      color: var(--color-danger);
-      background: rgba(231, 76, 60, 0.08);
+    .legal-ref {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.72rem;
+      color: var(--color-accent);
+      text-decoration: none;
+      margin-top: 0.35rem;
+      transition: color 0.2s;
     }
 
-    .delta-change.neutral {
+    .legal-ref:hover {
+      color: var(--color-primary);
+      text-decoration: underline;
+    }
+
+    /* Summary Strip */
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      padding: 1.25rem;
+      background: linear-gradient(135deg, #f8fafc, #f0f4ff);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(15, 52, 96, 0.08);
+    }
+
+    .summary-stat {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .stat-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       color: var(--color-text-light);
-      background: transparent;
+    }
+
+    .stat-value {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--color-primary);
     }
 
     .text-danger { color: var(--color-danger) !important; }
     .text-success { color: var(--color-success) !important; }
 
-    .summary-box {
-      padding: 1rem 1.25rem;
-      border-radius: var(--radius-md);
-      font-size: 0.88rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      line-height: 1.5;
-    }
-
-    .summary-box.improved {
-      background: rgba(39, 174, 96, 0.06);
-      border: 1px solid rgba(39, 174, 96, 0.2);
-      color: #166534;
-    }
-
-    .summary-box.worsened {
-      background: rgba(231, 76, 60, 0.06);
-      border: 1px solid rgba(231, 76, 60, 0.2);
-      color: #991b1b;
-    }
-
-    .summary-box:not(.improved):not(.worsened) {
-      background: #f8fafc;
-      border: 1px solid var(--color-border);
-      color: var(--color-text-light);
-    }
-
-    .summary-icon { font-size: 1.2rem; flex-shrink: 0; }
-
-    .summary-box strong { font-weight: 800; }
-
     @media (max-width: 768px) {
-      .whatif-layout {
-        grid-template-columns: 1fr;
+      .summary-strip {
+        grid-template-columns: 1fr 1fr;
       }
 
-      .delta-grid {
-        grid-template-columns: 1fr 1fr;
+      .milestone-header {
+        flex-wrap: wrap;
+      }
+
+      .milestone-metrics {
+        flex-direction: column;
+      }
+
+      .metric-pill {
+        flex-direction: row;
+        justify-content: space-between;
+        min-width: unset;
       }
     }
 
     @media (max-width: 480px) {
-      .delta-grid {
-        grid-template-columns: 1fr;
+      .timeline-item {
+        gap: 0.75rem;
+      }
+
+      .timeline-track {
+        width: 38px;
+      }
+
+      .timeline-dot {
+        width: 36px;
+        height: 36px;
+      }
+
+      .dot-icon {
+        font-size: 1rem;
       }
     }
   `],
 })
 export class WhatIfAnalysisComponent {
   private readonly calcService = inject(PensionCalculatorService);
+  private readonly inflationService = inject(InflationService);
+  private readonly savingsService = inject(SavingsCalculatorService);
 
   readonly pensionInput = input.required<PensionInput>();
   readonly baselineResult = input.required<PensionResult>();
 
-  /**
-   * What-if override signals.
-   * Inflation stored as integer (0-60) representing tenths of percent to avoid float issues.
-   */
-  readonly whatIfBrutto = signal(1500);
-  readonly whatIfInflationPct = signal(20); // 20 = 2.0%
-  readonly whatIfRentenbeginn = signal(2058);
-  readonly whatIfWunsch = signal(2500);
-
-  /** Sync sliders to input when input changes */
-  constructor() {
-    effect(() => {
-      const inp = this.pensionInput();
-      this.whatIfBrutto.set(inp.bruttoMonatlicheRente);
-      this.whatIfInflationPct.set(Math.round(inp.inflationsrate * 1000));
-      this.whatIfRentenbeginn.set(inp.rentenbeginnJahr);
-      this.whatIfWunsch.set(inp.gewuenschteMonatlicheRente);
-    }, { allowSignalWrites: true });
-  }
-
-  /** Baseline inflation as integer for comparison */
-  readonly baselineInflationPct = computed(() =>
-    Math.round(this.pensionInput().inflationsrate * 1000)
-  );
-
-  readonly hasChanges = computed(() =>
-    this.whatIfBrutto() !== this.pensionInput().bruttoMonatlicheRente ||
-    this.whatIfInflationPct() !== this.baselineInflationPct() ||
-    this.whatIfRentenbeginn() !== this.pensionInput().rentenbeginnJahr ||
-    this.whatIfWunsch() !== this.pensionInput().gewuenschteMonatlicheRente
-  );
-
-  readonly whatIfResult = computed(() => {
+  /** Build the timeline milestones based on user's current situation */
+  readonly milestones = computed<TimelineMilestone[]>(() => {
     const inp = this.pensionInput();
-    const modified: PensionInput = {
-      ...inp,
-      bruttoMonatlicheRente: this.whatIfBrutto(),
-      inflationsrate: this.whatIfInflationPct() / 1000,
-      rentenbeginnJahr: this.whatIfRentenbeginn(),
-      gewuenschteMonatlicheRente: this.whatIfWunsch(),
-    };
-    return this.calcService.calculate(modified);
+    const res = this.baselineResult();
+    const currentYear = new Date().getFullYear();
+    const milestones: TimelineMilestone[] = [];
+
+    // ── 1. TODAY ──
+    milestones.push({
+      year: currentYear,
+      age: inp.aktuellesAlter,
+      icon: '📍',
+      label: 'Heute — Ihr Ausgangspunkt',
+      sublabel: `Sie sind ${inp.aktuellesAlter} Jahre alt. Ihre prognostizierte Bruttorente liegt bei ${inp.bruttoMonatlicheRente.toLocaleString('de-DE')} €/Monat. ${res.rentenluecke > 0 ? 'Es besteht Handlungsbedarf.' : 'Sie sind gut aufgestellt!'}`,
+      type: 'now',
+      metrics: [
+        { label: 'Bruttorente', value: `${inp.bruttoMonatlicheRente.toLocaleString('de-DE')} €` },
+        { label: 'Nettorente', value: `${Math.round(res.nettoMonatlich).toLocaleString('de-DE')} €` },
+        { label: 'Rentenlücke', value: `${Math.round(res.rentenluecke).toLocaleString('de-DE')} €`, color: res.rentenluecke > 0 ? 'var(--color-danger)' : 'var(--color-success)' },
+        { label: 'Deckung', value: `${res.deckungsquote.toFixed(0)}%`, color: res.deckungsquote >= 80 ? 'var(--color-success)' : 'var(--color-danger)' },
+      ],
+    });
+
+    // ── 2. ZINSESZINS-FENSTER (if young enough and gap exists) ──
+    if (res.jahresBisRente > 10 && res.rentenluecke > 0) {
+      const compoundYears = res.jahresBisRente;
+      const nowMonthly = this.savingsService.calculateRequiredMonthlySavings(res.rentenluecke, 0.07, compoundYears, 25);
+      const laterYears = Math.max(1, compoundYears - 5);
+      const laterMonthly = this.savingsService.calculateRequiredMonthlySavings(res.rentenluecke, 0.07, laterYears, 25);
+      const costOfWaiting = Math.round(laterMonthly - nowMonthly);
+      milestones.push({
+        year: currentYear + 1, // offset by 1 so it doesn't overlap "today" visually
+        age: inp.aktuellesAlter + 1,
+        icon: '⏳',
+        label: 'Zinseszins-Fenster — Jetzt handeln',
+        sublabel: `Wenn Sie jetzt starten, brauchen Sie nur ${Math.round(nowMonthly).toLocaleString('de-DE')} €/Monat. Warten Sie 5 Jahre, werden es ${Math.round(laterMonthly).toLocaleString('de-DE')} €/Monat — das sind ${costOfWaiting.toLocaleString('de-DE')} € mehr pro Monat durch entgangenen Zinseszins.`,
+        type: 'action',
+        urgency: 'high',
+        metrics: [
+          { label: 'Jetzt starten', value: `${Math.round(nowMonthly).toLocaleString('de-DE')} €/M`, color: 'var(--color-success)' },
+          { label: 'In 5 J. starten', value: `${Math.round(laterMonthly).toLocaleString('de-DE')} €/M`, color: 'var(--color-danger)' },
+          { label: 'Kosten des Wartens', value: `+${costOfWaiting.toLocaleString('de-DE')} €/M`, color: 'var(--color-danger)' },
+        ],
+        actionHint: 'Je früher Sie beginnen, desto weniger müssen Sie monatlich aufwenden.',
+      });
+    }
+
+    // ── 3. AGE 50 — Riester/Rürup Deadline ──
+    const yearsTo50 = 50 - inp.aktuellesAlter;
+    if (yearsTo50 > 0 && inp.aktuellesAlter > 25) {
+      milestones.push({
+        year: currentYear + yearsTo50,
+        age: 50,
+        icon: '📋',
+        label: 'Riester/Rürup — Letzte effektive Phase',
+        sublabel: `Ab 50 wird der Steuervorteil von Rürup-Verträgen durch die kürzere Ansparzeit geringer. Nutzen Sie die verbleibenden ${yearsTo50} Jahre für maximale staatliche Förderung.`,
+        type: 'action',
+        urgency: yearsTo50 <= 5 ? 'high' : 'medium',
+        actionHint: 'Prüfen Sie Riester- und Rürup-Angebote für maximale staatliche Zulagen und Steuervorteile.',
+        legalRef: {
+          label: '§10a EStG — Riester-Förderung',
+          url: 'https://www.gesetze-im-internet.de/estg/__10a.html',
+        },
+      });
+    }
+
+    // ── 4. AGE 55 — Betriebliche AV Deadline ──
+    const yearsTo55 = 55 - inp.aktuellesAlter;
+    if (yearsTo55 > 0 && res.jahresBisRente > 5) {
+      milestones.push({
+        year: currentYear + yearsTo55,
+        age: 55,
+        icon: '🏢',
+        label: 'Betriebliche Altersvorsorge — Handlungsfenster',
+        sublabel: `Entgeltumwandlung lohnt sich am meisten mit genügend Ansparzeit. Ab 55 wird es eng. Sprechen Sie jetzt mit Ihrem Arbeitgeber.`,
+        type: 'action',
+        urgency: yearsTo55 <= 3 ? 'high' : 'low',
+        actionHint: 'Fragen Sie Ihren Arbeitgeber nach dem bAV-Angebot — er muss mindestens 15% Zuschuss geben.',
+        legalRef: {
+          label: '§1a BetrAVG — Entgeltumwandlung',
+          url: 'https://www.gesetze-im-internet.de/betravg/__1a.html',
+        },
+      });
+    }
+
+    // ── 5. AGE 63 — Frühestmögliche Rente (besonders langjährig Versicherte) ──
+    const yearsTo63 = 63 - inp.aktuellesAlter;
+    if (yearsTo63 > 0) {
+      // Abschlag: 0.3% pro Monat vor Regelaltersgrenze
+      const monthsEarly = (inp.rentenbeginnJahr - (currentYear + yearsTo63)) * 12;
+      const abschlagProzent = Math.max(0, monthsEarly * 0.3);
+      const earlyBrutto = Math.round(inp.bruttoMonatlicheRente * (1 - abschlagProzent / 100));
+      const earlyResult = abschlagProzent > 0
+        ? this.calcService.calculate({ ...inp, rentenbeginnJahr: currentYear + yearsTo63, bruttoMonatlicheRente: earlyBrutto })
+        : null;
+
+      milestones.push({
+        year: currentYear + yearsTo63,
+        age: 63,
+        icon: '🔑',
+        label: 'Frühestmögliche Altersrente (63)',
+        sublabel: abschlagProzent > 0
+          ? `Mit 45 Beitragsjahren: abschlagsfrei. Ansonsten: ${abschlagProzent.toFixed(1)}% Abschlag (${(abschlagProzent / 0.3).toFixed(0)} Monate vor Regelalter).`
+          : 'Sie könnten hier bereits ohne Abschläge in Rente gehen.',
+        type: 'deadline',
+        metrics: earlyResult ? [
+          { label: 'Abschlag', value: `-${abschlagProzent.toFixed(1)}%`, color: 'var(--color-danger)' },
+          { label: 'Bruttorente', value: `${earlyBrutto.toLocaleString('de-DE')} €`, color: 'var(--color-danger)' },
+          { label: 'Netto bei 63', value: `${Math.round(earlyResult.nettoMonatlich).toLocaleString('de-DE')} €` },
+        ] : [
+          { label: 'Abschlag', value: 'keiner', color: 'var(--color-success)' },
+        ],
+        legalRef: {
+          label: '§36 SGB VI — Altersrente für langjährig Versicherte',
+          url: 'https://www.gesetze-im-internet.de/sgb_6/__36.html',
+        },
+      });
+    }
+
+    // ── 6. RETIREMENT ──
+    milestones.push({
+      year: inp.rentenbeginnJahr,
+      age: inp.aktuellesAlter + res.jahresBisRente,
+      icon: '🎉',
+      label: 'Ihr Rentenbeginn',
+      sublabel: `Regelaltersgrenze erreicht. Ihre Rente wird mit ${(res.besteuerungsanteil * 100).toFixed(0)}% besteuert (Besteuerungsanteil für Rentenbeginn ${inp.rentenbeginnJahr}).`,
+      type: 'retirement',
+      metrics: [
+        { label: 'Bruttorente', value: `${inp.bruttoMonatlicheRente.toLocaleString('de-DE')} €` },
+        { label: 'Nettorente', value: `${Math.round(res.nettoMonatlich).toLocaleString('de-DE')} €`, color: 'var(--color-success)' },
+        { label: 'Kaufkraft (real)', value: `${Math.round(res.realeKaufkraftMonatlich).toLocaleString('de-DE')} €`, color: res.realeKaufkraftMonatlich < res.nettoMonatlich * 0.7 ? 'var(--color-danger)' : undefined },
+        { label: 'Besteuerung', value: `${(res.besteuerungsanteil * 100).toFixed(0)}%` },
+      ],
+      legalRef: {
+        label: '§22 Nr. 1 EStG — Rentenbesteuerung',
+        url: 'https://www.gesetze-im-internet.de/estg/__22.html',
+      },
+    });
+
+    // ── 7. 10 YEARS INTO RETIREMENT — Inflation impact ──
+    const retirementAge = inp.aktuellesAlter + res.jahresBisRente;
+    if (inp.inflationsrate > 0) {
+      const projYear10 = inp.rentenbeginnJahr + 10;
+      const realValue10 = this.inflationService.computeRealValue(
+        res.nettoMonatlich, inp.inflationsrate, res.jahresBisRente + 10
+      );
+      const kaufkraftVerlust10 = res.nettoMonatlich > 0
+        ? Math.round((1 - realValue10 / res.nettoMonatlich) * 100)
+        : 0;
+
+      milestones.push({
+        year: projYear10,
+        age: retirementAge + 10,
+        icon: '📉',
+        label: '10 Jahre im Ruhestand — Inflationseffekt',
+        sublabel: `Nach 10 Jahren Ruhestand hat die Inflation Ihre Kaufkraft um ca. ${kaufkraftVerlust10}% reduziert. Ihre ${Math.round(res.nettoMonatlich).toLocaleString('de-DE')} € Nettorente haben dann nur noch eine Kaufkraft von ${Math.round(realValue10).toLocaleString('de-DE')} €.`,
+        type: 'projection',
+        metrics: [
+          { label: 'Nominal', value: `${Math.round(res.nettoMonatlich).toLocaleString('de-DE')} €` },
+          { label: 'Real (Kaufkraft)', value: `${Math.round(realValue10).toLocaleString('de-DE')} €`, color: 'var(--color-danger)' },
+          { label: 'Kaufkraftverlust', value: `-${kaufkraftVerlust10}%`, color: 'var(--color-danger)' },
+        ],
+      });
+
+      // ── 8. 25 YEARS INTO RETIREMENT — Long-term outlook ──
+      const projYear25 = inp.rentenbeginnJahr + 25;
+      const realValue25 = this.inflationService.computeRealValue(
+        res.nettoMonatlich, inp.inflationsrate, res.jahresBisRente + 25
+      );
+      const kaufkraftVerlust25 = res.nettoMonatlich > 0
+        ? Math.round((1 - realValue25 / res.nettoMonatlich) * 100)
+        : 0;
+
+      milestones.push({
+        year: projYear25,
+        age: retirementAge + 25,
+        icon: '🔮',
+        label: '25 Jahre im Ruhestand — Langzeitprognose',
+        sublabel: `Bei ${(inp.inflationsrate * 100).toFixed(1)}% jährlicher Inflation hat Ihre Rente nach 25 Jahren nur noch ${Math.max(0, 100 - kaufkraftVerlust25)}% der heutigen Kaufkraft. ${kaufkraftVerlust25 > 50 ? 'Private Vorsorge ist essentiell, um diesen Verlust auszugleichen.' : 'Ein guter Grund, frühzeitig vorzusorgen.'}`,
+        type: 'projection',
+        metrics: [
+          { label: 'Nominal', value: `${Math.round(res.nettoMonatlich).toLocaleString('de-DE')} €` },
+          { label: 'Real (Kaufkraft)', value: `${Math.round(realValue25).toLocaleString('de-DE')} €`, color: 'var(--color-danger)' },
+          { label: 'Kaufkraftverlust', value: `-${kaufkraftVerlust25}%`, color: 'var(--color-danger)' },
+        ],
+      });
+    }
+
+    // Sort by year, then by type priority for same year
+    const typePriority: Record<string, number> = { now: 0, action: 1, deadline: 2, retirement: 3, projection: 4 };
+    return milestones.sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return (typePriority[a.type] || 99) - (typePriority[b.type] || 99);
+    });
   });
 
-  readonly deltaNetto = computed(() =>
-    Math.round(this.whatIfResult().nettoMonatlich - this.baselineResult().nettoMonatlich)
-  );
-  readonly deltaKaufkraft = computed(() =>
-    Math.round(this.whatIfResult().realeKaufkraftMonatlich - this.baselineResult().realeKaufkraftMonatlich)
-  );
-  readonly deltaLuecke = computed(() =>
-    Math.round(this.whatIfResult().rentenluecke - this.baselineResult().rentenluecke)
-  );
-  readonly deltaDeckung = computed(() =>
-    this.whatIfResult().deckungsquote - this.baselineResult().deckungsquote
-  );
-  readonly deltaAbzuege = computed(() =>
-    Math.round(this.whatIfResult().gesamtAbzuegeMonatlich - this.baselineResult().gesamtAbzuegeMonatlich)
-  );
-  readonly deltaJahre = computed(() =>
-    this.whatIfResult().jahresBisRente - this.baselineResult().jahresBisRente
-  );
+  readonly totalYears = computed(() => {
+    const ms = this.milestones();
+    if (ms.length < 2) return 0;
+    return ms[ms.length - 1].year - ms[0].year;
+  });
 
-  resetToBaseline(): void {
-    const inp = this.pensionInput();
-    this.whatIfBrutto.set(inp.bruttoMonatlicheRente);
-    this.whatIfInflationPct.set(Math.round(inp.inflationsrate * 1000));
-    this.whatIfRentenbeginn.set(inp.rentenbeginnJahr);
-    this.whatIfWunsch.set(inp.gewuenschteMonatlicheRente);
-  }
+  readonly inflationLoss = computed(() => {
+    const res = this.baselineResult();
+    if (res.nettoMonatlich <= 0) return 0;
+    return Math.round((1 - res.realeKaufkraftMonatlich / res.nettoMonatlich) * 100);
+  });
 
-  formatDelta(delta: number): string {
-    const sign = delta >= 0 ? '+' : '';
-    return `${sign}${delta.toLocaleString('de-DE')} €`;
-  }
+  readonly actionWindowYears = computed(() => this.baselineResult().jahresBisRente);
+
+  readonly actionMilestoneCount = computed(() =>
+    this.milestones().filter(m => m.type === 'action' || m.type === 'deadline').length
+  );
 }
 

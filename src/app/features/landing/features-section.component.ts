@@ -83,12 +83,24 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
             <div class="feature-label free-label">Kostenlos</div>
             <h3 class="feature-title">Multi-Szenario-Vergleich</h3>
             <p class="feature-desc">
-              Was-wäre-wenn-Analysen: Verschiedene Renteneintrittsalter, Gehaltsverläufe
-              und Sparstrategien im direkten Vergleich.
+              Verschiedene Renteneintrittsalter und Gehaltsverläufe
+              im direkten Vergleich — Ihre beste Option auf einen Blick.
             </p>
           </div>
 
           <div class="feature-card premium-feature" appScrollAnimate appScrollAnimateDelay="delay-3">
+            <div class="feature-icon-wrap purple">
+              <span class="feature-icon">🗓️</span>
+            </div>
+            <div class="feature-label free-label">Kostenlos</div>
+            <h3 class="feature-title">Renten-Zeitstrahl</h3>
+            <p class="feature-desc">
+              Ihr persönlicher Zeitstrahl: Meilensteine, Handlungsfenster
+              und Kaufkraftentwicklung von heute bis zum Ruhestand.
+            </p>
+          </div>
+
+          <div class="feature-card premium-feature" appScrollAnimate appScrollAnimateDelay="delay-4">
             <div class="feature-icon-wrap purple">
               <span class="feature-icon">🎯</span>
             </div>
