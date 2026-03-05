@@ -496,7 +496,7 @@ export class OptimizationStrategiesComponent {
         impact: gesamtZusatz,
         impactLabel: '/Monat mehr Rente',
         category: 'pension',
-        actionStep: 'Antrag auf freiwillige Versicherung (V0060) bei der DRV stellen.',
+        actionStep: 'Antrag auf freiwillige Versicherung (Formular V0060, deutsche-rentenversicherung.de) bei der DRV stellen.',
       });
     }
 
@@ -549,7 +549,7 @@ export class OptimizationStrategiesComponent {
         impact: 111,
         impactLabel: '/Monat pro Kind',
         category: 'pension',
-        actionStep: 'Formular V0800 bei der Deutschen Rentenversicherung anfordern oder online ausfüllen.',
+        actionStep: 'Formular V0800 (deutsche-rentenversicherung.de) bei der DRV anfordern oder online ausfüllen.',
       });
     }
 

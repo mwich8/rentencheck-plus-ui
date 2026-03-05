@@ -59,8 +59,8 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
             <div class="feature-label free-label">Kostenlos</div>
             <h3 class="feature-title">Steuer- & Abzugsübersicht</h3>
             <p class="feature-desc">
-              Detaillierte Aufschlüsselung: Einkommensteuer (§32a EStG),
-              KVdR-Beitrag, Pflegeversicherung — alles auf einen Blick.
+              Detaillierte Aufschlüsselung: Einkommensteuer (<a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>),
+              <a href="https://www.gkv-spitzenverband.de" target="_blank" rel="noopener">KVdR</a>-Beitrag, Pflegeversicherung — alles auf einen Blick.
             </p>
           </div>
 
@@ -267,6 +267,16 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
       font-size: 0.88rem;
       color: var(--color-text-light);
       line-height: 1.7;
+    }
+
+    .feature-desc a {
+      color: var(--color-accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .feature-desc a:hover {
+      color: var(--color-primary);
     }
 
     .features-cta {

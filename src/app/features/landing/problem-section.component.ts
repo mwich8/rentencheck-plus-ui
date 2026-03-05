@@ -40,7 +40,7 @@ import { CountUpDirective } from '../../shared/directives/count-up.directive';
             </div>
             <h3 class="problem-card-title">Steuern & Sozialabgaben</h3>
             <p class="problem-card-text">
-              Von Ihrer Bruttorente gehen noch Einkommensteuer (§32a EStG), Krankenversicherung (KVdR)
+              Von Ihrer Bruttorente gehen noch Einkommensteuer (<a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>), Krankenversicherung (<a href="https://www.gkv-spitzenverband.de" target="_blank" rel="noopener">KVdR</a>)
               und Pflegeversicherung ab.
             </p>
             <div class="problem-stat">
@@ -199,6 +199,16 @@ import { CountUpDirective } from '../../shared/directives/count-up.directive';
       color: var(--color-text-light);
       line-height: 1.7;
       margin-bottom: 1.25rem;
+    }
+
+    .problem-card-text a {
+      color: var(--color-accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .problem-card-text a:hover {
+      color: var(--color-primary);
     }
 
     .problem-stat {

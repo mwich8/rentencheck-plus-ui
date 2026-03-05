@@ -30,7 +30,7 @@ interface FaqItem {
                 </span>
               </summary>
               <div class="faq-answer">
-                <p>{{ item.answer }}</p>
+                <p [innerHTML]="item.answer"></p>
               </div>
             </details>
           }
@@ -142,6 +142,16 @@ interface FaqItem {
       line-height: 1.8;
     }
 
+    .faq-answer a {
+      color: var(--color-accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .faq-answer a:hover {
+      color: var(--color-primary);
+    }
+
     /* Scroll animations */
     :host ::ng-deep .animate-on-scroll {
       opacity: 0;
@@ -161,7 +171,7 @@ export class LandingFaqComponent {
   readonly faqs: FaqItem[] = [
     {
       question: 'Wie viel bleibt von meiner gesetzlichen Rente wirklich übrig?',
-      answer: 'Von der Bruttorente werden Einkommensteuer (§32a EStG), Krankenversicherung (KVdR), Pflegeversicherung und der Inflationsverlust abgezogen. Bei einer Bruttorente von 1.500€ bleiben oft unter 900€ reale Kaufkraft.',
+      answer: 'Von der Bruttorente werden Einkommensteuer (<a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>), Krankenversicherung (<a href="https://www.gkv-spitzenverband.de" target="_blank" rel="noopener">KVdR</a>), Pflegeversicherung und der Inflationsverlust abgezogen. Bei einer Bruttorente von 1.500€ bleiben oft unter 900€ reale Kaufkraft.',
     },
     {
       question: 'Was ist die Rentenlücke?',
@@ -169,7 +179,7 @@ export class LandingFaqComponent {
     },
     {
       question: 'Wie genau sind die Berechnungen?',
-      answer: 'Unsere Berechnungen basieren auf den aktuellen gesetzlichen Grundlagen (§32a EStG 2025/2026, KVdR-Sätze, §55 SGB XI). Sie können von Ihrer individuellen Situation abweichen, bieten aber eine sehr gute Orientierung.',
+      answer: 'Unsere Berechnungen basieren auf den aktuellen gesetzlichen Grundlagen (<a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG 2025/2026</a>, <a href="https://www.gkv-spitzenverband.de" target="_blank" rel="noopener">KVdR-Sätze</a>, <a href="https://www.gesetze-im-internet.de/sgb_11/__55.html" target="_blank" rel="noopener">§55 SGB XI</a>). Sie können von Ihrer individuellen Situation abweichen, bieten aber eine sehr gute Orientierung.',
     },
     {
       question: 'Werden meine Daten gespeichert?',
@@ -181,7 +191,7 @@ export class LandingFaqComponent {
     },
     {
       question: 'Was unterscheidet die Detail-Analyse vom Premium-Paket?',
-      answer: 'Die Detail-Analyse ist aktuell kostenlos und liefert einen PDF-Report mit 30-Jahre-Inflationsprognose und persönlichen Handlungsempfehlungen — z.\u00a0B. ob Sie Kindererziehungszeiten (Formular V0800) bei der DRV geltend machen können. Das Premium-Paket bietet zukünftig zusätzlich Multi-Szenario-Vergleiche, Was-wäre-wenn-Analysen und individuelle Optimierungsvorschläge.',
+      answer: 'Die Detail-Analyse ist aktuell kostenlos und liefert einen PDF-Report mit 30-Jahre-Inflationsprognose und persönlichen Handlungsempfehlungen — z.\u00a0B. ob Sie Kindererziehungszeiten (<a href="https://www.deutsche-rentenversicherung.de/SharedDocs/Formulare/DE/_pdf/V0800.html" target="_blank" rel="noopener">Formular V0800</a>) bei der DRV geltend machen können. Das Premium-Paket bietet zukünftig zusätzlich Multi-Szenario-Vergleiche, Was-wäre-wenn-Analysen und individuelle Optimierungsvorschläge.',
     },
   ];
 

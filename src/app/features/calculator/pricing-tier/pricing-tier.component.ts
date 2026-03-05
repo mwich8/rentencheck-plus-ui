@@ -50,7 +50,7 @@ export type PricingTier = 'free' | 'report' | 'premium';
           <ul class="tier-features">
             <li class="included">✓ Alles aus Schnell-Check</li>
             <li class="included">✓ Detaillierter PDF-Report</li>
-            <li class="included">✓ Steuerberechnung nach §32a</li>
+            <li class="included">✓ Steuerberechnung nach <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a></li>
             <li class="included">✓ 30-Jahre-Inflationsprognose</li>
             <li class="included">✓ Persönliche Handlungsempfehlungen</li>
             <li class="excluded">✗ Multi-Szenario-Vergleich</li>

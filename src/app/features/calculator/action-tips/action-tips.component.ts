@@ -523,7 +523,7 @@ export class ActionTipsComponent {
       tips.push({
         icon: '👶',
         title: 'Kindererziehungszeiten prüfen',
-        description: `Für Kindererziehung können bis zu 3 Rentenpunkte pro Kind gutgeschrieben werden — das sind ca. 111 €/Monat mehr Rente. Falls noch nicht beantragt, stellen Sie den Antrag mit dem Formular V0800 bei der Deutschen Rentenversicherung.`,
+        description: `Für Kindererziehung können bis zu 3 Rentenpunkte pro Kind gutgeschrieben werden — das sind ca. 111 €/Monat mehr Rente. Falls noch nicht beantragt, stellen Sie den Antrag mit dem Formular V0800 bei der Deutschen Rentenversicherung (deutsche-rentenversicherung.de).`,
         highlight: `Formular V0800 bei der DRV anfordern`,
         type: 'strategy',
       });

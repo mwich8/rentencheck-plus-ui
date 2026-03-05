@@ -48,7 +48,7 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
         </a>
         <div class="nav-badges">
           <span class="nav-badge">✓ Kostenlos</span>
-          <span class="nav-badge">✓ §32a EStG-konform</span>
+          <span class="nav-badge">✓ <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>-konform</span>
         </div>
       </div>
     </nav>
@@ -67,7 +67,7 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
         <div class="hero-cta">
           <span class="hero-badge">✓ Kostenlos</span>
           <span class="hero-badge">✓ Sofort-Ergebnis</span>
-          <span class="hero-badge">✓ §32a EStG-konform</span>
+          <span class="hero-badge">✓ <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>-konform</span>
         </div>
         <a href="#rechner" class="scroll-cta" aria-label="Zum Rechner scrollen">
           <span class="scroll-arrow">↓</span>
@@ -240,17 +240,17 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
           <p>
             RentenCheck+ ist ein Informationstool und ersetzt keine individuelle Steuer- oder
             Finanzberatung. Die Berechnungen basieren auf den aktuellen gesetzlichen Grundlagen
-            (§32a EStG, KVdR-Sätze 2026) und können von Ihrer tatsächlichen steuerlichen
+            (<a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>, KVdR-Sätze 2026) und können von Ihrer tatsächlichen steuerlichen
             Situation abweichen. Keine Gewähr für die Richtigkeit der Berechnungen.
           </p>
         </div>
         <div class="footer-sources">
           <h4>📚 Datenquellen</h4>
           <ul>
-            <li>Einkommensteuer: §32a EStG 2025/2026</li>
-            <li>KVdR-Beitragssätze: GKV-Spitzenverband</li>
-            <li>Besteuerungsanteil: §22 Nr. 1 EStG (Wachstumschancengesetz)</li>
-            <li>Pflegeversicherung: §55 SGB XI</li>
+            <li>Einkommensteuer: <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG 2025/2026</a></li>
+            <li>KVdR-Beitragssätze: <a href="https://www.gkv-spitzenverband.de" target="_blank" rel="noopener">GKV-Spitzenverband</a></li>
+            <li>Besteuerungsanteil: <a href="https://www.gesetze-im-internet.de/estg/__22.html" target="_blank" rel="noopener">§22 Nr. 1 EStG</a> (Wachstumschancengesetz)</li>
+            <li>Pflegeversicherung: <a href="https://www.gesetze-im-internet.de/sgb_11/__55.html" target="_blank" rel="noopener">§55 SGB XI</a></li>
           </ul>
         </div>
         <div class="footer-bottom">
@@ -303,6 +303,16 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
       font-size: 0.78rem;
       color: rgba(255, 255, 255, 0.6);
       font-weight: 500;
+    }
+
+    .nav-badge a, .hero-badge a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .nav-badge a:hover, .hero-badge a:hover {
+      color: white;
     }
 
     /* ==========================================
@@ -856,6 +866,17 @@ import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
       margin-right: 0.5rem;
       color: var(--color-danger);
       font-weight: 700;
+    }
+
+    .footer-sources a, .footer-disclaimer a {
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.2s;
+    }
+
+    .footer-sources a:hover, .footer-disclaimer a:hover {
+      color: white;
     }
 
     .footer-bottom {

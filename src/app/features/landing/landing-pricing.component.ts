@@ -59,7 +59,7 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
             <ul class="tier-features">
               <li class="included"><span class="check">✓</span> Alles aus Schnell-Check</li>
               <li class="included highlight"><span class="check">✓</span> Detaillierter PDF-Report</li>
-              <li class="included highlight"><span class="check">✓</span> Steuerberechnung nach §32a</li>
+              <li class="included highlight"><span class="check">✓</span> Steuerberechnung nach <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a></li>
               <li class="included highlight"><span class="check">✓</span> 30-Jahre-Inflationsprognose</li>
               <li class="included highlight"><span class="check">✓</span> Persönliche Handlungsempfehlungen</li>
               <li class="included"><span class="check">✓</span> Zum Ausdrucken & Teilen</li>
@@ -273,6 +273,16 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
 
     .tier-features li.highlight {
       font-weight: 600;
+    }
+
+    .tier-features a {
+      color: var(--color-accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .tier-features a:hover {
+      color: var(--color-primary);
     }
 
     .check {

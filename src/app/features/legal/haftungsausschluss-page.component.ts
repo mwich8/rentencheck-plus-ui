@@ -51,10 +51,10 @@ import { RouterLink } from '@angular/router';
             gesetzlichen Grundlagen, insbesondere:
           </p>
           <ul>
-            <li>Einkommensteuergesetz (§ 32a EStG) — Tarif 2025/2026</li>
-            <li>Krankenversicherung der Rentner (KVdR) — Beitragssätze des GKV-Spitzenverbands</li>
-            <li>Besteuerungsanteil der Rente (§ 22 Nr. 1 Satz 3 Buchst. a Doppelbuchst. aa EStG)</li>
-            <li>Pflegeversicherung (§ 55 SGB XI)</li>
+            <li>Einkommensteuergesetz (<a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§ 32a EStG</a>) — Tarif 2025/2026</li>
+            <li>Krankenversicherung der Rentner (KVdR) — Beitragssätze des <a href="https://www.gkv-spitzenverband.de" target="_blank" rel="noopener">GKV-Spitzenverbands</a></li>
+            <li>Besteuerungsanteil der Rente (<a href="https://www.gesetze-im-internet.de/estg/__22.html" target="_blank" rel="noopener">§ 22 Nr. 1 Satz 3 Buchst. a Doppelbuchst. aa EStG</a>)</li>
+            <li>Pflegeversicherung (<a href="https://www.gesetze-im-internet.de/sgb_11/__55.html" target="_blank" rel="noopener">§ 55 SGB XI</a>)</li>
             <li>Wachstumschancengesetz — Anpassung der Besteuerungsanteile</li>
           </ul>
           <p>

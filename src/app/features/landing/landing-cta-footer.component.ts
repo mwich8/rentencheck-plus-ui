@@ -45,10 +45,10 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
           <div class="footer-col">
             <h4>Rechtsgrundlagen</h4>
             <ul>
-              <li>§32a EStG 2025/2026</li>
-              <li>KVdR-Beitragssätze (GKV)</li>
-              <li>§22 Nr. 1 EStG</li>
-              <li>§55 SGB XI</li>
+              <li><a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG 2025/2026</a></li>
+              <li><a href="https://www.gkv-spitzenverband.de" target="_blank" rel="noopener">KVdR-Beitragssätze (GKV)</a></li>
+              <li><a href="https://www.gesetze-im-internet.de/estg/__22.html" target="_blank" rel="noopener">§22 Nr. 1 EStG</a></li>
+              <li><a href="https://www.gesetze-im-internet.de/sgb_11/__55.html" target="_blank" rel="noopener">§55 SGB XI</a></li>
             </ul>
           </div>
           <div class="footer-col">

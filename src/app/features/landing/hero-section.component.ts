@@ -35,7 +35,7 @@ import { CountUpDirective } from '../../shared/directives/count-up.directive';
         <p class="hero-description">
           Erfahren Sie in Sekunden, was von Ihrer gesetzlichen Rente
           <strong>wirklich übrig bleibt</strong> — nach Steuern, Sozialabgaben
-          und 30 Jahren Inflation. Basierend auf §32a EStG und aktuellen KVdR-Sätzen.
+          und 30 Jahren Inflation. Basierend auf <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a> und aktuellen <a href="https://www.gkv-spitzenverband.de" target="_blank" rel="noopener">KVdR-Sätzen</a>.
         </p>
 
         <div class="hero-stats">
@@ -205,6 +205,17 @@ import { CountUpDirective } from '../../shared/directives/count-up.directive';
     .hero-description strong {
       color: rgba(255, 255, 255, 0.95);
       font-weight: 600;
+    }
+
+    .hero-description a {
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.2s;
+    }
+
+    .hero-description a:hover {
+      color: white;
     }
 
     /* Stats counter */

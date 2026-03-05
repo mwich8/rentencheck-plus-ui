@@ -20,19 +20,19 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
         <div class="trust-grid">
           <div class="trust-card" appScrollAnimate appScrollAnimateDelay="delay-1">
             <div class="trust-icon">⚖️</div>
-            <h3>§32a EStG</h3>
+            <h3><a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a></h3>
             <p>Einkommensteuerberechnung nach aktuellem Einkommensteuergesetz 2025/2026</p>
           </div>
 
           <div class="trust-card" appScrollAnimate appScrollAnimateDelay="delay-2">
             <div class="trust-icon">🏥</div>
-            <h3>KVdR-Sätze</h3>
+            <h3><a href="https://www.gkv-spitzenverband.de" target="_blank" rel="noopener">KVdR-Sätze</a></h3>
             <p>Aktuelle Beitragssätze der Krankenversicherung der Rentner (GKV-Spitzenverband)</p>
           </div>
 
           <div class="trust-card" appScrollAnimate appScrollAnimateDelay="delay-3">
             <div class="trust-icon">📋</div>
-            <h3>§22 Nr. 1 EStG</h3>
+            <h3><a href="https://www.gesetze-im-internet.de/estg/__22.html" target="_blank" rel="noopener">§22 Nr. 1 EStG</a></h3>
             <p>Besteuerungsanteil gemäß Wachstumschancengesetz korrekt berücksichtigt</p>
           </div>
 
@@ -133,6 +133,18 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
       font-weight: 700;
       margin-bottom: 0.5rem;
       color: white;
+    }
+
+    .trust-card h3 a {
+      color: white;
+      text-decoration: underline;
+      text-decoration-color: rgba(255, 255, 255, 0.4);
+      text-underline-offset: 3px;
+      transition: text-decoration-color 0.2s;
+    }
+
+    .trust-card h3 a:hover {
+      text-decoration-color: white;
     }
 
     .trust-card p {

@@ -103,7 +103,7 @@ import { Component, output } from '@angular/core';
             <p>Ihr individueller Renten-Report — zum Ausdrucken, Teilen oder für den Finanzberater.</p>
             <ul class="teaser-features">
               <li>✓ 30-Jahre-Inflationsprognose</li>
-              <li>✓ §32a-konforme Steuerberechnung</li>
+              <li>✓ <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>-konforme Steuerberechnung</li>
               <li>✓ Persönliche Handlungsempfehlungen</li>
               <li>✓ Professionelles Layout</li>
             </ul>
