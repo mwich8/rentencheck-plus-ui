@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
+import { ScrollAnimateDirective } from '@shared/directives/scroll-animate.directive';
 
 interface FaqItem {
   question: string;

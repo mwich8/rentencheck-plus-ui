@@ -1,6 +1,6 @@
 import { Component, input, computed, inject } from '@angular/core';
-import { PensionResult } from '../../../core/models/pension-result.model';
-import { RentenScoreService, RentenScore } from '../../../core/services/renten-score.service';
+import { PensionResult } from '@core/models/pension-result.model';
+import { RentenScoreService, RentenScore } from '@core/services/renten-score.service';
 
 /**
  * Visual gauge showing a 0–100 "Renten-Score" with letter grade,

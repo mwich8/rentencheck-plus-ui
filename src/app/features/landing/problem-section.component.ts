@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
-import { CountUpDirective } from '../../shared/directives/count-up.directive';
+import { ScrollAnimateDirective } from '@shared/directives/scroll-animate.directive';
+import { CountUpDirective } from '@shared/directives/count-up.directive';
 
 @Component({
   selector: 'app-problem-section',

@@ -1,9 +1,9 @@
 import { Component, input, computed, inject } from '@angular/core';
-import { PensionInput } from '../../../core/models/pension-input.model';
-import { PensionResult } from '../../../core/models/pension-result.model';
-import { PensionCalculatorService } from '../../../core/services/pension-calculator.service';
-import { InflationService } from '../../../core/services/inflation.service';
-import { SavingsCalculatorService } from '../../../core/services/savings-calculator.service';
+import { PensionInput } from '@core/models/pension-input.model';
+import { PensionResult } from '@core/models/pension-result.model';
+import { PensionCalculatorService } from '@core/services/pension-calculator.service';
+import { InflationService } from '@core/services/inflation.service';
+import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
 
 interface TimelineMilestone {
   year: number;

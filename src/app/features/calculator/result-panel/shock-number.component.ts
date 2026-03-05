@@ -1,7 +1,7 @@
 import { Component, input, computed, signal, effect, OnDestroy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { EuroPipe } from '../../../shared/pipes/euro.pipe';
-import { PensionResult } from '../../../core/models/pension-result.model';
+import { EuroPipe } from '@shared/pipes/euro.pipe';
+import { PensionResult } from '@core/models/pension-result.model';
 
 /**
  * The "Shock Number" — displays the real purchasing power with dramatic emphasis.

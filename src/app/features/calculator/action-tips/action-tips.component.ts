@@ -1,7 +1,7 @@
 import { Component, input, computed, inject, output } from '@angular/core';
-import { EuroPipe } from '../../../shared/pipes/euro.pipe';
-import { PensionResult } from '../../../core/models/pension-result.model';
-import { SavingsCalculatorService } from '../../../core/services/savings-calculator.service';
+import { EuroPipe } from '@shared/pipes/euro.pipe';
+import { PensionResult } from '@core/models/pension-result.model';
+import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
 
 interface ActionTip {
   icon: string;

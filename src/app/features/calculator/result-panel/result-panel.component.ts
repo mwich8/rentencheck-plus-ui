@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
-import { EuroPipe } from '../../../shared/pipes/euro.pipe';
-import { PensionResult } from '../../../core/models/pension-result.model';
+import { EuroPipe } from '@shared/pipes/euro.pipe';
+import { PensionResult } from '@core/models/pension-result.model';
 import { ShockNumberComponent } from './shock-number.component';
 import { DeductionBreakdownComponent } from './deduction-breakdown.component';
 import { RentenScoreComponent } from './renten-score.component';

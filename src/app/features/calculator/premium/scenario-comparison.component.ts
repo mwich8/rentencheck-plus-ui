@@ -1,9 +1,9 @@
 import { Component, input, computed, inject } from '@angular/core';
-import { EuroPipe } from '../../../shared/pipes/euro.pipe';
-import { PensionInput } from '../../../core/models/pension-input.model';
-import { PensionResult } from '../../../core/models/pension-result.model';
-import { PensionCalculatorService } from '../../../core/services/pension-calculator.service';
-import { Scenario } from '../../../core/models/scenario.model';
+import { EuroPipe } from '@shared/pipes/euro.pipe';
+import { PensionInput } from '@core/models/pension-input.model';
+import { PensionResult } from '@core/models/pension-result.model';
+import { PensionCalculatorService } from '@core/services/pension-calculator.service';
+import { Scenario } from '@core/models/scenario.model';
 
 /**
  * Multi-Szenario-Vergleich — compares the user's current pension situation

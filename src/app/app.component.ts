@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CookieConsentComponent } from './shared/components/cookie-consent.component';
+import { CookieConsentComponent } from '@shared/components/cookie-consent.component';
 
 /**
  * Root AppComponent — thin shell with router outlet + cookie consent.

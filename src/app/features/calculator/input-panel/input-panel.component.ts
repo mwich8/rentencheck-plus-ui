@@ -1,7 +1,7 @@
 import { Component, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { EuroPipe } from '../../../shared/pipes/euro.pipe';
-import { PensionInput, DEFAULT_PENSION_INPUT } from '../../../core/models/pension-input.model';
+import { EuroPipe } from '@shared/pipes/euro.pipe';
+import { PensionInput, DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
 
 @Component({
   selector: 'app-input-panel',

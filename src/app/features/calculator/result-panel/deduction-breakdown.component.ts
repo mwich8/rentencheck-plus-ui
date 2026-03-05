@@ -1,6 +1,6 @@
 import { Component, input, computed } from '@angular/core';
-import { EuroPipe } from '../../../shared/pipes/euro.pipe';
-import { DeductionItem } from '../../../core/models/pension-result.model';
+import { EuroPipe } from '@shared/pipes/euro.pipe';
+import { DeductionItem } from '@core/models/pension-result.model';
 
 /**
  * Displays a detailed breakdown of all pension deductions

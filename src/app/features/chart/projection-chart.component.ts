@@ -1,6 +1,6 @@
 import { Component, input, computed } from '@angular/core';
 import { NgxEchartsDirective } from 'ngx-echarts';
-import { PensionResult } from '../../core/models/pension-result.model';
+import { PensionResult } from '@core/models/pension-result.model';
 import type { EChartsOption } from 'echarts';
 
 /**

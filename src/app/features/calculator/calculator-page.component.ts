@@ -2,8 +2,8 @@ import { Component, inject, computed, viewChild, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { InputPanelComponent } from './input-panel/input-panel.component';
 import { ResultPanelComponent } from './result-panel/result-panel.component';
-import { WaterfallChartComponent } from '../chart/waterfall-chart.component';
-import { ProjectionChartComponent } from '../chart/projection-chart.component';
+import { WaterfallChartComponent } from '@features/chart/waterfall-chart.component';
+import { ProjectionChartComponent } from '@features/chart/projection-chart.component';
 import { PricingTierComponent } from './pricing-tier/pricing-tier.component';
 import { ActionTipsComponent } from './action-tips/action-tips.component';
 import { PremiumTeaserComponent } from './premium-teaser/premium-teaser.component';
@@ -11,13 +11,13 @@ import { ScenarioComparisonComponent } from './premium/scenario-comparison.compo
 import { WhatIfAnalysisComponent } from './premium/what-if-analysis.component';
 import { OptimizationStrategiesComponent } from './premium/optimization-strategies.component';
 import { EtfExplainerComponent } from './etf-explainer/etf-explainer.component';
-import { PensionCalculatorService } from '../../core/services/pension-calculator.service';
-import { PdfReportService } from '../../core/services/pdf-report.service';
-import { StripePaymentService } from '../../core/services/stripe-payment.service';
-import { SavingsCalculatorService } from '../../core/services/savings-calculator.service';
-import { PremiumUnlockService } from '../../core/services/premium-unlock.service';
-import { EuroPipe } from '../../shared/pipes/euro.pipe';
-import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
+import { PensionCalculatorService } from '@core/services/pension-calculator.service';
+import { PdfReportService } from '@core/services/pdf-report.service';
+import { StripePaymentService } from '@core/services/stripe-payment.service';
+import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
+import { PremiumUnlockService } from '@core/services/premium-unlock.service';
+import { EuroPipe } from '@shared/pipes/euro.pipe';
+import { DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
 
 /**
  * Calculator page — the main pension calculator tool.

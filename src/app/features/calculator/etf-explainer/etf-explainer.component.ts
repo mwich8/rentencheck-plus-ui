@@ -1,8 +1,8 @@
 import { Component, input, computed, signal, inject } from '@angular/core';
 import { NgxEchartsDirective } from 'ngx-echarts';
-import { EuroPipe } from '../../../shared/pipes/euro.pipe';
-import { PensionResult } from '../../../core/models/pension-result.model';
-import { SavingsCalculatorService } from '../../../core/services/savings-calculator.service';
+import { EuroPipe } from '@shared/pipes/euro.pipe';
+import { PensionResult } from '@core/models/pension-result.model';
+import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
 import type { EChartsOption } from 'echarts';
 
 /**

@@ -1,5 +1,5 @@
 import { Component, input, ElementRef, viewChild, effect, OnDestroy, computed } from '@angular/core';
-import { PensionResult, DeductionItem } from '../../core/models/pension-result.model';
+import { PensionResult, DeductionItem } from '@core/models/pension-result.model';
 
 /**
  * Waterfall chart showing how the gross pension is reduced step-by-step.

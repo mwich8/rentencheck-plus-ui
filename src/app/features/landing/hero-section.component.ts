@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CountUpDirective } from '../../shared/directives/count-up.directive';
+import { CountUpDirective } from '@shared/directives/count-up.directive';
 
 @Component({
   selector: 'app-hero-section',

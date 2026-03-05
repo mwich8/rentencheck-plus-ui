@@ -1,11 +1,11 @@
 import { Component, input, computed, inject } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { EuroPipe } from '../../../shared/pipes/euro.pipe';
-import { PensionInput } from '../../../core/models/pension-input.model';
-import { PensionResult } from '../../../core/models/pension-result.model';
-import { PensionCalculatorService } from '../../../core/services/pension-calculator.service';
-import { SavingsCalculatorService } from '../../../core/services/savings-calculator.service';
-import { OptimizationSuggestion } from '../../../core/models/scenario.model';
+import { EuroPipe } from '@shared/pipes/euro.pipe';
+import { PensionInput } from '@core/models/pension-input.model';
+import { PensionResult } from '@core/models/pension-result.model';
+import { PensionCalculatorService } from '@core/services/pension-calculator.service';
+import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
+import { OptimizationSuggestion } from '@core/models/scenario.model';
 
 /**
  * Optimierungsvorschläge & Strategievergleich — personalized, quantified

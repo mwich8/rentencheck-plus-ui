@@ -1,10 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { StripePaymentService } from '../../core/services/stripe-payment.service';
-import { PensionCalculatorService } from '../../core/services/pension-calculator.service';
-import { PdfReportService } from '../../core/services/pdf-report.service';
-import { PremiumUnlockService } from '../../core/services/premium-unlock.service';
-import { DEFAULT_PENSION_INPUT } from '../../core/models/pension-input.model';
+import { StripePaymentService } from '@core/services/stripe-payment.service';
+import { PensionCalculatorService } from '@core/services/pension-calculator.service';
+import { PdfReportService } from '@core/services/pdf-report.service';
+import { PremiumUnlockService } from '@core/services/premium-unlock.service';
+import { DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
 
 /**
  * Payment success page — shown after Stripe redirects back.
