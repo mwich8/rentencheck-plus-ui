@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { PensionInput } from '../models/pension-input.model';
 import { PensionResult, DeductionItem } from '../models/pension-result.model';
+import { PensionInputValidator } from '../models/pension-input-validator';
 import { TaxService } from './tax.service';
 import { SocialInsuranceService } from './social-insurance.service';
 import { InflationService } from './inflation.service';
@@ -27,8 +28,12 @@ export class PensionCalculatorService {
 
   /**
    * Run the full pension calculation pipeline.
+   * Input is sanitized/clamped before calculation to prevent garbage-in/garbage-out.
    */
-  calculate(input: PensionInput): PensionResult {
+  calculate(rawInput: PensionInput): PensionResult {
+    // Sanitize input to prevent garbage values from corrupting the pipeline
+    const input = PensionInputValidator.sanitize(rawInput);
+
     const bruttoMonatlich = input.bruttoMonatlicheRente;
     const bruttoJaehrlich = bruttoMonatlich * 12;
 
