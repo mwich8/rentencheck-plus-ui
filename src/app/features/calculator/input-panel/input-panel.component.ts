@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, output, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
 import { PensionInput, DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
@@ -19,6 +19,9 @@ export class InputPanelComponent {
   readonly inflationsrate = signal(DEFAULT_PENSION_INPUT.inflationsrate);
   readonly hatKinder = signal(DEFAULT_PENSION_INPUT.hatKinder);
 
+  /** Emits the full PensionInput whenever any field changes */
+  readonly inputChange = output<PensionInput>();
+
   /** Computed PensionInput from all signals */
   readonly pensionInput = computed<PensionInput>(() => ({
     bruttoMonatlicheRente: this.bruttoRente(),
@@ -30,5 +33,11 @@ export class InputPanelComponent {
     zusatzbeitragssatz: DEFAULT_PENSION_INPUT.zusatzbeitragssatz,
     steuerJahr: 2026,
   }));
+
+  constructor() {
+    effect(() => {
+      this.inputChange.emit(this.pensionInput());
+    });
+  }
 }
 

@@ -33,188 +33,201 @@
   </div>
 </header>
 
-<!-- Main Calculator Grid -->
+<!-- Main Calculator Grid — renders IMMEDIATELY (above the fold) -->
 <main class="container calculator-section" id="rechner">
   <div class="calculator-grid">
-    <!-- Left Column: Input -->
     <div class="card input-card animate-fade-in-up">
-      <app-input-panel />
+      <app-input-panel (inputChange)="onInputChange($event)" />
     </div>
-
-    <!-- Right Column: Results -->
     <div class="card result-card animate-fade-in-up" style="animation-delay: 0.15s">
       <app-result-panel [result]="pensionResult()" [gewuenschteRente]="gewuenschteRente()" />
     </div>
   </div>
 
-  <!-- PDF Download Button -->
-  <div class="pdf-download-section animate-fade-in-up" style="animation-delay: 0.2s">
-    @if (isPremiumUnlocked()) {
-      <button class="pdf-download-btn pdf-unlocked-btn" (click)="downloadReport()">
-        <span class="pdf-icon">📄</span>
-        <span class="pdf-text">
-          <strong>PDF-Report herunterladen</strong>
-          <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen</small>
-        </span>
-        <span class="pdf-arrow">↓</span>
-      </button>
-    } @else {
-      <button class="pdf-download-btn" (click)="purchaseReport()">
-        <span class="pdf-icon">📄</span>
-        <span class="pdf-text">
-          <strong>Kostenloser PDF-Report</strong>
-          <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen · Sofort-Download</small>
-        </span>
-        <span class="pdf-arrow">→</span>
-      </button>
-    }
-  </div>
-
-  <!-- Urgency Banner (only when not unlocked) -->
-  @if (!isPremiumUnlocked() && pensionResult().rentenluecke > 0 && monthlyCostOfWaiting() > 0) {
-    <div class="urgency-banner animate-fade-in-up" style="animation-delay: 0.22s">
-      <div class="urgency-icon">⏳</div>
-      <div class="urgency-content">
-        <strong class="urgency-headline">Jeder Monat, den Sie warten, kostet Sie ca. {{ monthlyCostOfWaiting() | euro }}</strong>
-        <span class="urgency-detail">an entgangenem Vermögensaufbau durch den Zinseszinseffekt.</span>
-      </div>
-      <button class="urgency-cta" (click)="purchaseReport()">Jetzt Report sichern →</button>
-    </div>
-  }
-
-  <!-- Action Tips Section -->
-  <div class="action-tips-section animate-fade-in-up" style="animation-delay: 0.25s">
-    <app-action-tips [result]="pensionResult()" [hatKinder]="hatKinder()" [unlocked]="isPremiumUnlocked()" (unlock)="onTierSelected($event)" />
-  </div>
-
-  <!-- Affiliate Banner (visible when pension gap exists) -->
-  @if (pensionResult().rentenluecke > 0) {
-    <div class="affiliate-banner animate-fade-in-up" style="animation-delay: 0.26s">
-      <span class="affiliate-banner-label">Anzeige</span>
-      <div class="affiliate-banner-inner">
-        <div class="affiliate-banner-icon">🏦</div>
-        <div class="affiliate-banner-text">
-          <strong>Rentenlücke schließen: Kostenloses Depot eröffnen</strong>
-          <span>ETF-Sparpläne ab 1 €/Monat — dauerhaft gebührenfrei. In wenigen Minuten starten.</span>
-        </div>
-        <a class="affiliate-banner-cta"
-           [href]="affiliateUrl"
-           target="_blank"
-           rel="noopener sponsored"
-           (click)="onAffiliateBannerClick()">
-          Depot eröffnen →
-        </a>
-      </div>
-    </div>
-  }
-
-  <!-- ETF Explainer (only when pension gap exists) -->
-  @if (pensionResult().rentenluecke > 0 && pensionResult().jahresBisRente > 0) {
-    <div class="etf-explainer-section animate-fade-in-up" style="animation-delay: 0.27s">
-      <app-etf-explainer [result]="pensionResult()" />
-    </div>
-  }
-
-  <!-- What You Get Preview (only when not unlocked) -->
-  @if (!isPremiumUnlocked()) {
-    <div class="report-preview-section animate-fade-in-up" style="animation-delay: 0.28s">
-      <h3 class="preview-title">
-        <span class="preview-icon">📋</span> Was Sie im PDF-Report erhalten
-      </h3>
-      <div class="preview-grid">
-        <div class="preview-card">
-          <span class="preview-card-icon">📊</span>
-          <h4>30-Jahre-Inflationsprognose</h4>
-          <p>Sehen Sie exakt, wie Inflation Ihre Rente über 30 Jahre entwertet — Jahr für Jahr aufgeschlüsselt.</p>
-        </div>
-        <div class="preview-card">
-          <span class="preview-card-icon">🎯</span>
-          <h4>Persönliche Handlungsempfehlungen</h4>
-          <p>Alle Tipps mit konkreten Beträgen — inkl. ETF-Sparplan, staatliche Förderung und Kindererziehungszeiten.</p>
-        </div>
-        <div class="preview-card">
-          <span class="preview-card-icon">📄</span>
-          <h4>Professionelles PDF</h4>
-          <p>3-seitiger Report zum Ausdrucken, Teilen oder für Ihren Finanz- oder Steuerberater.</p>
-        </div>
-      </div>
-      <div class="preview-cta-wrap">
-        <button class="preview-cta" (click)="purchaseReport()">
-          Kostenlos herunterladen →
+  <!-- PDF Download + Urgency — loads after main thread idle -->
+  @defer (on idle) {
+    <div class="pdf-download-section animate-fade-in-up">
+      @if (isPremiumUnlocked()) {
+        <button class="pdf-download-btn pdf-unlocked-btn" (click)="downloadReport()">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-text">
+            <strong>PDF-Report herunterladen</strong>
+            <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen</small>
+          </span>
+          <span class="pdf-arrow">↓</span>
         </button>
-      </div>
+      } @else {
+        <button class="pdf-download-btn" (click)="purchaseReport()">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-text">
+            <strong>Kostenloser PDF-Report</strong>
+            <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen · Sofort-Download</small>
+          </span>
+          <span class="pdf-arrow">→</span>
+        </button>
+      }
     </div>
+
+    @if (!isPremiumUnlocked() && pensionResult().rentenluecke > 0 && monthlyCostOfWaiting() > 0) {
+      <div class="urgency-banner animate-fade-in-up">
+        <div class="urgency-icon">⏳</div>
+        <div class="urgency-content">
+          <strong class="urgency-headline">Jeder Monat, den Sie warten, kostet Sie {{ monthlyCostOfWaiting() | euro }} extra bis zur Rente</strong>
+          <span class="urgency-detail">So viel mehr müssen Sie über die gesamte Laufzeit aufbringen, wenn Sie einen Monat später starten.</span>
+        </div>
+        <button class="urgency-cta" (click)="purchaseReport()">Jetzt Report sichern →</button>
+      </div>
+    }
   }
 
-  <!-- Charts Section -->
-  <div class="charts-section animate-fade-in-up" style="animation-delay: 0.3s">
-    <div class="card chart-card">
-      <app-waterfall-chart [result]="pensionResult()" />
+  <!-- Action Tips — deferred until scrolled into view -->
+  @defer (on viewport) {
+    <div class="action-tips-section animate-fade-in-up">
+      <app-action-tips [result]="pensionResult()" [hatKinder]="hatKinder()" [unlocked]="isPremiumUnlocked()" (unlock)="onTierSelected($event)" />
     </div>
-    @if (isPremiumUnlocked()) {
-      <div class="card chart-card">
-        <app-projection-chart [result]="pensionResult()" />
-      </div>
-    } @else {
-      <div class="card chart-card locked-chart-card">
-        <div class="locked-chart-wrapper">
-          <div class="locked-chart-blur">
-            <app-projection-chart [result]="pensionResult()" />
+  } @placeholder {
+    <div style="min-height:1px"></div>
+  }
+
+  <!-- Affiliate Banner -->
+  @defer (on viewport) {
+    @if (pensionResult().rentenluecke > 0) {
+      <div class="affiliate-banner animate-fade-in-up">
+        <span class="affiliate-banner-label">Anzeige</span>
+        <div class="affiliate-banner-inner">
+          <div class="affiliate-banner-icon">🏦</div>
+          <div class="affiliate-banner-text">
+            <strong>Rentenlücke schließen: Kostenloses Depot eröffnen</strong>
+            <span>ETF-Sparpläne ab 1 €/Monat — dauerhaft gebührenfrei. In wenigen Minuten starten.</span>
           </div>
-          <div class="locked-chart-overlay">
-            <div class="locked-chart-content">
-              <span class="locked-icon">🔒</span>
-              <h4 class="locked-title">30-Jahre-Inflationsprognose</h4>
-              <p class="locked-description">
-                Sehen Sie, wie Inflation Ihre Rente über 30 Jahre entwertet — im Detail-Report enthalten.
-              </p>
-              <button class="locked-cta" (click)="purchaseReport()">
-                Kostenlos freischalten →
-              </button>
+          <a class="affiliate-banner-cta"
+             [href]="affiliateUrl"
+             target="_blank"
+             rel="noopener sponsored"
+             (click)="onAffiliateBannerClick()">
+            Depot eröffnen →
+          </a>
+        </div>
+      </div>
+    }
+  } @placeholder {
+    <div style="min-height:1px"></div>
+  }
+
+  <!-- ETF Explainer (heavy: ECharts) -->
+  @defer (on viewport) {
+    @if (pensionResult().rentenluecke > 0 && pensionResult().jahresBisRente > 0) {
+      <div class="etf-explainer-section animate-fade-in-up">
+        <app-etf-explainer [result]="pensionResult()" />
+      </div>
+    }
+  } @placeholder {
+    <div style="min-height:1px"></div>
+  }
+
+  <!-- Report Preview -->
+  @defer (on viewport) {
+    @if (!isPremiumUnlocked()) {
+      <div class="report-preview-section animate-fade-in-up">
+        <h3 class="preview-title">
+          <span class="preview-icon">📋</span> Was Sie im PDF-Report erhalten
+        </h3>
+        <div class="preview-grid">
+          <div class="preview-card">
+            <span class="preview-card-icon">📊</span>
+            <h4>30-Jahre-Inflationsprognose</h4>
+            <p>Sehen Sie exakt, wie Inflation Ihre Rente über 30 Jahre entwertet — Jahr für Jahr aufgeschlüsselt.</p>
+          </div>
+          <div class="preview-card">
+            <span class="preview-card-icon">🎯</span>
+            <h4>Persönliche Handlungsempfehlungen</h4>
+            <p>Alle Tipps mit konkreten Beträgen — inkl. ETF-Sparplan, staatliche Förderung und Kindererziehungszeiten.</p>
+          </div>
+          <div class="preview-card">
+            <span class="preview-card-icon">📄</span>
+            <h4>Professionelles PDF</h4>
+            <p>3-seitiger Report zum Ausdrucken, Teilen oder für Ihren Finanz- oder Steuerberater.</p>
+          </div>
+        </div>
+        <div class="preview-cta-wrap">
+          <button class="preview-cta" (click)="purchaseReport()">
+            Kostenlos herunterladen →
+          </button>
+        </div>
+      </div>
+    }
+  } @placeholder {
+    <div style="min-height:1px"></div>
+  }
+
+  <!-- Charts (heavy: canvas + ECharts rendering) -->
+  @defer (on viewport) {
+    <div class="charts-section animate-fade-in-up">
+      <div class="card chart-card">
+        <app-waterfall-chart [result]="pensionResult()" />
+      </div>
+      @if (isPremiumUnlocked()) {
+        <div class="card chart-card">
+          <app-projection-chart [result]="pensionResult()" />
+        </div>
+      } @else {
+        <div class="card chart-card locked-chart-card">
+          <div class="locked-chart-wrapper">
+            <div class="locked-chart-blur">
+              <app-projection-chart [result]="pensionResult()" />
+            </div>
+            <div class="locked-chart-overlay">
+              <div class="locked-chart-content">
+                <span class="locked-icon">🔒</span>
+                <h4 class="locked-title">30-Jahre-Inflationsprognose</h4>
+                <p class="locked-description">
+                  Sehen Sie, wie Inflation Ihre Rente über 30 Jahre entwertet — im Detail-Report enthalten.
+                </p>
+                <button class="locked-cta" (click)="purchaseReport()">
+                  Kostenlos freischalten →
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    }
-  </div>
-
-  <!-- Premium Features (unlocked after PDF download) -->
-  @if (isPremiumUnlocked()) {
-    <div class="premium-features-section">
-      <div class="premium-features-header animate-fade-in-up">
-        <span class="premium-badge-inline">✅ Premium freigeschaltet</span>
-      </div>
-
-      <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.1s">
-        <app-scenario-comparison
-          [pensionInput]="currentInput()"
-          [baselineResult]="pensionResult()"
-        />
-      </div>
-
-      <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.2s">
-        <app-what-if-analysis
-          [pensionInput]="currentInput()"
-          [baselineResult]="pensionResult()"
-        />
-      </div>
-
-      <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.3s">
-        <app-optimization-strategies
-          [pensionInput]="currentInput()"
-          [baselineResult]="pensionResult()"
-        />
-      </div>
+      }
     </div>
+  } @placeholder {
+    <div style="min-height:1px"></div>
   }
 
-  <!-- Premium Teasers & Pricing (only when not unlocked) -->
-  @if (!isPremiumUnlocked()) {
-    <div class="premium-teaser-section animate-fade-in-up" style="animation-delay: 0.4s">
-      <app-premium-teaser (unlock)="onTierSelected($event)" />
-    </div>
+  <!-- Premium Features (heavy: 3× recalculations) -->
+  @defer (on viewport) {
+    @if (isPremiumUnlocked()) {
+      <div class="premium-features-section">
+        <div class="premium-features-header animate-fade-in-up">
+          <span class="premium-badge-inline">✅ Premium freigeschaltet</span>
+        </div>
+        <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.1s">
+          <app-scenario-comparison [pensionInput]="currentInput()" [baselineResult]="pensionResult()" />
+        </div>
+        <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.2s">
+          <app-what-if-analysis [pensionInput]="currentInput()" [baselineResult]="pensionResult()" />
+        </div>
+        <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.3s">
+          <app-optimization-strategies [pensionInput]="currentInput()" [baselineResult]="pensionResult()" />
+        </div>
+      </div>
+    }
+  } @placeholder {
+    <div style="min-height:1px"></div>
+  }
 
-    <app-pricing-tier (tierSelected)="onTierSelected($event)" />
+  <!-- Premium Teasers & Pricing -->
+  @defer (on viewport) {
+    @if (!isPremiumUnlocked()) {
+      <div class="premium-teaser-section animate-fade-in-up">
+        <app-premium-teaser (unlock)="onTierSelected($event)" />
+      </div>
+      <app-pricing-tier (tierSelected)="onTierSelected($event)" />
+    }
+  } @placeholder {
+    <div style="min-height:1px"></div>
   }
 </main>
 

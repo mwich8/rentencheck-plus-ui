@@ -1,4 +1,4 @@
-import { Component, inject, computed, viewChild, signal } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { InputPanelComponent } from './input-panel/input-panel.component';
 import { ResultPanelComponent } from './result-panel/result-panel.component';
@@ -13,17 +13,17 @@ import { OptimizationStrategiesComponent } from './premium/optimization-strategi
 import { EtfExplainerComponent } from './etf-explainer/etf-explainer.component';
 import { PensionCalculatorService } from '@core/services/pension-calculator.service';
 import { PdfReportService } from '@core/services/pdf-report.service';
-import { StripePaymentService } from '@core/services/stripe-payment.service';
 import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
 import { PremiumUnlockService } from '@core/services/premium-unlock.service';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
-import { DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
+import { PensionInput, DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
 import { environment } from '@env/environment';
 
 /**
  * Calculator page — the main pension calculator tool.
- * Previously the root AppComponent, now lazy-loaded at /rechner.
+ * Uses signal-based input flow: InputPanel emits → currentInput signal → pensionResult computed.
+ * No viewChild dependency, so the first render is immediate with default values.
  */
 @Component({
   selector: 'app-calculator-page',
@@ -49,65 +49,48 @@ import { environment } from '@env/environment';
 export class CalculatorPageComponent {
   private readonly calculatorService = inject(PensionCalculatorService);
   private readonly pdfService = inject(PdfReportService);
-  private readonly paymentService = inject(StripePaymentService);
   private readonly savingsService = inject(SavingsCalculatorService);
   private readonly premiumService = inject(PremiumUnlockService);
   private readonly analytics = inject(AnalyticsService);
-  private readonly inputPanel = viewChild(InputPanelComponent);
 
   readonly currentYear = new Date().getFullYear();
-  readonly isProcessingPayment = signal(false);
   readonly isPremiumUnlocked = this.premiumService.isUnlocked;
   readonly affiliateUrl = environment.affiliate.brokerUrl;
 
-  /** Default result used before the input panel viewChild is resolved */
-  private readonly defaultResult = this.calculatorService.calculate(DEFAULT_PENSION_INPUT);
+  /** Current pension input — starts with defaults, updated instantly by InputPanel output */
+  readonly currentInput = signal<PensionInput>(DEFAULT_PENSION_INPUT);
 
-  /** Expose gewuenschte Rente for the RentenScore */
-  readonly gewuenschteRente = computed(() => {
-    const panel = this.inputPanel();
-    return panel ? panel.pensionInput().gewuenschteMonatlicheRente : DEFAULT_PENSION_INPUT.gewuenschteMonatlicheRente;
-  });
+  readonly gewuenschteRente = computed(() => this.currentInput().gewuenschteMonatlicheRente);
+  readonly hatKinder = computed(() => this.currentInput().hatKinder);
 
-  /** Expose hatKinder for ActionTips */
-  readonly hatKinder = computed(() => {
-    const panel = this.inputPanel();
-    return panel ? panel.pensionInput().hatKinder : DEFAULT_PENSION_INPUT.hatKinder;
-  });
+  /** Pension result — recomputes whenever currentInput changes. No viewChild, no double-render. */
+  readonly pensionResult = computed(() =>
+    this.calculatorService.calculate(this.currentInput())
+  );
 
-  /**
-   * Reactive pension result — recomputes instantly whenever any input signal changes.
-   */
-  readonly pensionResult = computed(() => {
-    const panel = this.inputPanel();
-    if (!panel) {
-      return this.defaultResult;
-    }
-    return this.calculatorService.calculate(panel.pensionInput());
-  });
-
-  /** Expose current input for premium components */
-  readonly currentInput = computed(() => {
-    const panel = this.inputPanel();
-    return panel ? panel.pensionInput() : DEFAULT_PENSION_INPUT;
-  });
+  /** Called by InputPanelComponent whenever any input field changes */
+  onInputChange(input: PensionInput): void {
+    this.currentInput.set(input);
+  }
 
   /**
-   * Opportunity cost of waiting one month — how much future wealth is lost
-   * by not starting to save one month earlier.
-   * Formula: one month's required ETF savings × compound growth over remaining years.
+   * Total extra cost of waiting one month — how much MORE you pay in total
+   * over the entire savings period until retirement because you delayed by 1 month.
+   * (increased monthly rate × remaining months after delay)
    */
   readonly monthlyCostOfWaiting = computed(() => {
     const r = this.pensionResult();
     if (r.rentenluecke <= 0 || r.jahresBisRente <= 1) return 0;
-    const monthlySavings = this.savingsService.calculateRequiredMonthlySavings(
+    const now = this.savingsService.calculateRequiredMonthlySavings(
       r.rentenluecke, 0.07, r.jahresBisRente, 25
     );
-    // One month's contribution compounded over remaining years
-    const monthlyRate = 0.07 / 12;
-    const months = r.jahresBisRente * 12;
-    const futureValueOfOneMonth = monthlySavings * Math.pow(1 + monthlyRate, months);
-    return Math.round(futureValueOfOneMonth);
+    const delayedYears = r.jahresBisRente - 1 / 12;
+    const later = this.savingsService.calculateRequiredMonthlySavings(
+      r.rentenluecke, 0.07, delayedYears, 25
+    );
+    const monthlyIncrease = later - now;
+    const remainingMonths = delayedYears * 12;
+    return Math.round(monthlyIncrease * remainingMonths);
   });
 
   onAffiliateBannerClick(): void {
@@ -120,23 +103,14 @@ export class CalculatorPageComponent {
     }
   }
 
-  /**
-   * Purchase / download the PDF report.
-   * Currently bypasses Stripe and generates the PDF directly for testing.
-   * TODO: Re-enable Stripe checkout for production.
-   */
   async purchaseReport(): Promise<void> {
     this.downloadReport();
     this.premiumService.unlock();
     this.analytics.trackPremiumUnlock();
   }
 
-  /**
-   * Direct download — generates the PDF client-side.
-   */
   downloadReport(): void {
-    const panel = this.inputPanel();
-    const input = panel ? panel.pensionInput() : DEFAULT_PENSION_INPUT;
+    const input = this.currentInput();
     const result = this.pensionResult();
     this.pdfService.generateReport(input, result);
     this.analytics.trackPdfDownload();
