@@ -57,6 +57,11 @@ export class CalculatorPageComponent {
   readonly isPremiumUnlocked = this.premiumService.isUnlocked;
   readonly affiliateUrl = environment.affiliate.brokerUrl;
 
+  /** Collapse state for premium feature sections — collapsed by default */
+  readonly scenarioCollapsed = signal(true);
+  readonly timelineCollapsed = signal(true);
+  readonly optimizationCollapsed = signal(true);
+
   /** Current pension input — starts with defaults, updated instantly by InputPanel output */
   readonly currentInput = signal<PensionInput>(DEFAULT_PENSION_INPUT);
 

@@ -203,14 +203,47 @@
         <div class="premium-features-header animate-fade-in-up">
           <span class="premium-badge-inline">✅ Premium freigeschaltet</span>
         </div>
-        <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.1s">
-          <app-scenario-comparison [pensionInput]="currentInput()" [baselineResult]="pensionResult()" />
+
+        <!-- Multi-Szenario-Vergleich — collapsible -->
+        <div class="premium-feature-card animate-fade-in-up collapsible-section" style="animation-delay: 0.1s">
+          <button class="collapsible-toggle" (click)="scenarioCollapsed.set(!scenarioCollapsed())" [attr.aria-expanded]="!scenarioCollapsed()">
+            <span class="collapsible-icon">🔮</span>
+            <span class="collapsible-label">Multi-Szenario-Vergleich</span>
+            <span class="collapsible-chevron" [class.expanded]="!scenarioCollapsed()">▸</span>
+          </button>
+          @if (!scenarioCollapsed()) {
+            <div class="collapsible-body">
+              <app-scenario-comparison [pensionInput]="currentInput()" [baselineResult]="pensionResult()" />
+            </div>
+          }
         </div>
-        <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.2s">
-          <app-what-if-analysis [pensionInput]="currentInput()" [baselineResult]="pensionResult()" />
+
+        <!-- Renten-Zeitstrahl — collapsible -->
+        <div class="premium-feature-card animate-fade-in-up collapsible-section" style="animation-delay: 0.2s">
+          <button class="collapsible-toggle" (click)="timelineCollapsed.set(!timelineCollapsed())" [attr.aria-expanded]="!timelineCollapsed()">
+            <span class="collapsible-icon">🗓️</span>
+            <span class="collapsible-label">Ihr Renten-Zeitstrahl</span>
+            <span class="collapsible-chevron" [class.expanded]="!timelineCollapsed()">▸</span>
+          </button>
+          @if (!timelineCollapsed()) {
+            <div class="collapsible-body">
+              <app-what-if-analysis [pensionInput]="currentInput()" [baselineResult]="pensionResult()" />
+            </div>
+          }
         </div>
-        <div class="premium-feature-card animate-fade-in-up" style="animation-delay: 0.3s">
-          <app-optimization-strategies [pensionInput]="currentInput()" [baselineResult]="pensionResult()" />
+
+        <!-- Optimierungsvorschläge — collapsible -->
+        <div class="premium-feature-card animate-fade-in-up collapsible-section" style="animation-delay: 0.3s">
+          <button class="collapsible-toggle" (click)="optimizationCollapsed.set(!optimizationCollapsed())" [attr.aria-expanded]="!optimizationCollapsed()">
+            <span class="collapsible-icon">🎯</span>
+            <span class="collapsible-label">Optimierungsvorschläge</span>
+            <span class="collapsible-chevron" [class.expanded]="!optimizationCollapsed()">▸</span>
+          </button>
+          @if (!optimizationCollapsed()) {
+            <div class="collapsible-body">
+              <app-optimization-strategies [pensionInput]="currentInput()" [baselineResult]="pensionResult()" />
+            </div>
+          }
         </div>
       </div>
     }
