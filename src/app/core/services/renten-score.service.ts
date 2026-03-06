@@ -19,10 +19,18 @@ export interface RentenScore {
 /**
  * Computes a 0–100 "Renten-Score" from a PensionResult.
  *
+ * Design principle: The score must change **monotonically** with age.
+ * A younger person (more time to act) should always score higher than
+ * an older person with identical pension data — never the reverse.
+ *
+ * To achieve this, age influences the score ONLY through the time factor.
+ * Coverage and gap factors use the **nominal** (non-inflation-adjusted) values
+ * so that changing age doesn't pull them in the opposite direction.
+ *
  * Weighted factors:
- * - Deckungsquote (coverage ratio): 50% weight
- * - Rentenluecke relative to desired income: 25% weight
- * - Years to act (more time = higher score): 15% weight
+ * - Nominal coverage ratio (net / desired): 40% weight
+ * - Nominal gap relative to desired income: 20% weight
+ * - Years to act (more time = higher score): 30% weight
  * - Net-to-gross ratio (deduction efficiency): 10% weight
  *
  * Benchmark based on median German deckungsquote (~55%).
@@ -49,29 +57,36 @@ export class RentenScoreService {
   ];
 
   computeScore(result: PensionResult, gewuenschteRente: number): RentenScore {
-    // Factor 1: Deckungsquote (0–100 scale), weight 50%
-    const deckungScore = Math.min(100, result.deckungsquote);
+    // Factor 1: Nominal coverage — how much of the desired income does the
+    // net pension cover BEFORE inflation? This is age-independent.
+    const nominalCoverage = gewuenschteRente > 0
+      ? (result.nettoMonatlich / gewuenschteRente) * 100
+      : 0;
+    const coverageScore = Math.min(100, Math.max(0, nominalCoverage));
 
-    // Factor 2: Gap relative to desired income (inverted, 0=huge gap, 100=no gap)
+    // Factor 2: Nominal gap — shortfall before inflation (age-independent)
+    const nominalGap = Math.max(0, gewuenschteRente - result.nettoMonatlich);
     const gapRatio = gewuenschteRente > 0
-      ? Math.max(0, 1 - result.rentenluecke / gewuenschteRente)
+      ? Math.max(0, 1 - nominalGap / gewuenschteRente)
       : 0;
     const gapScore = gapRatio * 100;
 
-    // Factor 3: Time to act — more years = more time to fix things
-    const timeScore = Math.min(100, result.jahresBisRente * 3); // 33+ years = max score
+    // Factor 3: Time to act — more years = higher score (monotonically age-driven)
+    // Uses a diminishing-returns curve: sqrt(years/40) × 100
+    // This gives meaningful differentiation across the full age range.
+    const timeScore = Math.min(100, Math.sqrt(result.jahresBisRente / 40) * 100);
 
-    // Factor 4: Net-to-gross efficiency
+    // Factor 4: Net-to-gross efficiency (age-independent)
     const efficiencyRatio = result.bruttoMonatlich > 0
       ? result.nettoMonatlich / result.bruttoMonatlich
       : 0;
     const efficiencyScore = Math.min(100, efficiencyRatio * 120); // ~83% efficiency = 100
 
-    // Weighted total
+    // Weighted total — time factor at 30% ensures age always matters
     const rawScore = (
-      deckungScore * 0.50 +
-      gapScore * 0.25 +
-      timeScore * 0.15 +
+      coverageScore * 0.40 +
+      gapScore * 0.20 +
+      timeScore * 0.30 +
       efficiencyScore * 0.10
     );
 

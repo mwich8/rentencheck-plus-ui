@@ -359,39 +359,51 @@ describe('PensionInputValidator', () => {
   // ──────────────────────────────────────────────
 
   describe('Cross-field validation', () => {
-    it('should accept retirement year in the past for older users', () => {
-      const input: PensionInput = {
-        ...DEFAULT_PENSION_INPUT,
-        aktuellesAlter: 50,
-        rentenbeginnJahr: 2026,
-      };
+    // ── How aktuellesAlter correlates with rentenbeginnJahr ──
+    //
+    //   birthYear ≈ currentYear − aktuellesAlter
+    //   impliedRetirementAge = rentenbeginnJahr − birthYear
+    //                        = rentenbeginnJahr − currentYear + aktuellesAlter
+    //
+    // A YOUNGER person (lower age) → higher birthYear → retires at a YOUNGER age
+    // An OLDER person (higher age) → lower birthYear  → retires at an OLDER age
+    //
+    // Only truly impossible: impliedRetirementAge < 0 (retirement before birth)
+
+    it('should compute correct implied retirement age for a young person', () => {
+      // 20 y/o in 2026, retirement in 2073 → implied retirement age = 2073 - 2026 + 20 = 67
+      const input = { ...DEFAULT_PENSION_INPUT, aktuellesAlter: 20, rentenbeginnJahr: 2073 };
       const result = PensionInputValidator.validate(input);
-      // Implied retirement age = 2026 - 2026 + 50 = 50, >= 0, so OK
+      expect(result.errors.filter(e => e.field === 'rentenbeginnJahr').length).toBe(0);
+    });
+
+    it('should compute correct implied retirement age for an older person', () => {
+      // 60 y/o in 2026, retirement in 2033 → implied retirement age = 2033 - 2026 + 60 = 67
+      const input = { ...DEFAULT_PENSION_INPUT, aktuellesAlter: 60, rentenbeginnJahr: 2033 };
+      const result = PensionInputValidator.validate(input);
+      expect(result.errors.filter(e => e.field === 'rentenbeginnJahr').length).toBe(0);
+    });
+
+    it('should accept early retirement (implied age < 67 is allowed)', () => {
+      // 50 y/o, retirement in 2026 → implied retirement age = 2026 - 2026 + 50 = 50
+      const input = { ...DEFAULT_PENSION_INPUT, aktuellesAlter: 50, rentenbeginnJahr: 2026 };
+      const result = PensionInputValidator.validate(input);
+      expect(result.errors.filter(e => e.field === 'rentenbeginnJahr').length).toBe(0);
+    });
+
+    it('should accept retirement year in the near past (already retired)', () => {
+      // 30 y/o, retirement in 2025 → implied retirement age = 2025 - 2026 + 30 = 29 ≥ 0
+      const input = { ...DEFAULT_PENSION_INPUT, aktuellesAlter: 30, rentenbeginnJahr: 2025 };
+      const result = PensionInputValidator.validate(input);
       expect(result.errors.filter(e =>
         e.field === 'rentenbeginnJahr' && e.message.includes('impossible'),
       ).length).toBe(0);
     });
 
-    it('should flag impossible retirement age (before birth)', () => {
-      const input: PensionInput = {
-        ...DEFAULT_PENSION_INPUT,
-        aktuellesAlter: 20,
-        rentenbeginnJahr: 2025, // implied retirement age = 2025 - 2026 + 20 = 19 >= 0, OK
-      };
-      const result = PensionInputValidator.validate(input);
-      // 19 >= 0, so not impossible
-      expect(result.errors.filter(e =>
-        e.field === 'rentenbeginnJahr' && e.message.includes('impossible'),
-      ).length).toBe(0);
-    });
-
-    it('should not flag when retirement is before current age but after birth', () => {
-      const input: PensionInput = {
-        ...DEFAULT_PENSION_INPUT,
-        aktuellesAlter: 30,
-        rentenbeginnJahr: 2025,
-      };
-      // implied retirement age = 2025 - 2026 + 30 = 29, >= 0, so valid
+    it('should be a safety net that never triggers after range clamping', () => {
+      // After clamping: rentenbeginnJahr ≥ 2025, aktuellesAlter ≥ 16
+      // Minimum impliedRetirementAge = 2025 - 2026 + 16 = 15 ≥ 0 → always valid
+      const input = { ...DEFAULT_PENSION_INPUT, aktuellesAlter: 16, rentenbeginnJahr: 2025 };
       const result = PensionInputValidator.validate(input);
       expect(result.errors.filter(e =>
         e.field === 'rentenbeginnJahr' && e.message.includes('impossible'),

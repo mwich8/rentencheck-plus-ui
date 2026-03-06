@@ -73,17 +73,17 @@ describe('RentenScoreService', () => {
       expect(score.score).toBeLessThan(30);
     });
 
-    it('should weight deckungsquote at 50%', () => {
-      const lowDeckung = createMockResult({ deckungsquote: 20 });
-      const highDeckung = createMockResult({ deckungsquote: 90 });
-      const s1 = service.computeScore(lowDeckung, 2500);
-      const s2 = service.computeScore(highDeckung, 2500);
-      // Higher deckungsquote should significantly affect score
+    it('should weight nominal coverage at 40%', () => {
+      const lowCoverage = createMockResult({ nettoMonatlich: 500 });
+      const highCoverage = createMockResult({ nettoMonatlich: 2400 });
+      const s1 = service.computeScore(lowCoverage, 2500);
+      const s2 = service.computeScore(highCoverage, 2500);
+      // Higher nominal coverage should significantly affect score
       expect(s2.score).toBeGreaterThan(s1.score);
     });
 
-    it('should cap deckungsquote contribution at 100', () => {
-      const result = createMockResult({ deckungsquote: 150 });
+    it('should cap coverage contribution at 100', () => {
+      const result = createMockResult({ nettoMonatlich: 5000 });
       const score = service.computeScore(result, 2500);
       expect(score.score).toBeLessThanOrEqual(100);
     });
@@ -205,6 +205,128 @@ describe('RentenScoreService', () => {
       // Between [40, 25] and [50, 42]: 45 → ~33.5
       expect(score.percentile).toBeGreaterThan(25);
       expect(score.percentile).toBeLessThan(42);
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // Age monotonicity — CRITICAL invariant
+  // ──────────────────────────────────────────────
+
+  describe('Age monotonicity', () => {
+    // The core invariant: when ONLY age changes (all other pension data
+    // held constant), a younger person must ALWAYS score higher.
+    // This test sweeps through ages to verify strict monotonicity.
+
+    it('should decrease score monotonically as jahresBisRente decreases', () => {
+      const yearsValues = [40, 35, 30, 25, 20, 15, 10, 5, 0];
+      const scores = yearsValues.map(years => {
+        const result = createMockResult({ jahresBisRente: years });
+        return service.computeScore(result, 2500).score;
+      });
+
+      for (let i = 0; i < scores.length - 1; i++) {
+        expect(scores[i]).toBeGreaterThanOrEqual(scores[i + 1]);
+      }
+    });
+
+    it('should produce strictly higher score for 30 vs 5 years to retirement', () => {
+      const young = createMockResult({ jahresBisRente: 30 });
+      const old = createMockResult({ jahresBisRente: 5 });
+      const scoreYoung = service.computeScore(young, 2500).score;
+      const scoreOld = service.computeScore(old, 2500).score;
+      expect(scoreYoung).toBeGreaterThan(scoreOld);
+    });
+
+    it('should never reverse direction when sweeping age 18→66', () => {
+      const scores: number[] = [];
+      for (let age = 18; age <= 66; age++) {
+        const jahresBisRente = Math.max(0, 67 - age);
+        const result = createMockResult({ jahresBisRente });
+        scores.push(service.computeScore(result, 2500).score);
+      }
+      // Verify monotonically non-increasing (younger = higher or equal)
+      for (let i = 0; i < scores.length - 1; i++) {
+        expect(scores[i]).toBeGreaterThanOrEqual(scores[i + 1]);
+      }
+    });
+
+    it('should show meaningful difference between age 25 and age 60', () => {
+      const young = createMockResult({ jahresBisRente: 42 }); // age 25
+      const old = createMockResult({ jahresBisRente: 7 });    // age 60
+      const scoreYoung = service.computeScore(young, 2500).score;
+      const scoreOld = service.computeScore(old, 2500).score;
+      // At least 5 points difference to be perceptible
+      expect(scoreYoung - scoreOld).toBeGreaterThanOrEqual(5);
+    });
+
+    it('should give 0 time score when jahresBisRente is 0', () => {
+      const atRetirement = createMockResult({ jahresBisRente: 0 });
+      const withTime = createMockResult({ jahresBisRente: 20 });
+      const scoreAt = service.computeScore(atRetirement, 2500).score;
+      const scoreWith = service.computeScore(withTime, 2500).score;
+      expect(scoreWith).toBeGreaterThan(scoreAt);
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // End-to-end with PensionCalculatorService
+  // ──────────────────────────────────────────────
+
+  describe('Integration: score monotonicity through full pipeline', () => {
+    // This test uses the real PensionCalculatorService to prove
+    // that the score is monotonic even with inflation-adjusted results.
+
+    let calcService: import('./pension-calculator.service').PensionCalculatorService;
+
+    beforeEach(async () => {
+      const mod = await import('./pension-calculator.service');
+      calcService = TestBed.inject(mod.PensionCalculatorService);
+    });
+
+    it('should produce monotonically decreasing scores as age increases (full pipeline)', () => {
+      const baseInput = {
+        bruttoMonatlicheRente: 1500,
+        rentenbeginnJahr: 2058,
+        gewuenschteMonatlicheRente: 2500,
+        inflationsrate: 0.02,
+        hatKinder: true,
+        zusatzbeitragssatz: 0.017,
+        steuerJahr: 2026 as const,
+      };
+
+      const scores: number[] = [];
+      for (let age = 20; age <= 66; age++) {
+        const result = calcService.calculate({ ...baseInput, aktuellesAlter: age });
+        const score = service.computeScore(result, 2500);
+        scores.push(score.score);
+      }
+
+      // Verify monotonically non-increasing
+      for (let i = 0; i < scores.length - 1; i++) {
+        expect(scores[i]).toBeGreaterThanOrEqual(
+          scores[i + 1],
+          // Custom failure message:
+        );
+      }
+    });
+
+    it('should produce higher score at age 25 than age 55 through full pipeline', () => {
+      const baseInput = {
+        bruttoMonatlicheRente: 1500,
+        rentenbeginnJahr: 2058,
+        gewuenschteMonatlicheRente: 2500,
+        inflationsrate: 0.02,
+        hatKinder: true,
+        zusatzbeitragssatz: 0.017,
+        steuerJahr: 2026 as const,
+      };
+
+      const result25 = calcService.calculate({ ...baseInput, aktuellesAlter: 25 });
+      const result55 = calcService.calculate({ ...baseInput, aktuellesAlter: 55 });
+      const score25 = service.computeScore(result25, 2500).score;
+      const score55 = service.computeScore(result55, 2500).score;
+
+      expect(score25).toBeGreaterThan(score55);
     });
   });
 });

@@ -140,9 +140,22 @@ export class PensionInputValidator {
     );
 
     // ── Cross-field validation ──────────────────────────
-
-    // Retirement year should not imply retirement before the user was even born
-    // or in an impossible timeframe. We only flag clearly impossible scenarios.
+    //
+    // How aktuellesAlter correlates with rentenbeginnJahr:
+    //
+    //   birthYear ≈ currentYear − aktuellesAlter
+    //   impliedRetirementAge = rentenbeginnJahr − birthYear
+    //                        = rentenbeginnJahr − currentYear + aktuellesAlter
+    //
+    // A younger person (lower aktuellesAlter) has a HIGHER birthYear,
+    // so for the same rentenbeginnJahr, they retire at a YOUNGER age.
+    // Conversely, an older person would retire at an OLDER implied age.
+    //
+    // We flag only truly impossible cases: retirement before the person was born
+    // (impliedRetirementAge < 0). After range clamping (rentenbeginnJahr ≥ 2025,
+    // aktuellesAlter ≥ 16), the minimum possible value is 2025 − currentYear + 16,
+    // which is always ≥ 0 in practice. This guard is a safety net for edge cases.
+    //
     const currentYear = new Date().getFullYear();
     const impliedRetirementAge = sanitized.rentenbeginnJahr - currentYear + sanitized.aktuellesAlter;
     if (impliedRetirementAge < 0) {
