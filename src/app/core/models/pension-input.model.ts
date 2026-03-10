@@ -1,3 +1,5 @@
+import { LATEST_STEUER_JAHR, SteuerJahr } from '../constants/tax-brackets.const';
+
 /**
  * Input model for the pension calculator.
  * All monetary values are monthly amounts in EUR.
@@ -25,7 +27,7 @@ export interface PensionInput {
   zusatzbeitragssatz: number;
 
   /** Tax year to use for calculation */
-  steuerJahr: 2025 | 2026;
+  steuerJahr: SteuerJahr;
 }
 
 /**
@@ -39,6 +41,6 @@ export const DEFAULT_PENSION_INPUT: PensionInput = {
   inflationsrate: 0.02,
   hatKinder: true,
   zusatzbeitragssatz: 0.017,
-  steuerJahr: 2026,
+  steuerJahr: LATEST_STEUER_JAHR,
 };
 

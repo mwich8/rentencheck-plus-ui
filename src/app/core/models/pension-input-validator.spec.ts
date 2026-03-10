@@ -1,5 +1,6 @@
 import { PensionInputValidator, INPUT_CONSTRAINTS } from './pension-input-validator';
 import { DEFAULT_PENSION_INPUT, PensionInput } from './pension-input.model';
+import { SteuerJahr } from '../constants/tax-brackets.const';
 
 describe('PensionInputValidator', () => {
 
@@ -328,26 +329,26 @@ describe('PensionInputValidator', () => {
 
   describe('steuerJahr validation', () => {
     it('should accept 2025', () => {
-      const input = { ...DEFAULT_PENSION_INPUT, steuerJahr: 2025 as 2025 | 2026 };
+      const input = { ...DEFAULT_PENSION_INPUT, steuerJahr: 2025 as SteuerJahr };
       const result = PensionInputValidator.validate(input);
       expect(result.errors.filter(e => e.field === 'steuerJahr').length).toBe(0);
     });
 
     it('should accept 2026', () => {
-      const input = { ...DEFAULT_PENSION_INPUT, steuerJahr: 2026 as 2025 | 2026 };
+      const input = { ...DEFAULT_PENSION_INPUT, steuerJahr: 2026 as SteuerJahr };
       const result = PensionInputValidator.validate(input);
       expect(result.errors.filter(e => e.field === 'steuerJahr').length).toBe(0);
     });
 
     it('should reject invalid year and use default', () => {
-      const input = { ...DEFAULT_PENSION_INPUT, steuerJahr: 2024 as unknown as 2025 | 2026 };
+      const input = { ...DEFAULT_PENSION_INPUT, steuerJahr: 2024 as unknown as SteuerJahr };
       const result = PensionInputValidator.validate(input);
       expect(result.valid).toBeFalse();
       expect(result.sanitizedInput.steuerJahr).toBe(DEFAULT_PENSION_INPUT.steuerJahr);
     });
 
     it('should reject future year and use default', () => {
-      const input = { ...DEFAULT_PENSION_INPUT, steuerJahr: 2030 as unknown as 2025 | 2026 };
+      const input = { ...DEFAULT_PENSION_INPUT, steuerJahr: 2030 as unknown as SteuerJahr };
       const result = PensionInputValidator.validate(input);
       expect(result.valid).toBeFalse();
       expect(result.sanitizedInput.steuerJahr).toBe(DEFAULT_PENSION_INPUT.steuerJahr);
@@ -490,7 +491,7 @@ describe('PensionInputValidator', () => {
         inflationsrate: 1.0,
         hatKinder: 'maybe' as unknown as boolean,
         zusatzbeitragssatz: -0.1,
-        steuerJahr: 2024 as unknown as 2025 | 2026,
+        steuerJahr: 2024 as unknown as SteuerJahr,
       };
       const result = PensionInputValidator.validate(input);
       expect(result.valid).toBeFalse();
@@ -507,7 +508,7 @@ describe('PensionInputValidator', () => {
         inflationsrate: NaN,
         hatKinder: null as unknown as boolean,
         zusatzbeitragssatz: NaN,
-        steuerJahr: NaN as unknown as 2025 | 2026,
+        steuerJahr: NaN as unknown as SteuerJahr,
       };
       const result = PensionInputValidator.validate(input);
       expect(result.valid).toBeFalse();

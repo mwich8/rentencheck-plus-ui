@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { getTaxConfig, TaxBracketConfig } from '../constants/tax-brackets.const';
+import { getTaxConfig, TaxBracketConfig, SteuerJahr, LATEST_STEUER_JAHR } from '../constants/tax-brackets.const';
 
 export interface TaxResult {
   einkommensteuer: number;
@@ -29,7 +29,7 @@ export class TaxService {
    * @param year Tax year (2025 or 2026)
    * @returns Detailed tax result
    */
-  calculateIncomeTax(zvE: number, year: 2025 | 2026 = 2026): TaxResult {
+  calculateIncomeTax(zvE: number, year: SteuerJahr = LATEST_STEUER_JAHR): TaxResult {
     const config = getTaxConfig(year);
     // Round down to full EUR as per §32a Abs. 1 EStG
     const zvEGerundet = Math.floor(zvE);

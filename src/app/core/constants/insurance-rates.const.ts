@@ -1,3 +1,5 @@
+import { SteuerJahr } from './tax-brackets.const';
+
 /**
  * Social insurance rates for German retirees
  *
@@ -44,7 +46,7 @@ export const INSURANCE_RATES_2026: InsuranceRateConfig = {
   pflegeOhneKinder: 0.042,
 };
 
-export function getInsuranceRates(year: 2025 | 2026): InsuranceRateConfig {
+export function getInsuranceRates(year: SteuerJahr): InsuranceRateConfig {
   return year === 2025 ? INSURANCE_RATES_2025 : INSURANCE_RATES_2026;
 }
 

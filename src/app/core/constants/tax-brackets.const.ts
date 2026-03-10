@@ -87,10 +87,20 @@ export const TAX_CONFIG_2026: TaxBracketConfig = {
   soliGleitzone: 11.9,
 };
 
+/** Supported tax-calculation years */
+export type SteuerJahr = 2025 | 2026;
+
+/** All supported tax years — add new entries here when legislation is enacted */
+export const SUPPORTED_STEUER_JAHRE: readonly SteuerJahr[] = [2025, 2026] as const;
+
+/** The latest (= default) tax year, derived from SUPPORTED_STEUER_JAHRE */
+export const LATEST_STEUER_JAHR: SteuerJahr =
+  SUPPORTED_STEUER_JAHRE[SUPPORTED_STEUER_JAHRE.length - 1];
+
 /**
  * Helper to get tax config by year
  */
-export function getTaxConfig(year: 2025 | 2026): TaxBracketConfig {
+export function getTaxConfig(year: SteuerJahr): TaxBracketConfig {
   return year === 2025 ? TAX_CONFIG_2025 : TAX_CONFIG_2026;
 }
 

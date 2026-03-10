@@ -1,4 +1,5 @@
 import { PensionInput, DEFAULT_PENSION_INPUT } from './pension-input.model';
+import { SUPPORTED_STEUER_JAHRE } from '../constants/tax-brackets.const';
 
 /**
  * Validation error with field name and message.
@@ -31,7 +32,7 @@ export const INPUT_CONSTRAINTS = {
   gewuenschteMonatlicheRente: { min: 0, max: 20_000 },
   inflationsrate: { min: 0, max: 0.15 },
   zusatzbeitragssatz: { min: 0, max: 0.05 },
-  steuerJahr: { allowed: [2025, 2026] as const },
+  steuerJahr: { allowed: SUPPORTED_STEUER_JAHRE },
 } as const;
 
 /**

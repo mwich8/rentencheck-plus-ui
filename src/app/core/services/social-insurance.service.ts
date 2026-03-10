@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { getInsuranceRates } from '../constants/insurance-rates.const';
+import { SteuerJahr, LATEST_STEUER_JAHR } from '../constants/tax-brackets.const';
 
 export interface SocialInsuranceResult {
   /** Monthly KVdR contribution (Krankenversicherung) */
@@ -44,7 +45,7 @@ export class SocialInsuranceService {
     bruttoMonatlich: number,
     hatKinder: boolean = true,
     zusatzbeitragssatz?: number,
-    year: 2025 | 2026 = 2026,
+    year: SteuerJahr = LATEST_STEUER_JAHR,
   ): SocialInsuranceResult {
     const rates = getInsuranceRates(year);
 

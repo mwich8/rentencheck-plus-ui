@@ -2,6 +2,7 @@ import { Component, signal, computed, output, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
 import { PensionInput, DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
+import { LATEST_STEUER_JAHR } from '@core/constants/tax-brackets.const';
 
 @Component({
   selector: 'app-input-panel',
@@ -31,7 +32,7 @@ export class InputPanelComponent {
     inflationsrate: this.inflationsrate(),
     hatKinder: this.hatKinder(),
     zusatzbeitragssatz: DEFAULT_PENSION_INPUT.zusatzbeitragssatz,
-    steuerJahr: 2026,
+    steuerJahr: LATEST_STEUER_JAHR,
   }));
 
   constructor() {
