@@ -22,7 +22,7 @@ export class StripePaymentService {
    * Start the Stripe Checkout flow.
    * Saves inputs to sessionStorage, then redirects to Stripe.
    */
-  async startCheckout(tier: PaymentTier, input: PensionInput): Promise<void> {
+  async startCheckout(tier: PaymentTier, input: PensionInput): Promise<boolean> {
     // 1. Persist inputs so we can restore them after redirect
     this.saveInput(input);
 
@@ -42,12 +42,12 @@ export class StripePaymentService {
       const { url } = await response.json();
 
       // 3. Redirect to Stripe Checkout
-      window.location.href = url;
-    } catch (error) {
-      console.error('Stripe Checkout error:', error);
+      this.redirect(url);
+      return true;
+    } catch {
       // Clear saved input on error
       this.clearInput();
-      throw error;
+      return false;
     }
   }
 
@@ -69,6 +69,14 @@ export class StripePaymentService {
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Redirect to the given URL. Extracted for testability.
+   * @internal Override in tests via spyOn to prevent page navigation.
+   */
+  redirect(url: string): void {
+    window.location.href = url;
   }
 
   /**

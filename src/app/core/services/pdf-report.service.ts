@@ -44,8 +44,13 @@ export class PdfReportService {
 
   /* ── public API ────────────────────────────────────────── */
 
+  /** Override in tests to inject a custom jsPDF instance. */
+  protected createDoc(): jsPDF {
+    return new jsPDF('p', 'mm', 'a4');
+  }
+
   generateReport(input: PensionInput, result: PensionResult): void {
-    const doc   = new jsPDF('p', 'mm', 'a4');
+    const doc   = this.createDoc();
     const score = this.scoreService.computeScore(result, input.gewuenschteMonatlicheRente);
 
     /* page 1 — overview */
@@ -421,6 +426,7 @@ export class PdfReportService {
     const maxV = r.nettoMonatlich * 1.05;
     const minV = Math.min(...proj.map(p => p.realMonatlich)) * 0.92;
     const range = maxV - minV || 1;
+    const projDivisor = proj.length > 1 ? proj.length - 1 : 1;
 
     /* grid */
     for (let i = 0; i <= 4; i++) {
@@ -436,7 +442,7 @@ export class PdfReportService {
     let pnx = 0, pny = 0, prx = 0, pry = 0;
     proj.forEach((p, i) => {
       if (i % step !== 0 && i !== proj.length - 1) return;
-      const px = cx + (i / (proj.length - 1)) * cw;
+      const px = cx + (i / projDivisor) * cw;
       const ny = y + ((maxV - p.nominalMonatlich) / range) * ch;
       const ry = y + ((maxV - p.realMonatlich) / range) * ch;
       if (i > 0) {
@@ -456,7 +462,7 @@ export class PdfReportService {
 
     /* x-axis labels */
     [0, Math.floor(proj.length / 2), proj.length - 1].forEach(idx => {
-      const lx = cx + (idx / (proj.length - 1)) * cw;
+      const lx = cx + (idx / projDivisor) * cw;
       doc.setFont('helvetica', 'normal'); doc.setFontSize(5.5); doc.setTextColor(...this.c.muted);
       doc.text(`${proj[idx].jahr}`, lx, y + ch + 4, { align: 'center' });
     });

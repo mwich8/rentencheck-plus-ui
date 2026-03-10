@@ -11,6 +11,8 @@ describe('StripePaymentService', () => {
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
     TestBed.configureTestingModule({});
     service = TestBed.inject(StripePaymentService);
+    // Prevent page navigation during tests
+    spyOn(service, 'redirect');
   });
 
   afterEach(() => {
@@ -78,67 +80,61 @@ describe('StripePaymentService', () => {
   // ──────────────────────────────────────────────
 
   describe('startCheckout', () => {
-    it('should save input and call fetch endpoint', async () => {
-      const fetchSpy = spyOn(window, 'fetch').and.returnValue(
-        Promise.resolve(new Response(JSON.stringify({ url: 'https://checkout.stripe.com/test' }), { status: 200 }))
+    it('should save input before calling fetch', async () => {
+      spyOn(window, 'fetch').and.callFake(async () => {
+        // Verify input was saved BEFORE fetch is called
+        const stored = sessionStorage.getItem(SESSION_STORAGE_KEY);
+        expect(stored).toBeTruthy();
+        return new Response(JSON.stringify({ url: 'https://checkout.stripe.com/test' }), { status: 200 });
+      });
+
+      await service.startCheckout('report', DEFAULT_PENSION_INPUT);
+      expect(service.redirect).toHaveBeenCalledWith('https://checkout.stripe.com/test');
+    });
+
+    it('should call fetch with correct tier', async () => {
+      const fetchSpy = spyOn(window, 'fetch').and.callFake(async () =>
+        new Response(JSON.stringify({ url: 'https://checkout.stripe.com/test' }), { status: 200 })
       );
 
-      try {
-        await service.startCheckout('report', DEFAULT_PENSION_INPUT);
-      } catch {
-        // window.location.href assignment may cause issues in test env
-      }
+      await service.startCheckout('premium', DEFAULT_PENSION_INPUT);
 
-      // Input should have been saved before the fetch call
-      const stored = sessionStorage.getItem(SESSION_STORAGE_KEY);
-      expect(stored).toBeTruthy();
-
-      // Fetch should have been called with the correct endpoint and tier
       expect(fetchSpy).toHaveBeenCalledWith(
         '/.netlify/functions/create-checkout',
         jasmine.objectContaining({
           method: 'POST',
-          body: JSON.stringify({ tier: 'report' }),
-        })
-      );
-    });
-
-    it('should pass premium tier to fetch', async () => {
-      const fetchSpy = spyOn(window, 'fetch').and.returnValue(
-        Promise.resolve(new Response(JSON.stringify({ url: 'https://checkout.stripe.com/test' }), { status: 200 }))
-      );
-
-      try {
-        await service.startCheckout('premium', DEFAULT_PENSION_INPUT);
-      } catch {
-        // window.location.href assignment may cause issues in test env
-      }
-
-      expect(fetchSpy).toHaveBeenCalledWith(
-        '/.netlify/functions/create-checkout',
-        jasmine.objectContaining({
           body: JSON.stringify({ tier: 'premium' }),
         })
       );
     });
 
-    it('should clear input and throw on fetch error', async () => {
-      spyOn(window, 'fetch').and.returnValue(
-        Promise.resolve(new Response(JSON.stringify({ error: 'Test error' }), { status: 500 }))
+    it('should redirect to the checkout URL on success', async () => {
+      spyOn(window, 'fetch').and.callFake(async () =>
+        new Response(JSON.stringify({ url: 'https://checkout.stripe.com/session123' }), { status: 200 })
+      );
+
+      await service.startCheckout('report', DEFAULT_PENSION_INPUT);
+      expect(service.redirect).toHaveBeenCalledWith('https://checkout.stripe.com/session123');
+    });
+
+    it('should clear input and return false on server error', async () => {
+      spyOn(window, 'fetch').and.callFake(async () =>
+        new Response(JSON.stringify({ error: 'Server error' }), { status: 500 })
       );
 
       service.saveInput(DEFAULT_PENSION_INPUT);
-      await expectAsync(service.startCheckout('report', DEFAULT_PENSION_INPUT)).toBeRejected();
+      const result = await service.startCheckout('report', DEFAULT_PENSION_INPUT);
+      expect(result).toBeFalse();
       expect(sessionStorage.getItem(SESSION_STORAGE_KEY)).toBeNull();
     });
 
-    it('should clear input and throw on network error', async () => {
-      spyOn(window, 'fetch').and.returnValue(Promise.reject(new Error('Network error')));
+    it('should clear input and return false on network failure', async () => {
+      spyOn(window, 'fetch').and.callFake(() => Promise.reject(new Error('Network failure')));
 
       service.saveInput(DEFAULT_PENSION_INPUT);
-      await expectAsync(service.startCheckout('report', DEFAULT_PENSION_INPUT)).toBeRejected();
+      const result = await service.startCheckout('report', DEFAULT_PENSION_INPUT);
+      expect(result).toBeFalse();
       expect(sessionStorage.getItem(SESSION_STORAGE_KEY)).toBeNull();
     });
   });
 });
-
