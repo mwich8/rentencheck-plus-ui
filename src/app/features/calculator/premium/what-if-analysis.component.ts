@@ -4,6 +4,7 @@ import { PensionResult } from '@core/models/pension-result.model';
 import { PensionCalculatorService } from '@core/services/pension-calculator.service';
 import { InflationService } from '@core/services/inflation.service';
 import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
+import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS } from '@core/constants/calculator-defaults.const';
 
 interface TimelineMilestone {
   year: number;
@@ -65,9 +66,9 @@ export class WhatIfAnalysisComponent {
     // ── 2. ZINSESZINS-FENSTER (if young enough and gap exists) ──
     if (res.jahresBisRente > 10 && res.rentenluecke > 0) {
       const compoundYears = res.jahresBisRente;
-      const nowMonthly = this.savingsService.calculateRequiredMonthlySavings(res.rentenluecke, 0.07, compoundYears, 25);
+      const nowMonthly = this.savingsService.calculateRequiredMonthlySavings(res.rentenluecke, DEFAULT_ANNUAL_ETF_RETURN, compoundYears, DEFAULT_PAYOUT_YEARS);
       const laterYears = Math.max(1, compoundYears - 5);
-      const laterMonthly = this.savingsService.calculateRequiredMonthlySavings(res.rentenluecke, 0.07, laterYears, 25);
+      const laterMonthly = this.savingsService.calculateRequiredMonthlySavings(res.rentenluecke, DEFAULT_ANNUAL_ETF_RETURN, laterYears, DEFAULT_PAYOUT_YEARS);
       const costOfWaiting = Math.round(laterMonthly - nowMonthly);
       milestones.push({
         year: currentYear + 1, // offset by 1 so it doesn't overlap "today" visually

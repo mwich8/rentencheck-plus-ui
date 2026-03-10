@@ -5,6 +5,7 @@ import { PensionResult } from '@core/models/pension-result.model';
 import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { environment } from '@env/environment';
+import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS } from '@core/constants/calculator-defaults.const';
 import type { EChartsOption } from 'echarts';
 
 /**
@@ -35,7 +36,7 @@ export class EtfExplainerComponent {
     const res = this.result();
     if (res.rentenluecke <= 0 || res.jahresBisRente <= 0) return 0;
     return Math.round(
-      this.savingsService.calculateRequiredMonthlySavings(res.rentenluecke, 0.07, res.jahresBisRente, 25)
+      this.savingsService.calculateRequiredMonthlySavings(res.rentenluecke, DEFAULT_ANNUAL_ETF_RETURN, res.jahresBisRente, DEFAULT_PAYOUT_YEARS)
     );
   });
 
@@ -46,7 +47,7 @@ export class EtfExplainerComponent {
     if (monthly <= 0 || years <= 0) {
       return { endkapital: 0, eigenanteil: 0, renditeErtrag: 0, monatlicheAuszahlung: 0 };
     }
-    return this.savingsService.calculateFutureValue(monthly, 0.07, years, 25);
+    return this.savingsService.calculateFutureValue(monthly, DEFAULT_ANNUAL_ETF_RETURN, years, DEFAULT_PAYOUT_YEARS);
   });
 
   /** Percentage of end capital that came from returns (not contributions) */
@@ -74,8 +75,8 @@ export class EtfExplainerComponent {
         savingsValues.push(0);
         eigenanteilValues.push(0);
       } else {
-        const etf = this.savingsService.calculateFutureValue(monthly, 0.07, y, 25);
-        const savings = this.savingsService.calculateFutureValue(monthly, 0.015, y, 25);
+        const etf = this.savingsService.calculateFutureValue(monthly, DEFAULT_ANNUAL_ETF_RETURN, y, DEFAULT_PAYOUT_YEARS);
+        const savings = this.savingsService.calculateFutureValue(monthly, 0.015, y, DEFAULT_PAYOUT_YEARS);
         etfValues.push(Math.round(etf.endkapital));
         savingsValues.push(Math.round(savings.endkapital));
         eigenanteilValues.push(monthly * y * 12);

@@ -6,6 +6,12 @@ import { TaxService } from './tax.service';
 import { SocialInsuranceService } from './social-insurance.service';
 import { InflationService } from './inflation.service';
 import { getBesteuerungsanteil } from '../constants/insurance-rates.const';
+import {
+  WERBUNGSKOSTENPAUSCHALE,
+  SONDERAUSGABENPAUSCHALE,
+  STANDARD_RENTENALTER,
+  INFLATION_PROJECTION_YEARS,
+} from '../constants/calculator-defaults.const';
 
 /**
  * Main pension calculator orchestrator.
@@ -43,10 +49,8 @@ export class PensionCalculatorService {
     const zuVersteuerndesEinkommen = bruttoJaehrlich * besteuerungsanteil;
 
     // Step 2: Calculate income tax
-    // Subtract Werbungskostenpauschale (€102 for Rentner) and Sonderausgabenpauschale (€36)
-    const werbungskosten = 102;
-    const sonderausgaben = 36;
-    const zvE = Math.max(0, zuVersteuerndesEinkommen - werbungskosten - sonderausgaben);
+    // Subtract Werbungskostenpauschale (§9a Nr. 3 EStG) and Sonderausgabenpauschale (§10c EStG)
+    const zvE = Math.max(0, zuVersteuerndesEinkommen - WERBUNGSKOSTENPAUSCHALE - SONDERAUSGABENPAUSCHALE);
 
     const taxResult = this.taxService.calculateIncomeTax(zvE, input.steuerJahr);
 
@@ -64,9 +68,7 @@ export class PensionCalculatorService {
     const nettoMonatlich = bruttoMonatlich - gesamtAbzuegeMonatlich;
 
     // Step 5: Calculate years to retirement and inflation impact
-    // Standard retirement age in Germany: 67
-    const rentenAlter = this.getRentenalter(input.rentenbeginnJahr);
-    const jahresBisRente = Math.max(0, rentenAlter - input.aktuellesAlter);
+    const jahresBisRente = Math.max(0, STANDARD_RENTENALTER - input.aktuellesAlter);
 
     // Inflation decay on the net pension over years until retirement
     const realeKaufkraftMonatlich = this.inflationService.computeRealValue(
@@ -96,9 +98,9 @@ export class PensionCalculatorService {
     const inflationsVerlauf = this.inflationService.projectInflation(
       nettoMonatlich,
       input.inflationsrate,
-      rentenAlter,
+      STANDARD_RENTENALTER,
       input.rentenbeginnJahr,
-      30,
+      INFLATION_PROJECTION_YEARS,
     );
 
     return {
@@ -122,17 +124,6 @@ export class PensionCalculatorService {
     };
   }
 
-  /**
-   * Get the legal retirement age based on birth year / retirement year.
-   * Germany is transitioning to 67 by 2031.
-   */
-  private getRentenalter(rentenbeginnJahr: number): number {
-    // Simplified: Everyone born after 1964 retires at 67
-    // Earlier birth years have slightly lower retirement ages
-    if (rentenbeginnJahr >= 2031) return 67;
-    if (rentenbeginnJahr >= 2029) return 67;
-    return 67; // Simplified for calculator purposes
-  }
 
   /**
    * Build the deduction breakdown for the waterfall chart.

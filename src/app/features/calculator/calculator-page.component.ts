@@ -18,7 +18,10 @@ import { PremiumUnlockService } from '@core/services/premium-unlock.service';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
 import { PensionInput, DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
+import { PensionResult } from '@core/models/pension-result.model';
 import { environment } from '@env/environment';
+import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS } from '@core/constants/calculator-defaults.const';
+import { LATEST_STEUER_JAHR } from '@core/constants/tax-brackets.const';
 
 /**
  * Calculator page — the main pension calculator tool.
@@ -56,6 +59,7 @@ export class CalculatorPageComponent {
   readonly currentYear = new Date().getFullYear();
   readonly isPremiumUnlocked = this.premiumService.isUnlocked;
   readonly affiliateUrl = environment.affiliate.brokerUrl;
+  readonly steuerJahr = LATEST_STEUER_JAHR;
 
   /** Collapse state for premium feature sections — collapsed by default */
   readonly scenarioCollapsed = signal(true);
@@ -68,10 +72,15 @@ export class CalculatorPageComponent {
   readonly gewuenschteRente = computed(() => this.currentInput().gewuenschteMonatlicheRente);
   readonly hatKinder = computed(() => this.currentInput().hatKinder);
 
-  /** Pension result — recomputes whenever currentInput changes. No viewChild, no double-render. */
-  readonly pensionResult = computed(() =>
-    this.calculatorService.calculate(this.currentInput())
-  );
+  /** Pension result — recomputes whenever currentInput changes. Error-safe with fallback. */
+  readonly pensionResult = computed<PensionResult>(() => {
+    try {
+      return this.calculatorService.calculate(this.currentInput());
+    } catch (e) {
+      console.error('Pension calculation failed:', e);
+      return this.calculatorService.calculate(DEFAULT_PENSION_INPUT);
+    }
+  });
 
   /** Called by InputPanelComponent whenever any input field changes */
   onInputChange(input: PensionInput): void {
@@ -87,11 +96,11 @@ export class CalculatorPageComponent {
     const r = this.pensionResult();
     if (r.rentenluecke <= 0 || r.jahresBisRente <= 1) return 0;
     const now = this.savingsService.calculateRequiredMonthlySavings(
-      r.rentenluecke, 0.07, r.jahresBisRente, 25
+      r.rentenluecke, DEFAULT_ANNUAL_ETF_RETURN, r.jahresBisRente, DEFAULT_PAYOUT_YEARS
     );
     const delayedYears = r.jahresBisRente - 1 / 12;
     const later = this.savingsService.calculateRequiredMonthlySavings(
-      r.rentenluecke, 0.07, delayedYears, 25
+      r.rentenluecke, DEFAULT_ANNUAL_ETF_RETURN, delayedYears, DEFAULT_PAYOUT_YEARS
     );
     const monthlyIncrease = later - now;
     const remainingMonths = delayedYears * 12;

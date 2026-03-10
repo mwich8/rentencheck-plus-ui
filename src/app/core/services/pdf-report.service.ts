@@ -4,6 +4,7 @@ import { PensionInput } from '../models/pension-input.model';
 import { PensionResult } from '../models/pension-result.model';
 import { RentenScoreService, RentenScore } from './renten-score.service';
 import { SavingsCalculatorService } from './savings-calculator.service';
+import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS } from '../constants/calculator-defaults.const';
 
 type RGB = [number, number, number];
 
@@ -540,10 +541,10 @@ export class PdfReportService {
     y = this.heading(doc, y, 'Sparplan-Vergleich',
       `Zwei Wege, Ihre L\u00fccke von ${this.eur(r.rentenluecke)} / Monat zu schlie\u00dfen \u2014 w\u00e4hlen Sie einen:`);
 
-    const etfM = Math.round(this.savingsService.calculateRequiredMonthlySavings(r.rentenluecke, 0.07, r.jahresBisRente, 25));
-    const savM = Math.round(this.savingsService.calculateRequiredMonthlySavings(r.rentenluecke, 0.015, r.jahresBisRente, 25));
-    const etfP = this.savingsService.calculateFutureValue(etfM, 0.07, r.jahresBisRente, 25);
-    const savP = this.savingsService.calculateFutureValue(savM, 0.015, r.jahresBisRente, 25);
+    const etfM = Math.round(this.savingsService.calculateRequiredMonthlySavings(r.rentenluecke, DEFAULT_ANNUAL_ETF_RETURN, r.jahresBisRente, DEFAULT_PAYOUT_YEARS));
+    const savM = Math.round(this.savingsService.calculateRequiredMonthlySavings(r.rentenluecke, 0.015, r.jahresBisRente, DEFAULT_PAYOUT_YEARS));
+    const etfP = this.savingsService.calculateFutureValue(etfM, DEFAULT_ANNUAL_ETF_RETURN, r.jahresBisRente, DEFAULT_PAYOUT_YEARS);
+    const savP = this.savingsService.calculateFutureValue(savM, 0.015, r.jahresBisRente, DEFAULT_PAYOUT_YEARS);
 
     const gap = 14;
     const hw = (this.CW - gap) / 2;

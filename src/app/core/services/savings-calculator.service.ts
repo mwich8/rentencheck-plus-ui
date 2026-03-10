@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { DEFAULT_PAYOUT_YEARS } from '../constants/calculator-defaults.const';
 
 export interface SavingsProjection {
   /** Total capital accumulated at end of period */
@@ -31,7 +32,7 @@ export class SavingsCalculatorService {
     monthlyContribution: number,
     annualReturnRate: number,
     years: number,
-    payoutYears: number = 25,
+    payoutYears: number = DEFAULT_PAYOUT_YEARS,
   ): SavingsProjection {
     if (years <= 0 || monthlyContribution <= 0) {
       return { endkapital: 0, eigenanteil: 0, renditeErtrag: 0, monatlicheAuszahlung: 0 };
@@ -93,7 +94,7 @@ export class SavingsCalculatorService {
     monthlyGap: number,
     annualReturnRate: number,
     yearsToRetirement: number,
-    payoutYears: number = 25,
+    payoutYears: number = DEFAULT_PAYOUT_YEARS,
   ): number {
     if (monthlyGap <= 0 || yearsToRetirement <= 0) return 0;
 

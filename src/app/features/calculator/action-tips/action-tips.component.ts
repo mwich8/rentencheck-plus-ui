@@ -2,6 +2,7 @@ import { Component, input, computed, inject, output } from '@angular/core';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
 import { PensionResult } from '@core/models/pension-result.model';
 import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
+import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS } from '@core/constants/calculator-defaults.const';
 
 interface ActionTip {
   icon: string;
@@ -43,18 +44,18 @@ export class ActionTipsComponent {
   readonly etfMonthly = computed(() => {
     const r = this.result();
     if (r.rentenluecke <= 0 || r.jahresBisRente <= 0) return 0;
-    return Math.round(this.savingsService.calculateRequiredMonthlySavings(r.rentenluecke, 0.07, r.jahresBisRente, 25));
+    return Math.round(this.savingsService.calculateRequiredMonthlySavings(r.rentenluecke, DEFAULT_ANNUAL_ETF_RETURN, r.jahresBisRente, DEFAULT_PAYOUT_YEARS));
   });
 
   readonly savingsMonthly = computed(() => {
     const r = this.result();
     if (r.rentenluecke <= 0 || r.jahresBisRente <= 0) return 0;
-    return Math.round(this.savingsService.calculateRequiredMonthlySavings(r.rentenluecke, 0.015, r.jahresBisRente, 25));
+    return Math.round(this.savingsService.calculateRequiredMonthlySavings(r.rentenluecke, 0.015, r.jahresBisRente, DEFAULT_PAYOUT_YEARS));
   });
 
   readonly etfProjection = computed(() => {
     const r = this.result();
-    return this.savingsService.calculateFutureValue(this.etfMonthly(), 0.07, r.jahresBisRente, 25);
+    return this.savingsService.calculateFutureValue(this.etfMonthly(), DEFAULT_ANNUAL_ETF_RETURN, r.jahresBisRente, DEFAULT_PAYOUT_YEARS);
   });
 
   readonly savingsProjection = computed(() => {

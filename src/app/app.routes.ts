@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { LATEST_STEUER_JAHR } from '@core/constants/tax-brackets.const';
 
 export const routes: Routes = [
   {
@@ -6,13 +7,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('@features/landing/landing-page.component').then(m => m.LandingPageComponent),
     title: 'RentenCheck+ — Die brutale Wahrheit über Ihre Rente',
-    data: { meta: { description: 'Berechnen Sie Ihre reale Rentenlücke. Steuern, Sozialabgaben und Inflation — die Wahrheit über Ihre gesetzliche Rente. Kostenloser Rentenrechner 2026.' } },
+    data: { meta: { description: `Berechnen Sie Ihre reale Rentenlücke. Steuern, Sozialabgaben und Inflation — die Wahrheit über Ihre gesetzliche Rente. Kostenloser Rentenrechner ${LATEST_STEUER_JAHR}.` } },
   },
   {
     path: 'rechner',
     loadComponent: () =>
       import('@features/calculator/calculator-page.component').then(m => m.CalculatorPageComponent),
-    title: 'Rentenrechner 2026 — Nettorente & Rentenlücke berechnen | RentenCheck+',
+    title: `Rentenrechner ${LATEST_STEUER_JAHR} — Nettorente & Rentenlücke berechnen | RentenCheck+`,
     data: { meta: { description: 'Kostenloser Rentenrechner: Berechnen Sie Ihre Nettorente nach Steuern (§32a EStG), Sozialabgaben und Inflation. Mit ETF-Sparplan-Empfehlung.' } },
   },
   {

@@ -8,6 +8,7 @@ import { SavingsCalculatorService } from '@core/services/savings-calculator.serv
 import { AnalyticsService } from '@core/services/analytics.service';
 import { OptimizationSuggestion } from '@core/models/scenario.model';
 import { environment } from '@env/environment';
+import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS } from '@core/constants/calculator-defaults.const';
 
 /**
  * Optimierungsvorschläge & Strategievergleich — personalized, quantified
@@ -62,10 +63,10 @@ export class OptimizationStrategiesComponent {
     // 2. Private Vorsorge mit ETF
     if (base.rentenluecke > 0 && base.jahresBisRente > 0) {
       const etfMonthly = this.savingsService.calculateRequiredMonthlySavings(
-        base.rentenluecke, 0.07, base.jahresBisRente, 25
+        base.rentenluecke, DEFAULT_ANNUAL_ETF_RETURN, base.jahresBisRente, DEFAULT_PAYOUT_YEARS
       );
       const etfProjection = this.savingsService.calculateFutureValue(
-        Math.round(etfMonthly), 0.07, base.jahresBisRente, 25
+        Math.round(etfMonthly), DEFAULT_ANNUAL_ETF_RETURN, base.jahresBisRente, DEFAULT_PAYOUT_YEARS
       );
       suggestions.push({
         icon: '📈',
@@ -174,17 +175,17 @@ export class OptimizationStrategiesComponent {
     if (base.rentenluecke <= 0 || base.jahresBisRente <= 0) return [];
 
     const configs = [
-      { label: 'ETF-Sparplan', icon: '📈', color: '#27ae60', rate: 0.07, rateLabel: '7% p.a. (MSCI World historisch)' },
+      { label: 'ETF-Sparplan', icon: '📈', color: '#27ae60', rate: DEFAULT_ANNUAL_ETF_RETURN, rateLabel: '7% p.a. (MSCI World historisch)' },
       { label: 'Mischfonds', icon: '📊', color: '#f39c12', rate: 0.04, rateLabel: '4% p.a. (ausgewogen)' },
       { label: 'Sparkonto/Festgeld', icon: '🏦', color: '#e94560', rate: 0.015, rateLabel: '1,5% p.a. (konservativ)' },
     ];
 
     return configs.map(c => {
       const monthly = this.savingsService.calculateRequiredMonthlySavings(
-        base.rentenluecke, c.rate, base.jahresBisRente, 25
+        base.rentenluecke, c.rate, base.jahresBisRente, DEFAULT_PAYOUT_YEARS
       );
       const projection = this.savingsService.calculateFutureValue(
-        Math.round(monthly), c.rate, base.jahresBisRente, 25
+        Math.round(monthly), c.rate, base.jahresBisRente, DEFAULT_PAYOUT_YEARS
       );
       const renditeAnteil = projection.endkapital > 0
         ? (projection.renditeErtrag / projection.endkapital) * 100
