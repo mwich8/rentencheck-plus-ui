@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { InputPanelComponent } from './input-panel.component';
 import { DEFAULT_PENSION_INPUT, PensionInput } from '@core/models/pension-input.model';
 import { LATEST_STEUER_JAHR } from '@core/constants/tax-brackets.const';
+import { getInsuranceRates } from '@core/constants/insurance-rates.const';
 
 describe('InputPanelComponent', () => {
   let component: InputPanelComponent;

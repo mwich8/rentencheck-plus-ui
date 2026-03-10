@@ -1,4 +1,4 @@
-ont.input-panel {
+.input-panel {
   padding: 0;
 }
 
@@ -192,9 +192,16 @@ ont.input-panel {
   }
 
   &:hover .info-tooltip,
-  &:focus .info-tooltip {
+  &:focus .info-tooltip,
+  &:focus-within .info-tooltip {
     visibility: visible;
     opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 }
 

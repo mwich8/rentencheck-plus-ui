@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
 import { PensionInput, DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
 import { LATEST_STEUER_JAHR } from '@core/constants/tax-brackets.const';
+import { getInsuranceRates } from '@core/constants/insurance-rates.const';
 
 @Component({
   selector: 'app-input-panel',
@@ -22,6 +23,11 @@ export class InputPanelComponent {
 
   /** Emits the full PensionInput whenever any field changes */
   readonly inputChange = output<PensionInput>();
+
+  /** Dynamic Pflegeversicherung rates from constants (avoids hardcoding in template) */
+  private readonly insuranceRates = getInsuranceRates(LATEST_STEUER_JAHR);
+  readonly pflegeMitKindernProzent: string = (this.insuranceRates.pflegeMitKindern * 100).toFixed(1);
+  readonly pflegeOhneKinderProzent: string = (this.insuranceRates.pflegeOhneKinder * 100).toFixed(1);
 
   /** Computed PensionInput from all signals */
   readonly pensionInput = computed<PensionInput>(() => ({

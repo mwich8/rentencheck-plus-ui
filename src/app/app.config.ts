@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, provideZonelessChangeDetection } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withInMemoryScrolling, withViewTransitions, withPreloading, PreloadAllModules } from '@angular/router';
 import { provideEchartsCore } from 'ngx-echarts';
@@ -12,6 +12,7 @@ import {
 import { CanvasRenderer } from 'echarts/renderers';
 import * as echarts from 'echarts/core';
 import { routes } from './app.routes';
+import { GlobalErrorHandler } from '@core/services/global-error-handler';
 
 echarts.use([BarChart, LineChart, GridComponent, TooltipComponent, LegendComponent, MarkPointComponent, CanvasRenderer]);
 
@@ -21,6 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideRouter(routes, withPreloading(PreloadAllModules), withViewTransitions(), withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
     provideEchartsCore({ echarts }),
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
   ],
 };
 

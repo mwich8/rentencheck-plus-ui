@@ -58,9 +58,9 @@
   <div class="input-group">
     <label class="input-label" for="slider-alter">
       Ihr aktuelles Alter
-      <span class="info-icon" tabindex="0" aria-label="Info zu Ihrem Alter">
+      <span class="info-icon" tabindex="0" role="button" aria-label="Info zu Ihrem Alter" aria-describedby="alter-tooltip">
         ℹ️
-        <span class="info-tooltip">Je jünger Sie sind, desto mehr Zeit bleibt bis zur Rente — und desto stärker wirkt der Zinseszins beim Sparen, aber auch der Kaufkraftverlust durch Inflation.</span>
+        <span class="info-tooltip" id="alter-tooltip" role="tooltip">Je jünger Sie sind, desto mehr Zeit bleibt bis zur Rente — und desto stärker wirkt der Zinseszins beim Sparen, aber auch der Kaufkraftverlust durch Inflation.</span>
       </span>
     </label>
     <div class="slider-row">
@@ -158,7 +158,7 @@
       </button>
     </div>
     <p class="toggle-hint">
-      {{ hatKinder() ? 'Pflegeversicherung: 3,4 %' : 'Pflegeversicherung: 4,0 % (Zuschlag für Kinderlose)' }}
+      {{ hatKinder() ? 'Pflegeversicherung: ' + pflegeMitKindernProzent + ' %' : 'Pflegeversicherung: ' + pflegeOhneKinderProzent + ' % (Zuschlag für Kinderlose)' }}
     </p>
   </div>
 </div>
