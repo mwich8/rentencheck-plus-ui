@@ -9,7 +9,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true,
 })
 export class EuroPipe implements PipeTransform {
-  private formatter = new Intl.NumberFormat('de-DE', {
+  private readonly formatter: Intl.NumberFormat = new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR',
     minimumFractionDigits: 2,

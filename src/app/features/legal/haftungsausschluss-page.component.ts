@@ -13,6 +13,6 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./haftungsausschluss-page.component.scss'],
 })
 export class HaftungsausschlussPageComponent {
-  readonly currentYear = new Date().getFullYear();
+  readonly currentYear: number = new Date().getFullYear();
 }
 

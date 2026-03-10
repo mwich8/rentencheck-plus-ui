@@ -27,7 +27,7 @@ export class PaymentSuccessComponent implements OnInit {
   private readonly premiumService = inject(PremiumUnlockService);
 
   readonly status = signal<'generating' | 'done' | 'error'>('generating');
-  readonly errorMessage = signal('');
+  readonly errorMessage = signal<string>('');
 
   ngOnInit(): void {
     const sessionId = this.route.snapshot.queryParamMap.get('session_id');

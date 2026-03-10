@@ -28,7 +28,7 @@ export class OptimizationStrategiesComponent {
 
   readonly pensionInput = input.required<PensionInput>();
   readonly baselineResult = input.required<PensionResult>();
-  readonly affiliateUrl = environment.affiliate.brokerUrl;
+  readonly affiliateUrl: string = environment.affiliate.brokerUrl;
 
   onAffiliateClick(): void {
     this.analytics.trackAffiliateClick('optimization_strategies');

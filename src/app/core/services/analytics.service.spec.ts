@@ -12,6 +12,7 @@ describe('AnalyticsService', () => {
   afterEach(() => {
     // Clean up injected script tags
     document.querySelectorAll('script[data-domain]').forEach(el => el.remove());
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (window as any).plausible;
   });
 

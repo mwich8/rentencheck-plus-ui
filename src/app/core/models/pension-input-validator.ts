@@ -53,7 +53,7 @@ export class PensionInputValidator {
    */
   static validate(input: PensionInput): ValidationResult {
     const errors: ValidationError[] = [];
-    const sanitized = { ...input };
+    const sanitized: PensionInput = { ...input };
 
     // ── Type & NaN checks ──────────────────────────────
     sanitized.bruttoMonatlicheRente = PensionInputValidator.sanitizeNumber(
@@ -102,7 +102,7 @@ export class PensionInputValidator {
     }
 
     // ── Range clamping ──────────────────────────────────
-    const c = INPUT_CONSTRAINTS;
+    const c: typeof INPUT_CONSTRAINTS = INPUT_CONSTRAINTS;
 
     sanitized.bruttoMonatlicheRente = PensionInputValidator.clampWithError(
       sanitized.bruttoMonatlicheRente, c.bruttoMonatlicheRente.min, c.bruttoMonatlicheRente.max,
@@ -157,8 +157,8 @@ export class PensionInputValidator {
     // aktuellesAlter ≥ 16), the minimum possible value is 2025 − currentYear + 16,
     // which is always ≥ 0 in practice. This guard is a safety net for edge cases.
     //
-    const currentYear = new Date().getFullYear();
-    const impliedRetirementAge = sanitized.rentenbeginnJahr - currentYear + sanitized.aktuellesAlter;
+    const currentYear: number = new Date().getFullYear();
+    const impliedRetirementAge: number = sanitized.rentenbeginnJahr - currentYear + sanitized.aktuellesAlter;
     if (impliedRetirementAge < 0) {
       errors.push({
         field: 'rentenbeginnJahr',

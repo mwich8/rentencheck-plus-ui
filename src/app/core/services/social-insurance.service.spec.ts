@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { SocialInsuranceService, SocialInsuranceResult } from './social-insurance.service';
+import { SocialInsuranceService } from './social-insurance.service';
 
 describe('SocialInsuranceService', () => {
   let service: SocialInsuranceService;
@@ -140,6 +140,7 @@ describe('SocialInsuranceService', () => {
     });
 
     it('should default hatKinder to true', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = service.calculate(1500, undefined as any, undefined, 2026);
       // The default in service signature is true
       expect(result.pflegeEffektiverSatz).toBe(0.036);

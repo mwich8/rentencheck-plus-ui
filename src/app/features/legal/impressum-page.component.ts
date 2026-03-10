@@ -13,6 +13,6 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./impressum-page.component.scss'],
 })
 export class ImpressumPageComponent {
-  readonly currentYear = new Date().getFullYear();
+  readonly currentYear: number = new Date().getFullYear();
 }
 

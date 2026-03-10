@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { StripePaymentService } from './stripe-payment.service';
-import { DEFAULT_PENSION_INPUT, PensionInput } from '../models/pension-input.model';
+import { DEFAULT_PENSION_INPUT } from '../models/pension-input.model';
 
 const SESSION_STORAGE_KEY = 'rentencheck_pending_input';
 

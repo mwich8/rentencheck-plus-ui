@@ -60,7 +60,7 @@ export class PdfReportService {
     y = this.inputBox(doc, y, input);
     y = this.kpiCards(doc, y, result, score);
     y = this.gapBanner(doc, y, result, score);
-    y = this.deductionTable(doc, y, result);
+    this.deductionTable(doc, y, result);
     this.footer(doc);
 
     /* page 2 — score & inflation */
@@ -68,7 +68,7 @@ export class PdfReportService {
     y = this.headerBar(doc, false, 'Renten-Score & Inflationsprognose');
     y = this.scoreGauge(doc, y, score);
     y = this.inflationChart(doc, y, result);
-    y = this.inflationTable(doc, y, result);
+    this.inflationTable(doc, y, result);
     this.footer(doc);
 
     /* page 3 — actions & legal */
@@ -77,7 +77,7 @@ export class PdfReportService {
     y = this.savingsComparison(doc, y, result);
     y = this.tipCards(doc, y, result, input);
     y = this.affiliateBox(doc, y, result);
-    y = this.disclaimer(doc, y);
+    this.disclaimer(doc, y);
     this.footer(doc);
 
     const d = new Date().toISOString().slice(0, 10);
@@ -188,8 +188,8 @@ export class PdfReportService {
     doc.text(
       'RentenCheck+  \u00b7  rentencheck-plus.netlify.app  \u00b7  Marten Wichmann  \u00b7  Colloredostr. 1c, 84453 M\u00fchldorf  \u00b7  marten.wichmann@gmail.com',
       this.M, fy);
-    const pn = (doc as any).internal.getCurrentPageInfo().pageNumber;
-    const tp = (doc as any).internal.getNumberOfPages();
+    const pn = (doc as unknown as { internal: { getCurrentPageInfo(): { pageNumber: number } } }).internal.getCurrentPageInfo().pageNumber;
+    const tp = (doc as unknown as { internal: { getNumberOfPages(): number } }).internal.getNumberOfPages();
     doc.text(`Seite ${pn} von ${tp}`, this.PW - this.M, fy, { align: 'right' });
   }
 

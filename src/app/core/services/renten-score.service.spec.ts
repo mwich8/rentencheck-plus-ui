@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { RentenScoreService, RentenScore } from './renten-score.service';
+import { RentenScoreService } from './renten-score.service';
 import { PensionResult } from '../models/pension-result.model';
 
 function createMockResult(overrides: Partial<PensionResult> = {}): PensionResult {

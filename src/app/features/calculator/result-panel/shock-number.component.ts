@@ -20,10 +20,10 @@ export class ShockNumberComponent implements OnDestroy {
   readonly isCritical = computed(() => this.result().deckungsquote < 50);
 
   /** Animated display value for the count-up effect */
-  readonly displayValue = signal(0);
+  readonly displayValue = signal<number>(0);
 
   private animationFrameId: number | null = null;
-  private previousTarget = 0;
+  private previousTarget: number = 0;
 
   constructor() {
     effect(() => {

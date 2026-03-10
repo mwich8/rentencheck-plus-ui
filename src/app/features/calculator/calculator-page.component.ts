@@ -56,15 +56,15 @@ export class CalculatorPageComponent {
   private readonly premiumService = inject(PremiumUnlockService);
   private readonly analytics = inject(AnalyticsService);
 
-  readonly currentYear = new Date().getFullYear();
+  readonly currentYear: number = new Date().getFullYear();
   readonly isPremiumUnlocked = this.premiumService.isUnlocked;
-  readonly affiliateUrl = environment.affiliate.brokerUrl;
-  readonly steuerJahr = LATEST_STEUER_JAHR;
+  readonly affiliateUrl: string = environment.affiliate.brokerUrl;
+  readonly steuerJahr: number = LATEST_STEUER_JAHR;
 
   /** Collapse state for premium feature sections — collapsed by default */
-  readonly scenarioCollapsed = signal(true);
-  readonly timelineCollapsed = signal(true);
-  readonly optimizationCollapsed = signal(true);
+  readonly scenarioCollapsed = signal<boolean>(true);
+  readonly timelineCollapsed = signal<boolean>(true);
+  readonly optimizationCollapsed = signal<boolean>(true);
 
   /** Current pension input — starts with defaults, updated instantly by InputPanel output */
   readonly currentInput = signal<PensionInput>(DEFAULT_PENSION_INPUT);

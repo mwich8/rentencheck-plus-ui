@@ -119,13 +119,13 @@ export function getBesteuerungsanteil(rentenbeginnJahr: number): number {
   if (rentenbeginnJahr >= 2040) return 1.0;
   if (rentenbeginnJahr <= 2005) return 0.50;
 
-  const anteil = BESTEUERUNGSANTEIL_TABELLE[rentenbeginnJahr];
+  const anteil: number | undefined = BESTEUERUNGSANTEIL_TABELLE[rentenbeginnJahr];
   if (anteil !== undefined) return anteil;
 
   // Linear interpolation for gaps
-  const years = Object.keys(BESTEUERUNGSANTEIL_TABELLE).map(Number).sort((a, b) => a - b);
-  let lower = years[0];
-  let upper = years[years.length - 1];
+  const years: number[] = Object.keys(BESTEUERUNGSANTEIL_TABELLE).map(Number).sort((a: number, b: number) => a - b);
+  let lower: number = years[0];
+  let upper: number = years[years.length - 1];
 
   for (const y of years) {
     if (y <= rentenbeginnJahr) lower = y;
@@ -135,9 +135,9 @@ export function getBesteuerungsanteil(rentenbeginnJahr: number): number {
     }
   }
 
-  const lowerVal = BESTEUERUNGSANTEIL_TABELLE[lower];
-  const upperVal = BESTEUERUNGSANTEIL_TABELLE[upper];
-  const ratio = (rentenbeginnJahr - lower) / (upper - lower);
+  const lowerVal: number = BESTEUERUNGSANTEIL_TABELLE[lower];
+  const upperVal: number = BESTEUERUNGSANTEIL_TABELLE[upper];
+  const ratio: number = (rentenbeginnJahr - lower) / (upper - lower);
   return lowerVal + ratio * (upperVal - lowerVal);
 }
 

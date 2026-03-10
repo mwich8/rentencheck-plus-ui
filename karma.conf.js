@@ -23,6 +23,16 @@ module.exports = function (config) {
         { type: 'html' },
         { type: 'text-summary' },
       ],
+      // ── Coverage thresholds — CI will fail if coverage drops below these ──
+      // Set at current baseline; raise as you add more tests.
+      check: {
+        global: {
+          statements: 66,
+          branches: 42,
+          functions: 55,
+          lines: 63,
+        },
+      },
     },
     reporters: ['progress', 'kjhtml'],
     browsers: ['ChromeHeadless'],

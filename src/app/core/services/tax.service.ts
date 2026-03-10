@@ -30,18 +30,18 @@ export class TaxService {
    * @returns Detailed tax result
    */
   calculateIncomeTax(zvE: number, year: SteuerJahr = LATEST_STEUER_JAHR): TaxResult {
-    const config = getTaxConfig(year);
+    const config: TaxBracketConfig = getTaxConfig(year);
     // Round down to full EUR as per §32a Abs. 1 EStG
-    const zvEGerundet = Math.floor(zvE);
+    const zvEGerundet: number = Math.floor(zvE);
 
-    let einkommensteuer = this.computeESt(zvEGerundet, config);
+    let einkommensteuer: number = this.computeESt(zvEGerundet, config);
     einkommensteuer = Math.floor(einkommensteuer); // ESt is rounded down to full EUR
 
-    const solidaritaetszuschlag = this.computeSoli(einkommensteuer, config);
+    const solidaritaetszuschlag: number = this.computeSoli(einkommensteuer, config);
 
-    const gesamtSteuer = einkommensteuer + solidaritaetszuschlag;
-    const durchschnittssteuersatz = zvEGerundet > 0 ? einkommensteuer / zvEGerundet : 0;
-    const grenzsteuersatz = this.computeGrenzsteuersatz(zvEGerundet, config);
+    const gesamtSteuer: number = einkommensteuer + solidaritaetszuschlag;
+    const durchschnittssteuersatz: number = zvEGerundet > 0 ? einkommensteuer / zvEGerundet : 0;
+    const grenzsteuersatz: number = this.computeGrenzsteuersatz(zvEGerundet, config);
 
     return {
       einkommensteuer,
@@ -63,13 +63,13 @@ export class TaxService {
 
     if (zvE <= c.zone2Upper) {
       // Zone 2: 14% → ~24% linear-progressive
-      const y = (zvE - c.grundfreibetrag) / 10_000;
+      const y: number = (zvE - c.grundfreibetrag) / 10_000;
       return (c.zone2FactorA * y + c.zone2FactorB) * y;
     }
 
     if (zvE <= c.zone3Upper) {
       // Zone 3: ~24% → 42% linear-progressive
-      const z = (zvE - c.zone2Upper) / 10_000;
+      const z: number = (zvE - c.zone2Upper) / 10_000;
       return (c.zone3FactorA * z + c.zone3FactorB) * z + c.zone3ConstC;
     }
 
@@ -96,11 +96,11 @@ export class TaxService {
       return 0;
     }
 
-    const fullSoli = est * c.soliRate;
-    const gleitzoneSoli = (est - c.soliFreigrenze) * (c.soliGleitzone / 100);
+    const fullSoli: number = est * c.soliRate;
+    const gleitzoneSoli: number = (est - c.soliFreigrenze) * (c.soliGleitzone / 100);
 
     // In the Gleitzone, Soli is capped at the gleitzone amount
-    const soli = Math.min(fullSoli, gleitzoneSoli);
+    const soli: number = Math.min(fullSoli, gleitzoneSoli);
     return Math.round(soli * 100) / 100; // Round to cents
   }
 
@@ -110,11 +110,11 @@ export class TaxService {
   private computeGrenzsteuersatz(zvE: number, c: TaxBracketConfig): number {
     if (zvE <= c.grundfreibetrag) return 0;
     if (zvE <= c.zone2Upper) {
-      const y = (zvE - c.grundfreibetrag) / 10_000;
+      const y: number = (zvE - c.grundfreibetrag) / 10_000;
       return (2 * c.zone2FactorA * y + c.zone2FactorB) / 10_000;
     }
     if (zvE <= c.zone3Upper) {
-      const z = (zvE - c.zone2Upper) / 10_000;
+      const z: number = (zvE - c.zone2Upper) / 10_000;
       return (2 * c.zone3FactorA * z + c.zone3FactorB) / 10_000;
     }
     if (zvE <= c.zone4Upper) return c.zone4Rate;

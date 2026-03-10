@@ -1,6 +1,17 @@
 import { Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 
+/** Plausible analytics global function signature */
+interface PlausibleFn {
+  (eventName: string, options?: { props?: Record<string, string | number | boolean> }): void;
+  q?: unknown[][];
+}
+
+/** Window augmented with Plausible analytics */
+interface WindowWithPlausible extends Window {
+  plausible?: PlausibleFn;
+}
+
 /**
  * Lightweight analytics service using Plausible.io.
  * DSGVO-compliant: no cookies, no personal data, EU-hosted.
@@ -10,8 +21,8 @@ import { environment } from '@env/environment';
  */
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
-  private initialized = false;
-  private readonly domain = environment.analytics.plausibleDomain;
+  private initialized: boolean = false;
+  private readonly domain: string = environment.analytics.plausibleDomain;
 
   /**
    * Initialize Plausible by injecting the script tag.
@@ -22,7 +33,7 @@ export class AnalyticsService {
   init(): void {
     if (this.initialized || !this.domain || typeof document === 'undefined') return;
 
-    const script = document.createElement('script');
+    const script: HTMLScriptElement = document.createElement('script');
     script.defer = true;
     script.dataset['domain'] = this.domain;
     script.dataset['api'] = 'https://plausible.io/api/event';
@@ -30,8 +41,9 @@ export class AnalyticsService {
     document.head.appendChild(script);
 
     // Expose plausible function for custom events
-    (window as any).plausible = (window as any).plausible || function (...args: any[]) {
-      ((window as any).plausible.q = (window as any).plausible.q || []).push(args);
+    const w: WindowWithPlausible = window as unknown as WindowWithPlausible;
+    w.plausible = w.plausible || function (...args: unknown[]) {
+      (w.plausible!.q = w.plausible!.q || []).push(args);
     };
 
     this.initialized = true;
@@ -46,7 +58,7 @@ export class AnalyticsService {
     if (!this.domain) return;
 
     try {
-      const plausible = (window as any).plausible;
+      const plausible: PlausibleFn | undefined = (window as unknown as WindowWithPlausible).plausible;
       if (typeof plausible === 'function') {
         plausible(name, props ? { props } : undefined);
       }

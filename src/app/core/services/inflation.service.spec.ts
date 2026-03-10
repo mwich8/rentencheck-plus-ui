@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { InflationService } from './inflation.service';
-import { InflationProjection } from '../models/pension-result.model';
 
 describe('InflationService', () => {
   let service: InflationService;

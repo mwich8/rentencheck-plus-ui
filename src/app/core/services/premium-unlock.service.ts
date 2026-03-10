@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-const STORAGE_KEY = 'rentencheck_premium_unlocked';
+const STORAGE_KEY: string = 'rentencheck_premium_unlocked';
 
 /**
  * Tracks whether the user has unlocked premium features (purchased the PDF report).
@@ -10,7 +10,7 @@ const STORAGE_KEY = 'rentencheck_premium_unlocked';
 @Injectable({ providedIn: 'root' })
 export class PremiumUnlockService {
   /** Reactive signal so Angular components update automatically */
-  readonly isUnlocked = signal(this.readStorage());
+  readonly isUnlocked = signal<boolean>(this.readStorage());
 
   /** Mark premium features as unlocked (called after successful payment) */
   unlock(): void {

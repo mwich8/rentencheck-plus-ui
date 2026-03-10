@@ -48,9 +48,9 @@ export class InflationService {
   ): InflationProjection[] {
     const projections: InflationProjection[] = [];
 
-    for (let n = 0; n <= maxJahre; n++) {
-      const realMonatlich = this.computeRealValue(nominalMonatlich, inflationRate, n);
-      const kaufkraftVerlust = nominalMonatlich - realMonatlich;
+    for (let n: number = 0; n <= maxJahre; n++) {
+      const realMonatlich: number = this.computeRealValue(nominalMonatlich, inflationRate, n);
+      const kaufkraftVerlust: number = nominalMonatlich - realMonatlich;
 
       projections.push({
         jahr: startJahr + n,
@@ -77,9 +77,9 @@ export class InflationService {
     inflationRate: number,
     years: number,
   ): number {
-    let totalLoss = 0;
-    for (let n = 1; n <= years; n++) {
-      const realValue = this.computeRealValue(nominalMonatlich, inflationRate, n);
+    let totalLoss: number = 0;
+    for (let n: number = 1; n <= years; n++) {
+      const realValue: number = this.computeRealValue(nominalMonatlich, inflationRate, n);
       totalLoss += (nominalMonatlich - realValue) * 12; // Annual loss
     }
     return Math.round(totalLoss * 100) / 100;

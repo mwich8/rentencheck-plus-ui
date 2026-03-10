@@ -10,6 +10,6 @@ import { ScrollAnimateDirective } from '@shared/directives/scroll-animate.direct
   styleUrls: ['./landing-cta-footer.component.scss'],
 })
 export class LandingCtaFooterComponent {
-  readonly currentYear = new Date().getFullYear();
+  readonly currentYear: number = new Date().getFullYear();
 }
 

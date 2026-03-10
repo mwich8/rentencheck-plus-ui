@@ -14,6 +14,6 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./datenschutz-page.component.scss'],
 })
 export class DatenschutzPageComponent {
-  readonly currentYear = new Date().getFullYear();
+  readonly currentYear: number = new Date().getFullYear();
 }
 

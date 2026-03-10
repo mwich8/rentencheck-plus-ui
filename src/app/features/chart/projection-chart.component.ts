@@ -43,6 +43,7 @@ export class ProjectionChartComponent {
           fontFamily: 'Inter, sans-serif',
           fontSize: 13,
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         formatter: (params: any) => {
           if (!Array.isArray(params) || params.length < 2) return '';
           const yearIndex = params[0].dataIndex;

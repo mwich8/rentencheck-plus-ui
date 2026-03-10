@@ -3,7 +3,7 @@ import { PensionInput } from '../models/pension-input.model';
 
 export type PaymentTier = 'report' | 'premium';
 
-const SESSION_STORAGE_KEY = 'rentencheck_pending_input';
+const SESSION_STORAGE_KEY: string = 'rentencheck_pending_input';
 
 /**
  * Handles the Stripe payment flow for paid features.
@@ -35,11 +35,11 @@ export class StripePaymentService {
       });
 
       if (!response.ok) {
-        const err = await response.json();
+        const err: { error?: string } = await response.json();
         throw new Error(err.error || 'Checkout creation failed');
       }
 
-      const { url } = await response.json();
+      const { url }: { url: string } = await response.json();
 
       // 3. Redirect to Stripe Checkout
       this.redirect(url);
@@ -62,7 +62,7 @@ export class StripePaymentService {
    * Restore pension input after returning from Stripe.
    */
   restoreInput(): PensionInput | null {
-    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    const raw: string | null = sessionStorage.getItem(SESSION_STORAGE_KEY);
     if (!raw) return null;
     try {
       return JSON.parse(raw) as PensionInput;

@@ -53,6 +53,7 @@ function preventDownloads(): void {
  * has its `text()` and `textWithLink()` wrapped to push strings into
  * the module-level `renderedTexts` array.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-function-type */
 function installTextCapture(service: PdfReportService): void {
   spyOn(service as any, 'createDoc').and.callFake(() => {
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -77,6 +78,7 @@ function installTextCapture(service: PdfReportService): void {
     return doc;
   });
 }
+/* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-function-type */
 
 function createMockInput(overrides: Partial<PensionInput> = {}): PensionInput {
   return { ...DEFAULT_PENSION_INPUT, ...overrides };

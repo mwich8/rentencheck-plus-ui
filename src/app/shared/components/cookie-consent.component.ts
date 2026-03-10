@@ -2,7 +2,7 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AnalyticsService } from '@core/services/analytics.service';
 
-const CONSENT_KEY = 'rentencheck_cookie_consent';
+const CONSENT_KEY: string = 'rentencheck_cookie_consent';
 
 /**
  * DSGVO-compliant cookie consent banner.
@@ -18,7 +18,7 @@ const CONSENT_KEY = 'rentencheck_cookie_consent';
 })
 export class CookieConsentComponent implements OnInit {
   private readonly analytics = inject(AnalyticsService);
-  readonly visible = signal(!this.hasConsent());
+  readonly visible = signal<boolean>(!this.hasConsent());
 
   ngOnInit(): void {
     // If user already accepted, initialize analytics immediately

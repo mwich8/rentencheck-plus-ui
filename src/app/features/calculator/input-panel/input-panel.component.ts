@@ -13,12 +13,12 @@ import { LATEST_STEUER_JAHR } from '@core/constants/tax-brackets.const';
 })
 export class InputPanelComponent {
   // Signals for all user inputs — instant reactivity
-  readonly bruttoRente = signal(DEFAULT_PENSION_INPUT.bruttoMonatlicheRente);
-  readonly gewuenschteRente = signal(DEFAULT_PENSION_INPUT.gewuenschteMonatlicheRente);
-  readonly aktuellesAlter = signal(DEFAULT_PENSION_INPUT.aktuellesAlter);
-  readonly rentenbeginnJahr = signal(DEFAULT_PENSION_INPUT.rentenbeginnJahr);
-  readonly inflationsrate = signal(DEFAULT_PENSION_INPUT.inflationsrate);
-  readonly hatKinder = signal(DEFAULT_PENSION_INPUT.hatKinder);
+  readonly bruttoRente = signal<number>(DEFAULT_PENSION_INPUT.bruttoMonatlicheRente);
+  readonly gewuenschteRente = signal<number>(DEFAULT_PENSION_INPUT.gewuenschteMonatlicheRente);
+  readonly aktuellesAlter = signal<number>(DEFAULT_PENSION_INPUT.aktuellesAlter);
+  readonly rentenbeginnJahr = signal<number>(DEFAULT_PENSION_INPUT.rentenbeginnJahr);
+  readonly inflationsrate = signal<number>(DEFAULT_PENSION_INPUT.inflationsrate);
+  readonly hatKinder = signal<boolean>(DEFAULT_PENSION_INPUT.hatKinder);
 
   /** Emits the full PensionInput whenever any field changes */
   readonly inputChange = output<PensionInput>();

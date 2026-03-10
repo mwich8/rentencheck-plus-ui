@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { PensionInput } from '../models/pension-input.model';
-import { PensionResult, DeductionItem } from '../models/pension-result.model';
+import { PensionResult, DeductionItem, InflationProjection } from '../models/pension-result.model';
 import { PensionInputValidator } from '../models/pension-input-validator';
-import { TaxService } from './tax.service';
-import { SocialInsuranceService } from './social-insurance.service';
+import { TaxService, TaxResult } from './tax.service';
+import { SocialInsuranceService, SocialInsuranceResult } from './social-insurance.service';
 import { InflationService } from './inflation.service';
 import { getBesteuerungsanteil } from '../constants/insurance-rates.const';
 import {
@@ -38,24 +38,24 @@ export class PensionCalculatorService {
    */
   calculate(rawInput: PensionInput): PensionResult {
     // Sanitize input to prevent garbage values from corrupting the pipeline
-    const input = PensionInputValidator.sanitize(rawInput);
+    const input: PensionInput = PensionInputValidator.sanitize(rawInput);
 
-    const bruttoMonatlich = input.bruttoMonatlicheRente;
-    const bruttoJaehrlich = bruttoMonatlich * 12;
+    const bruttoMonatlich: number = input.bruttoMonatlicheRente;
+    const bruttoJaehrlich: number = bruttoMonatlich * 12;
 
     // Step 1: Determine taxable share of pension
-    const besteuerungsanteil = getBesteuerungsanteil(input.rentenbeginnJahr);
-    const rentenfreibetrag = bruttoJaehrlich * (1 - besteuerungsanteil);
-    const zuVersteuerndesEinkommen = bruttoJaehrlich * besteuerungsanteil;
+    const besteuerungsanteil: number = getBesteuerungsanteil(input.rentenbeginnJahr);
+    const rentenfreibetrag: number = bruttoJaehrlich * (1 - besteuerungsanteil);
+    const zuVersteuerndesEinkommen: number = bruttoJaehrlich * besteuerungsanteil;
 
     // Step 2: Calculate income tax
     // Subtract Werbungskostenpauschale (§9a Nr. 3 EStG) and Sonderausgabenpauschale (§10c EStG)
-    const zvE = Math.max(0, zuVersteuerndesEinkommen - WERBUNGSKOSTENPAUSCHALE - SONDERAUSGABENPAUSCHALE);
+    const zvE: number = Math.max(0, zuVersteuerndesEinkommen - WERBUNGSKOSTENPAUSCHALE - SONDERAUSGABENPAUSCHALE);
 
-    const taxResult = this.taxService.calculateIncomeTax(zvE, input.steuerJahr);
+    const taxResult: TaxResult = this.taxService.calculateIncomeTax(zvE, input.steuerJahr);
 
     // Step 3: Calculate social insurance
-    const insuranceResult = this.insuranceService.calculate(
+    const insuranceResult: SocialInsuranceResult = this.insuranceService.calculate(
       bruttoMonatlich,
       input.hatKinder,
       input.zusatzbeitragssatz,
@@ -63,28 +63,28 @@ export class PensionCalculatorService {
     );
 
     // Step 4: Compute net monthly pension
-    const steuerMonatlich = (taxResult.einkommensteuer + taxResult.solidaritaetszuschlag) / 12;
-    const gesamtAbzuegeMonatlich = steuerMonatlich + insuranceResult.gesamtMonatlich;
-    const nettoMonatlich = bruttoMonatlich - gesamtAbzuegeMonatlich;
+    const steuerMonatlich: number = (taxResult.einkommensteuer + taxResult.solidaritaetszuschlag) / 12;
+    const gesamtAbzuegeMonatlich: number = steuerMonatlich + insuranceResult.gesamtMonatlich;
+    const nettoMonatlich: number = bruttoMonatlich - gesamtAbzuegeMonatlich;
 
     // Step 5: Calculate years to retirement and inflation impact
-    const jahresBisRente = Math.max(0, STANDARD_RENTENALTER - input.aktuellesAlter);
+    const jahresBisRente: number = Math.max(0, STANDARD_RENTENALTER - input.aktuellesAlter);
 
     // Inflation decay on the net pension over years until retirement
-    const realeKaufkraftMonatlich = this.inflationService.computeRealValue(
+    const realeKaufkraftMonatlich: number = this.inflationService.computeRealValue(
       nettoMonatlich,
       input.inflationsrate,
       jahresBisRente,
     );
 
     // Step 6: Compute pension gap
-    const rentenluecke = Math.max(0, input.gewuenschteMonatlicheRente - realeKaufkraftMonatlich);
-    const deckungsquote = input.gewuenschteMonatlicheRente > 0
+    const rentenluecke: number = Math.max(0, input.gewuenschteMonatlicheRente - realeKaufkraftMonatlich);
+    const deckungsquote: number = input.gewuenschteMonatlicheRente > 0
       ? (realeKaufkraftMonatlich / input.gewuenschteMonatlicheRente) * 100
       : 0;
 
     // Step 7: Build deduction breakdown for visualization
-    const abzuege = this.buildDeductionBreakdown(
+    const abzuege: DeductionItem[] = this.buildDeductionBreakdown(
       bruttoMonatlich,
       taxResult.einkommensteuer / 12,
       taxResult.solidaritaetszuschlag / 12,
@@ -95,7 +95,7 @@ export class PensionCalculatorService {
     );
 
     // Step 8: Generate inflation projection
-    const inflationsVerlauf = this.inflationService.projectInflation(
+    const inflationsVerlauf: InflationProjection[] = this.inflationService.projectInflation(
       nettoMonatlich,
       input.inflationsrate,
       STANDARD_RENTENALTER,
@@ -137,7 +137,7 @@ export class PensionCalculatorService {
     nettoMonatlich: number,
     realeKaufkraft: number,
   ): DeductionItem[] {
-    const inflationVerlust = nettoMonatlich - realeKaufkraft;
+    const inflationVerlust: number = nettoMonatlich - realeKaufkraft;
 
     const items: DeductionItem[] = [
       {

@@ -132,8 +132,7 @@ describe('PensionCalculatorService', () => {
         rentenbeginnJahr: 2058, // 100% taxable
       };
       const result = service.calculate(input);
-      // zvE should be bruttoJaehrlich * besteuerungsanteil - 102 - 36
-      const expectedZvE = Math.max(0, 1500 * 12 * 1.0 - 102 - 36);
+      // zvE = bruttoJaehrlich * besteuerungsanteil - 102 - 36 = 1500*12*1.0 - 138 = 17862
       expect(result.zuVersteuerndesEinkommen).toBe(1500 * 12); // This is before deductions
       // We verify the tax is computed on zvE after deductions
       // by checking that tax is less than it would be on full zuVersteuerndesEinkommen

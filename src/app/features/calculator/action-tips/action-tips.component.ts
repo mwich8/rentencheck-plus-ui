@@ -32,7 +32,7 @@ export class ActionTipsComponent {
   readonly unlock = output<string>();
 
   /** Show first 2 tips for free, gate the rest (unless unlocked) */
-  private readonly FREE_TIP_COUNT = 2;
+  private readonly FREE_TIP_COUNT: number = 2;
 
   readonly freeTips = computed(() =>
     this.unlocked() ? this.tips() : this.tips().slice(0, this.FREE_TIP_COUNT)

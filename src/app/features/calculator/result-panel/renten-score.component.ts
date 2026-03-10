@@ -18,7 +18,7 @@ export class RentenScoreComponent {
   readonly result = input.required<PensionResult>();
   readonly gewuenschteRente = input.required<number>();
 
-  readonly circumference = 2 * Math.PI * 50; // r=50
+  readonly circumference: number = 2 * Math.PI * 50; // r=50
 
   readonly scoreData = computed<RentenScore>(() => {
     return this.scoreService.computeScore(this.result(), this.gewuenschteRente());

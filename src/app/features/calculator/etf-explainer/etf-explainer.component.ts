@@ -8,6 +8,12 @@ import { environment } from '@env/environment';
 import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS } from '@core/constants/calculator-defaults.const';
 import type { EChartsOption } from 'echarts';
 
+/** Minimal shape of an ECharts tooltip callback parameter */
+interface TooltipParam {
+  dataIndex: number;
+  name: string;
+}
+
 /**
  * ETF Explainer — educational accordion section that explains ETFs
  * in plain German, shows personalized compound growth, and provides
@@ -97,7 +103,7 @@ export class EtfExplainerComponent {
         borderColor: '#0f3460',
         borderWidth: 1,
         textStyle: { color: '#f8f9fa', fontFamily: 'Inter, sans-serif', fontSize: 12 },
-        formatter: (params: any) => {
+        formatter: (params: TooltipParam | TooltipParam[]) => {
           if (!Array.isArray(params) || params.length < 2) return '';
           const y = params[0].dataIndex;
           return `
@@ -216,7 +222,7 @@ export class EtfExplainerComponent {
 
     // Crisis data-point indices (for markPoint coord references)
     // '2002' = index 27, '2008' = index 33, 'Q1 20' = index 45, '2022' = index 48
-    const crisisPoints: Array<{ idx: number; label: string }> = [
+    const crisisPoints: { idx: number; label: string }[] = [
       { idx: 27, label: 'Dotcom' },
       { idx: 33, label: 'Finanzkrise' },
       { idx: 45, label: 'Corona' },
@@ -234,7 +240,7 @@ export class EtfExplainerComponent {
         borderColor: '#0f3460',
         borderWidth: 1,
         textStyle: { color: '#f8f9fa', fontFamily: 'Inter, sans-serif', fontSize: 12 },
-        formatter: (params: any) => {
+        formatter: (params: TooltipParam | TooltipParam[]) => {
           if (!Array.isArray(params) || params.length === 0) return '';
           const idx = params[0].dataIndex;
           const label = labels[idx];
@@ -305,7 +311,7 @@ export class EtfExplainerComponent {
               fontFamily: 'Inter, sans-serif',
               position: 'bottom',
               distance: 12,
-              formatter: (p: any) => p.name,
+              formatter: (p: TooltipParam) => p.name,
             },
             data: crisisPoints.map(cp => ({
               name: cp.label,

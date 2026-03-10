@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { SavingsCalculatorService, SavingsProjection } from './savings-calculator.service';
+import { SavingsCalculatorService } from './savings-calculator.service';
 
 describe('SavingsCalculatorService', () => {
   let service: SavingsCalculatorService;

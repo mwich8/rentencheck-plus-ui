@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { getInsuranceRates } from '../constants/insurance-rates.const';
+import { getInsuranceRates, InsuranceRateConfig } from '../constants/insurance-rates.const';
 import { SteuerJahr, LATEST_STEUER_JAHR } from '../constants/tax-brackets.const';
 
 export interface SocialInsuranceResult {
@@ -47,19 +47,19 @@ export class SocialInsuranceService {
     zusatzbeitragssatz?: number,
     year: SteuerJahr = LATEST_STEUER_JAHR,
   ): SocialInsuranceResult {
-    const rates = getInsuranceRates(year);
+    const rates: InsuranceRateConfig = getInsuranceRates(year);
 
     // KVdR: Rentner pays 7.3% + Zusatzbeitrag/2
-    const zusatz = zusatzbeitragssatz ?? rates.kvdrZusatzbeitragDefault;
-    const kvdrEffektiverSatz = rates.kvdrAllgemeinAnteil + zusatz / 2;
-    const kvdrMonatlich = Math.round(bruttoMonatlich * kvdrEffektiverSatz * 100) / 100;
+    const zusatz: number = zusatzbeitragssatz ?? rates.kvdrZusatzbeitragDefault;
+    const kvdrEffektiverSatz: number = rates.kvdrAllgemeinAnteil + zusatz / 2;
+    const kvdrMonatlich: number = Math.round(bruttoMonatlich * kvdrEffektiverSatz * 100) / 100;
 
     // Pflegeversicherung: full rate for retirees
-    const pflegeEffektiverSatz = hatKinder ? rates.pflegeMitKindern : rates.pflegeOhneKinder;
-    const pflegeMonatlich = Math.round(bruttoMonatlich * pflegeEffektiverSatz * 100) / 100;
+    const pflegeEffektiverSatz: number = hatKinder ? rates.pflegeMitKindern : rates.pflegeOhneKinder;
+    const pflegeMonatlich: number = Math.round(bruttoMonatlich * pflegeEffektiverSatz * 100) / 100;
 
-    const gesamtMonatlich = kvdrMonatlich + pflegeMonatlich;
-    const gesamtJaehrlich = gesamtMonatlich * 12;
+    const gesamtMonatlich: number = kvdrMonatlich + pflegeMonatlich;
+    const gesamtJaehrlich: number = gesamtMonatlich * 12;
 
     return {
       kvdrMonatlich,
