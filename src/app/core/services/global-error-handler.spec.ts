@@ -64,5 +64,41 @@ describe('GlobalErrorHandler', () => {
       expect(spy).toHaveBeenCalled();
     });
   });
+
+  describe('rate limiting', () => {
+    it('should suppress errors after exceeding the per-window limit', () => {
+      const errorSpy = spyOn(console, 'error');
+      const warnSpy = spyOn(console, 'warn');
+
+      // Fire 11 errors — the 10th should trigger the suppression warning
+      for (let i = 0; i < 11; i++) {
+        handler.handleError(new Error(`error ${i}`));
+      }
+
+      // 9 normal errors logged + 1 warn at the 10th
+      expect(errorSpy).toHaveBeenCalledTimes(9);
+      expect(warnSpy).toHaveBeenCalledWith(
+        '[RentenCheck+] Too many errors — further errors will be suppressed for 60s.'
+      );
+    });
+
+    it('should resume logging after the time window resets', () => {
+      const errorSpy = spyOn(console, 'error');
+      spyOn(console, 'warn');
+
+      // Exhaust the error window
+      for (let i = 0; i < 11; i++) {
+        handler.handleError(new Error(`error ${i}`));
+      }
+      errorSpy.calls.reset();
+
+      // Simulate window expiry by advancing the internal windowStart
+      // Access private members for testing (acceptable in unit tests)
+      (handler as unknown as { windowStart: number }).windowStart = Date.now() - 61_000;
+
+      handler.handleError(new Error('after reset'));
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+    });
+  });
 });
 

@@ -1,5 +1,3 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-
 /**
  * Netlify serverless function to create a Stripe Checkout session.
  *
@@ -12,10 +10,20 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
  *   STRIPE_PRICE_PREMIUM       — price_... for €29.90 Renten-Strategie (future)
  *   URL                        — site URL (auto-set by Netlify)
  */
+
+/** Allowed tier values — prevents arbitrary strings from reaching Stripe */
+const ALLOWED_TIERS = ['report', 'premium'];
+
 exports.handler = async (event) => {
-  // CORS headers
+  const siteUrl = process.env.URL || 'http://localhost:4200';
+
+  // CORS: restrict to own site origin instead of wildcard
+  const allowedOrigin = siteUrl;
+  const requestOrigin = event.headers?.origin || '';
+  const origin = requestOrigin === allowedOrigin ? allowedOrigin : allowedOrigin;
+
   const headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
@@ -33,8 +41,41 @@ exports.handler = async (event) => {
     };
   }
 
+  // Validate Stripe secret key is configured
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.error('STRIPE_SECRET_KEY environment variable is not set');
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Payment service is not configured' }),
+    };
+  }
+
+  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
   try {
-    const { tier } = JSON.parse(event.body || '{}');
+    // Safe body parsing
+    let body;
+    try {
+      body = JSON.parse(event.body || '{}');
+    } catch {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Invalid request body' }),
+      };
+    }
+
+    const { tier } = body;
+
+    // Validate tier is a known value
+    if (typeof tier !== 'string' || !ALLOWED_TIERS.includes(tier)) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Invalid tier. Must be one of: ' + ALLOWED_TIERS.join(', ') }),
+      };
+    }
 
     // Map tier to Stripe Price ID
     const priceMap = {
@@ -47,11 +88,9 @@ exports.handler = async (event) => {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: `Unknown tier: ${tier}` }),
+        body: JSON.stringify({ error: `Price not configured for tier: ${tier}` }),
       };
     }
-
-    const siteUrl = process.env.URL || 'http://localhost:4200';
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -76,7 +115,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ url: session.url }),
     };
   } catch (err) {
-    console.error('Stripe Checkout error:', err);
+    console.error('Stripe Checkout error:', err.message || err);
     return {
       statusCode: 500,
       headers,

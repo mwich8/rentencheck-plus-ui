@@ -53,7 +53,13 @@ export class CookieConsentComponent implements OnInit {
   private readConsent(): { level: string; timestamp: string } | null {
     try {
       const raw = localStorage.getItem(CONSENT_KEY);
-      return raw ? JSON.parse(raw) : null;
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      // Guard against corrupted/tampered localStorage data
+      if (typeof parsed === 'object' && parsed !== null && typeof parsed.level === 'string') {
+        return parsed as { level: string; timestamp: string };
+      }
+      return null;
     } catch {
       return null;
     }

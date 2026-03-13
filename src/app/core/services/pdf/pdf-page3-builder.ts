@@ -7,7 +7,7 @@ import { SavingsCalculatorService } from '../savings-calculator.service';
 import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS } from '../../constants/calculator-defaults.const';
 import { RGB } from './pdf-design-tokens';
 
-const { M, CW, MID, PW } = PDF_LAYOUT;
+const { M, CW, MID } = PDF_LAYOUT;
 const c = PDF_COLORS;
 
 /**

@@ -1,6 +1,6 @@
 import { RGB, PDF_COLORS, PDF_LAYOUT, PdfDoc } from './pdf-design-tokens';
 
-const { M, PW, PH, CW, MID } = PDF_LAYOUT;
+const { M, PW, PH } = PDF_LAYOUT;
 const c = PDF_COLORS;
 
 /**

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { PensionInput } from '../models/pension-input.model';
+import { PensionInputValidator } from '../models/pension-input-validator';
 
 export type PaymentTier = 'report' | 'premium';
 
@@ -62,12 +63,15 @@ export class StripePaymentService {
 
   /**
    * Restore pension input after returning from Stripe.
+   * Data is validated/sanitized since sessionStorage content is untrusted.
    */
   restoreInput(): PensionInput | null {
     try {
       const raw: string | null = sessionStorage.getItem(SESSION_STORAGE_KEY);
       if (!raw) return null;
-      return JSON.parse(raw) as PensionInput;
+      const parsed = JSON.parse(raw) as PensionInput;
+      // Sanitize to prevent tampered/corrupted data from crashing the calculator
+      return PensionInputValidator.sanitize(parsed);
     } catch {
       return null;
     }
