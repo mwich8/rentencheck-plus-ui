@@ -9,7 +9,8 @@ export const environment: Environment = {
     publishableKey: '', // Add Stripe production key here
   },
   analytics: {
-    plausibleDomain: 'rentencheck-plus.netlify.app',
+    umamiUrl: 'https://cloud.umami.is', // Umami Cloud (free tier)
+    umamiWebsiteId: 'e37dc246-7258-45f9-9b9f-f5e7ca509e91',
   },
   affiliate: {
     brokerUrl: 'https://refnocode.trade.re/xmgb600n',

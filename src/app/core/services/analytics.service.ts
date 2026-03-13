@@ -1,50 +1,48 @@
 import { Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 
-/** Plausible analytics global function signature */
-interface PlausibleFn {
-  (eventName: string, options?: { props?: Record<string, string | number | boolean> }): void;
-  q?: unknown[][];
+/** Umami tracking function signature */
+interface UmamiTracker {
+  track: {
+    (eventName: string, eventData?: Record<string, string | number | boolean>): void;
+    (callback: (props: Record<string, string>) => Record<string, string | number | boolean>): void;
+  };
 }
 
-/** Window augmented with Plausible analytics */
-interface WindowWithPlausible extends Window {
-  plausible?: PlausibleFn;
+/** Window augmented with Umami analytics */
+interface WindowWithUmami extends Window {
+  umami?: UmamiTracker;
 }
 
 /**
- * Lightweight analytics service using Plausible.io.
- * DSGVO-compliant: no cookies, no personal data, EU-hosted.
+ * Lightweight analytics service using Umami.
+ * DSGVO-compliant: no cookies, no personal data, open-source.
  *
- * Plausible script is loaded dynamically after consent.
- * Custom events are sent via the JS API or beacon fallback.
+ * Umami script is loaded dynamically after consent.
+ * Custom events are sent via the `umami.track()` JS API.
+ *
+ * @see https://umami.is/docs/tracker-functions
  */
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
   private initialized: boolean = false;
-  private readonly domain: string = environment.analytics.plausibleDomain;
+  private readonly umamiUrl: string = environment.analytics.umamiUrl;
+  private readonly websiteId: string = environment.analytics.umamiWebsiteId;
 
   /**
-   * Initialize Plausible by injecting the script tag.
-   * Called after cookie consent is given or if analytics domain is configured.
-   * Plausible is cookie-free so it can technically run without consent,
+   * Initialize Umami by injecting the tracking script.
+   * Called after cookie consent is given.
+   * Umami is cookie-free so it can technically run without consent,
    * but we respect user choice.
    */
   init(): void {
-    if (this.initialized || !this.domain || typeof document === 'undefined') return;
+    if (this.initialized || !this.websiteId || !this.umamiUrl || typeof document === 'undefined') return;
 
     const script: HTMLScriptElement = document.createElement('script');
     script.defer = true;
-    script.dataset['domain'] = this.domain;
-    script.dataset['api'] = 'https://plausible.io/api/event';
-    script.src = 'https://plausible.io/js/script.js';
+    script.dataset['websiteId'] = this.websiteId;
+    script.src = `${this.umamiUrl}/script.js`;
     document.head.appendChild(script);
-
-    // Expose plausible function for custom events
-    const w: WindowWithPlausible = window as unknown as WindowWithPlausible;
-    w.plausible = w.plausible || function (...args: unknown[]) {
-      (w.plausible!.q = w.plausible!.q || []).push(args);
-    };
 
     this.initialized = true;
   }
@@ -55,12 +53,12 @@ export class AnalyticsService {
    * @param props Optional properties (e.g. { source: 'action_tips' })
    */
   trackEvent(name: string, props?: Record<string, string | number | boolean>): void {
-    if (!this.domain) return;
+    if (!this.websiteId) return;
 
     try {
-      const plausible: PlausibleFn | undefined = (window as unknown as WindowWithPlausible).plausible;
-      if (typeof plausible === 'function') {
-        plausible(name, props ? { props } : undefined);
+      const umami: UmamiTracker | undefined = (window as unknown as WindowWithUmami).umami;
+      if (umami?.track) {
+        umami.track(name, props);
       }
     } catch { /* Silently ignore tracking errors */ }
   }

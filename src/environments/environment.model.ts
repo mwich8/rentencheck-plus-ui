@@ -11,7 +11,10 @@ export interface Environment {
     publishableKey: string;
   };
   analytics: {
-    plausibleDomain: string;
+    /** Umami Cloud or self-hosted base URL (e.g. https://cloud.umami.is) */
+    umamiUrl: string;
+    /** Website ID from the Umami dashboard */
+    umamiWebsiteId: string;
   };
   affiliate: {
     brokerUrl: string;

@@ -9,7 +9,8 @@ export const environment: Environment = {
     publishableKey: '', // Add Stripe test key here
   },
   analytics: {
-    plausibleDomain: '', // Leave empty to disable in dev
+    umamiUrl: '', // Leave empty to disable in dev
+    umamiWebsiteId: '',
   },
   affiliate: {
     brokerUrl: 'https://refnocode.trade.re/xmgb600n',

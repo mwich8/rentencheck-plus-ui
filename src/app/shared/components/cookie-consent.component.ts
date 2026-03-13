@@ -7,7 +7,7 @@ const CONSENT_KEY: string = 'rentencheck_cookie_consent';
 /**
  * DSGVO-compliant cookie consent banner.
  * Persists choice in localStorage.
- * Plausible is cookie-free but we still respect user choice.
+ * Umami is cookie-free but we still respect user choice.
  */
 @Component({
   selector: 'app-cookie-consent',

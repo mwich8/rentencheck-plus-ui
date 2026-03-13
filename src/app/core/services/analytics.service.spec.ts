@@ -11,9 +11,9 @@ describe('AnalyticsService', () => {
 
   afterEach(() => {
     // Clean up injected script tags
-    document.querySelectorAll('script[data-domain]').forEach(el => el.remove());
+    document.querySelectorAll('script[data-website-id]').forEach(el => el.remove());
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (window as any).plausible;
+    delete (window as any).umami;
   });
 
   it('should be created', () => {
@@ -21,9 +21,9 @@ describe('AnalyticsService', () => {
   });
 
   describe('init', () => {
-    it('should not inject script if domain is empty', () => {
+    it('should not inject script if websiteId is empty', () => {
       service.init();
-      const scripts = document.querySelectorAll('script[data-domain]');
+      const scripts = document.querySelectorAll('script[data-website-id]');
       expect(scripts.length).toBe(0);
     });
 
@@ -36,7 +36,7 @@ describe('AnalyticsService', () => {
   });
 
   describe('trackEvent', () => {
-    it('should not throw when plausible is not loaded', () => {
+    it('should not throw when umami is not loaded', () => {
       expect(() => service.trackEvent('test_event')).not.toThrow();
     });
 
