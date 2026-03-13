@@ -7,7 +7,7 @@ import { CookieConsentComponent } from '@shared/components/cookie-consent.compon
 
 /**
  * Root AppComponent — thin shell with router outlet + cookie consent.
- * Updates meta tags on each route change for SEO.
+ * Updates meta tags (including og:title, twitter:title) on each route change for SEO.
  */
 @Component({
   selector: 'app-root',
@@ -25,15 +25,24 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd),
-      map(() => this.route),
-      map(route => {
+      map(() => {
+        let route = this.route;
         while (route.firstChild) route = route.firstChild;
         return route;
       }),
-      mergeMap(route => route.data),
+      mergeMap(route => route.data.pipe(
+        map(data => ({ data, routeTitle: route.snapshot.title })),
+      )),
       takeUntilDestroyed(this.destroyRef),
-    ).subscribe(data => {
+    ).subscribe(({ data, routeTitle }) => {
       const metaData = data['meta'] as Record<string, string> | undefined;
+
+      // Sync og:title and twitter:title with the route's document title
+      if (routeTitle) {
+        this.meta.updateTag({ property: 'og:title', content: routeTitle });
+        this.meta.updateTag({ name: 'twitter:title', content: routeTitle });
+      }
+
       if (metaData?.['description']) {
         this.meta.updateTag({ name: 'description', content: metaData['description'] });
         this.meta.updateTag({ property: 'og:description', content: metaData['description'] });

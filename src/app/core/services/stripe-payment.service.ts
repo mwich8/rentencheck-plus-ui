@@ -55,16 +55,18 @@ export class StripePaymentService {
    * Save pension input to sessionStorage before Stripe redirect.
    */
   saveInput(input: PensionInput): void {
-    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(input));
+    try {
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(input));
+    } catch { /* private browsing — input won't survive redirect */ }
   }
 
   /**
    * Restore pension input after returning from Stripe.
    */
   restoreInput(): PensionInput | null {
-    const raw: string | null = sessionStorage.getItem(SESSION_STORAGE_KEY);
-    if (!raw) return null;
     try {
+      const raw: string | null = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (!raw) return null;
       return JSON.parse(raw) as PensionInput;
     } catch {
       return null;
@@ -83,7 +85,9 @@ export class StripePaymentService {
    * Clean up stored input after successful PDF generation.
    */
   clearInput(): void {
-    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    try {
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    } catch { /* private browsing */ }
   }
 }
 

@@ -29,10 +29,12 @@ export class CookieConsentComponent implements OnInit {
   }
 
   accept(level: 'all' | 'necessary'): void {
-    localStorage.setItem(CONSENT_KEY, JSON.stringify({
-      level,
-      timestamp: new Date().toISOString(),
-    }));
+    try {
+      localStorage.setItem(CONSENT_KEY, JSON.stringify({
+        level,
+        timestamp: new Date().toISOString(),
+      }));
+    } catch { /* private browsing — proceed without persistence */ }
     this.visible.set(false);
 
     if (level === 'all') {
@@ -41,7 +43,11 @@ export class CookieConsentComponent implements OnInit {
   }
 
   private hasConsent(): boolean {
-    return !!localStorage.getItem(CONSENT_KEY);
+    try {
+      return !!localStorage.getItem(CONSENT_KEY);
+    } catch {
+      return false;
+    }
   }
 
   private readConsent(): { level: string; timestamp: string } | null {
