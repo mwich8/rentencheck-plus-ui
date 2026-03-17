@@ -105,7 +105,7 @@ export class PdfPrimitives {
     doc.line(M, fy - 3, PW - M, fy - 3);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(5.5); doc.setTextColor(...c.muted);
     doc.text(
-      'RentenCheck+  \u00b7  rentencheck-plus.netlify.app  \u00b7  Marten Wichmann  \u00b7  Colloredostr. 1c, 84453 M\u00fchldorf  \u00b7  marten.wichmann@gmail.com',
+      'RentenCheck+  \u00b7  rentencheckplus.de  \u00b7  Marten Wichmann  \u00b7  Colloredostr. 1c, 84453 M\u00fchldorf  \u00b7  marten.wichmann@gmail.com',
       M, fy);
     const pn = (doc as unknown as { internal: { getCurrentPageInfo(): { pageNumber: number } } }).internal.getCurrentPageInfo().pageNumber;
     const tp = (doc as unknown as { internal: { getNumberOfPages(): number } }).internal.getNumberOfPages();

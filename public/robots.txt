@@ -2,5 +2,5 @@ User-agent: *
 Allow: /
 Disallow: /zahlung-erfolgreich
 
-Sitemap: https://rentencheck-plus.netlify.app/sitemap.xml
+Sitemap: https://rentencheckplus.de/sitemap.xml
 

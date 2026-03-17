@@ -4,7 +4,7 @@ export const environment: Environment = {
   production: true,
   appName: 'RentenCheck+',
   version: '1.0.0',
-  siteUrl: 'https://rentencheck-plus.netlify.app',
+  siteUrl: 'https://rentencheckplus.de',
   stripe: {
     publishableKey: '', // Add Stripe production key here
   },
