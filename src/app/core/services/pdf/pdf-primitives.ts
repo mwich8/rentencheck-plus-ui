@@ -60,7 +60,7 @@ export class PdfPrimitives {
   }
 
   /** Navy header bar with brand name. Returns new Y position below the bar. */
-  static headerBar(doc: PdfDoc, main: boolean, subtitle?: string): number {
+  static headerBar(doc: PdfDoc, main: boolean, subtitle?: string, reportId?: string): number {
     const h = main ? 42 : 16;
 
     doc.setFillColor(...c.navy);
@@ -86,6 +86,13 @@ export class PdfPrimitives {
       const ds = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
       doc.setFontSize(8); doc.setTextColor(160, 175, 195);
       doc.text(ds, PW - M, 18, { align: 'right' });
+
+      /* Report-ID on page 1 header — for purchase recovery */
+      if (reportId) {
+        doc.setFontSize(6); doc.setTextColor(130, 150, 175);
+        doc.text(`Report-ID: ${reportId}`, PW - M, 24, { align: 'right' });
+      }
+
       doc.setFontSize(6.5); doc.setTextColor(130, 150, 175);
       doc.text('\u00a732a EStG 2026  \u00b7  KVdR-konform  \u00b7  100 % Datenschutz', M, 35);
     } else if (subtitle) {
@@ -98,15 +105,18 @@ export class PdfPrimitives {
     return h + 8;
   }
 
-  /** Page footer with contact info and page number. */
-  static footer(doc: PdfDoc): void {
+  /** Page footer with branding, report ID and page number. */
+  static footer(doc: PdfDoc, reportId?: string): void {
     const fy = PH - 10;
     doc.setDrawColor(...c.border); doc.setLineWidth(0.3);
     doc.line(M, fy - 3, PW - M, fy - 3);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(5.5); doc.setTextColor(...c.muted);
-    doc.text(
-      'RentenCheck+  \u00b7  rentencheckplus.de  \u00b7  Marten Wichmann  \u00b7  Colloredostr. 1c, 84453 M\u00fchldorf  \u00b7  marten.wichmann@gmail.com',
-      M, fy);
+
+    const footerLeft = reportId
+      ? `RentenCheck+  \u00b7  rentencheckplus.de  \u00b7  Report-ID: ${reportId}`
+      : 'RentenCheck+  \u00b7  rentencheckplus.de  \u00b7  Alle Berechnungen gem\u00e4\u00df \u00a732a EStG  \u00b7  Keine Finanz- oder Steuerberatung';
+    doc.text(footerLeft, M, fy);
+
     const pn = (doc as unknown as { internal: { getCurrentPageInfo(): { pageNumber: number } } }).internal.getCurrentPageInfo().pageNumber;
     const tp = (doc as unknown as { internal: { getNumberOfPages(): number } }).internal.getNumberOfPages();
     doc.text(`Seite ${pn} von ${tp}`, PW - M, fy, { align: 'right' });

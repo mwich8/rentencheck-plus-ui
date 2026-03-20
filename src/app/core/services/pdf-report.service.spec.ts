@@ -123,9 +123,10 @@ function generateAndCapture(
   service: PdfReportService,
   input: PensionInput,
   result: PensionResult,
+  reportId?: string,
 ): string[] {
   renderedTexts = [];
-  service.generateReport(input, result);
+  service.generateReport(input, result, reportId);
   return [...renderedTexts];
 }
 
@@ -377,6 +378,21 @@ describe('PdfReportService', () => {
     it('should include page numbers', () => {
       const texts = generateAndCapture(service, createMockInput(), createMockResult());
       expect(texts.some(t => /Seite \d+ von \d+/.test(t))).toBeTrue();
+    });
+
+    it('should include Report-ID in the PDF when reportId is provided', () => {
+      const reportId = '550e8400-e29b-41d4-a716-446655440000';
+      const texts = generateAndCapture(service, createMockInput(), createMockResult(), reportId);
+      expect(texts.some(t => t.includes(`Report-ID: ${reportId}`))).toBeTrue();
+    });
+
+    it('should not include Report-ID when reportId is not provided', () => {
+      const texts = generateAndCapture(service, createMockInput(), createMockResult());
+      expect(texts.some(t => t.includes('Report-ID:'))).toBeFalse();
+    });
+
+    it('should not throw when generating with a reportId', () => {
+      expect(() => service.generateReport(createMockInput(), createMockResult(), 'test-uuid-1234')).not.toThrow();
     });
   });
 

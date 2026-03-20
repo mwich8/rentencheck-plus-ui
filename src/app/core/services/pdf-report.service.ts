@@ -32,19 +32,19 @@ export class PdfReportService {
     return new jsPDF('p', 'mm', 'a4');
   }
 
-  generateReport(input: PensionInput, result: PensionResult): void {
+  generateReport(input: PensionInput, result: PensionResult, reportId?: string): void {
     try {
       const doc   = this.createDoc();
       const score = this.scoreService.computeScore(result, input.gewuenschteMonatlicheRente);
 
       /* page 1 — overview */
-      let y = PdfPrimitives.headerBar(doc, true);
+      let y = PdfPrimitives.headerBar(doc, true, undefined, reportId);
       y = PdfPage1Builder.heroBlock(doc, y);
       y = PdfPage1Builder.inputBox(doc, y, input);
       y = PdfPage1Builder.kpiCards(doc, y, result, score);
       y = PdfPage1Builder.gapBanner(doc, y, result, score);
       PdfPage1Builder.deductionTable(doc, y, result);
-      PdfPrimitives.footer(doc);
+      PdfPrimitives.footer(doc, reportId);
 
       /* page 2 — score & inflation */
       doc.addPage();
@@ -52,7 +52,7 @@ export class PdfReportService {
       y = PdfPage2Builder.scoreGauge(doc, y, score);
       y = PdfPage2Builder.inflationChart(doc, y, result);
       PdfPage2Builder.inflationTable(doc, y, result);
-      PdfPrimitives.footer(doc);
+      PdfPrimitives.footer(doc, reportId);
 
       /* page 3 — actions & legal */
       doc.addPage();
@@ -61,7 +61,7 @@ export class PdfReportService {
       y = PdfPage3Builder.tipCards(doc, y, result, input);
       y = PdfPage3Builder.affiliateBox(doc, y, result);
       PdfPage3Builder.disclaimer(doc, y);
-      PdfPrimitives.footer(doc);
+      PdfPrimitives.footer(doc, reportId);
 
       const d = new Date().toISOString().slice(0, 10);
       doc.save(`RentenCheck-Plus-Report_${d}.pdf`);
