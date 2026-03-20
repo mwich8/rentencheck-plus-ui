@@ -45,6 +45,13 @@ export const routes: Routes = [
     data: { meta: { robots: 'noindex' } },
   },
   {
+    path: 'meine-kaeufe',
+    loadComponent: () =>
+      import('@features/purchases/purchases-page.component').then(m => m.PurchasesPageComponent),
+    title: 'Meine Käufe — Käufe wiederherstellen | RentenCheck+',
+    data: { meta: { description: 'Stellen Sie Ihre gekauften RentenCheck+ Reports wieder her. Melden Sie sich per E-Mail an und laden Sie Ihre PDFs erneut herunter.', robots: 'noindex' } },
+  },
+  {
     path: '**',
     redirectTo: '',
   },
