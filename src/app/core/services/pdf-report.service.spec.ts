@@ -383,7 +383,7 @@ describe('PdfReportService', () => {
     it('should include Report-ID in the PDF when reportId is provided', () => {
       const reportId = '550e8400-e29b-41d4-a716-446655440000';
       const texts = generateAndCapture(service, createMockInput(), createMockResult(), reportId);
-      expect(texts.some(t => t.includes(`Report-ID: ${reportId}`))).toBeTrue();
+      expect(texts.some(t => t.includes('Report-ID: RC-550E8400'))).toBeTrue();
     });
 
     it('should not include Report-ID when reportId is not provided', () => {

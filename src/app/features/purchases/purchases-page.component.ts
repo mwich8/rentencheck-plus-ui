@@ -8,6 +8,7 @@ import { PremiumUnlockService } from '@core/services/premium-unlock.service';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { PensionInputValidator } from '@core/models/pension-input-validator';
 import { PensionInput } from '@core/models/pension-input.model';
+import { shortPurchaseRef } from '@shared/utils/purchase-ref.util';
 import { DatePipe } from '@angular/common';
 
 /**
@@ -163,7 +164,7 @@ export class PurchasesPageComponent implements OnInit {
 
   /** Format a UUID into a short human-readable reference. */
   shortRef(id: string): string {
-    return 'RC-' + id.replace(/-/g, '').substring(0, 8).toUpperCase();
+    return shortPurchaseRef(id);
   }
 
   tierLabel(tier: string): string {
@@ -176,7 +177,4 @@ export class PurchasesPageComponent implements OnInit {
     this.purchaseService.purchases.set([]);
   }
 }
-
-
-
 

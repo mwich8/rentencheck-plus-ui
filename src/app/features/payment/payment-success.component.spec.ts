@@ -65,7 +65,7 @@ describe('PaymentSuccessComponent', () => {
         verified: true,
         email: 'user@example.com',
         tier: 'report',
-        downloadToken: 'dl-token-uuid',
+        downloadToken: 'a1b2c3d4-e5f6-7890-abcd-1234567890ab',
         pensionInput: {
           bruttoMonatlicheRente: 1500,
           gewuenschteMonatlicheRente: 2500,
@@ -87,15 +87,15 @@ describe('PaymentSuccessComponent', () => {
 
       await component.verifyAndGenerate('cs_test_abc');
 
-      expect(unlockSpy).toHaveBeenCalledWith('dl-token-uuid');
+      expect(unlockSpy).toHaveBeenCalledWith('a1b2c3d4-e5f6-7890-abcd-1234567890ab');
       expect(pdfSpy).toHaveBeenCalledWith(
         jasmine.any(Object),
         jasmine.any(Object),
-        'dl-token-uuid',
+        'a1b2c3d4-e5f6-7890-abcd-1234567890ab',
       );
       expect(clearSpy).toHaveBeenCalled();
       expect(component.status()).toBe('done');
-      expect(component.purchaseRef()).toBe('RC-DLTOKENU');
+      expect(component.purchaseRef()).toBe('RC-A1B2C3D4');
       expect(component.purchaseEmail()).toBe('user@example.com');
     });
 

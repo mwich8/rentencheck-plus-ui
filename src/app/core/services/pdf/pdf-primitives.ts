@@ -1,4 +1,5 @@
 import { RGB, PDF_COLORS, PDF_LAYOUT, PdfDoc } from './pdf-design-tokens';
+import { shortPurchaseRef } from '@shared/utils/purchase-ref.util';
 
 const { M, PW, PH } = PDF_LAYOUT;
 const c = PDF_COLORS;
@@ -90,7 +91,7 @@ export class PdfPrimitives {
       /* Report-ID on page 1 header — for purchase recovery */
       if (reportId) {
         doc.setFontSize(6); doc.setTextColor(130, 150, 175);
-        doc.text(`Report-ID: ${reportId}`, PW - M, 24, { align: 'right' });
+        doc.text(`Report-ID: ${shortPurchaseRef(reportId)}`, PW - M, 24, { align: 'right' });
       }
 
       doc.setFontSize(6.5); doc.setTextColor(130, 150, 175);
@@ -113,7 +114,7 @@ export class PdfPrimitives {
     doc.setFont('helvetica', 'normal'); doc.setFontSize(5.5); doc.setTextColor(...c.muted);
 
     const footerLeft = reportId
-      ? `RentenCheck+  \u00b7  rentencheckplus.de  \u00b7  Report-ID: ${reportId}`
+      ? `RentenCheck+  \u00b7  rentencheckplus.de  \u00b7  Report-ID: ${shortPurchaseRef(reportId)}`
       : 'RentenCheck+  \u00b7  rentencheckplus.de  \u00b7  Alle Berechnungen gem\u00e4\u00df \u00a732a EStG  \u00b7  Keine Finanz- oder Steuerberatung';
     doc.text(footerLeft, M, fy);
 

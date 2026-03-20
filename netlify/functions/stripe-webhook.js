@@ -244,19 +244,6 @@ async function handleDispute(sql, dispute) {
     SET status = 'disputed'
     WHERE stripe_payment_intent = ${paymentIntentId}
   `;
-
   console.log(`Dispute recorded for payment_intent: ${paymentIntentId}`);
 }
-
-
-
-
-
-
-
-
-
-
-
-
 

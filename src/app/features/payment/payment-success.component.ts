@@ -6,6 +6,7 @@ import { PdfReportService } from '@core/services/pdf-report.service';
 import { PremiumUnlockService } from '@core/services/premium-unlock.service';
 import { PensionInputValidator } from '@core/models/pension-input-validator';
 import { DEFAULT_PENSION_INPUT, PensionInput } from '@core/models/pension-input.model';
+import { shortPurchaseRef } from '@shared/utils/purchase-ref.util';
 
 /**
  * Payment success page — shown after Stripe redirects back.
@@ -106,7 +107,7 @@ export class PaymentSuccessComponent implements OnInit {
 
       // Set reference data for the success screen
       if (result.downloadToken) {
-        this.purchaseRef.set(this.shortRef(result.downloadToken));
+        this.purchaseRef.set(shortPurchaseRef(result.downloadToken));
       }
       if (result.email) {
         this.purchaseEmail.set(result.email);
@@ -127,11 +128,6 @@ export class PaymentSuccessComponent implements OnInit {
     if (sessionId) {
       this.verifyAndGenerate(sessionId);
     }
-  }
-
-  /** Format an ID/token into a short human-readable reference. */
-  private shortRef(id: string): string {
-    return 'RC-' + id.replace(/-/g, '').substring(0, 8).toUpperCase();
   }
 }
 
