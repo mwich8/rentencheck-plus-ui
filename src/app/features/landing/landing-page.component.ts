@@ -3,6 +3,7 @@ import { HeroSectionComponent } from './hero-section.component';
 import { ProblemSectionComponent } from './problem-section.component';
 import { FeaturesSectionComponent } from './features-section.component';
 import { TrustSectionComponent } from './trust-section.component';
+import { CredibilitySectionComponent } from './credibility-section.component';
 import { LandingPricingComponent } from './landing-pricing.component';
 import { LandingFaqComponent } from './landing-faq.component';
 import { LandingCtaFooterComponent } from './landing-cta-footer.component';
@@ -16,6 +17,7 @@ import { LandingCtaFooterComponent } from './landing-cta-footer.component';
     FeaturesSectionComponent,
     LandingPricingComponent,
     TrustSectionComponent,
+    CredibilitySectionComponent,
     LandingFaqComponent,
     LandingCtaFooterComponent,
   ],
