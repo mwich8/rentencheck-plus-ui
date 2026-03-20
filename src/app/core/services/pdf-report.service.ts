@@ -8,6 +8,7 @@ import { PdfPrimitives } from './pdf/pdf-primitives';
 import { PdfPage1Builder } from './pdf/pdf-page1-builder';
 import { PdfPage2Builder } from './pdf/pdf-page2-builder';
 import { PdfPage3Builder } from './pdf/pdf-page3-builder';
+import { PdfPreviewBuilder } from './pdf/pdf-preview-builder';
 
 /**
  * Generates a professional, visually polished PDF report from pension
@@ -68,6 +69,29 @@ export class PdfReportService {
     } catch (error) {
       console.error('[RentenCheck+] PDF generation failed:', error);
       throw error; // Re-throw so callers can handle it (e.g. show error UI)
+    }
+  }
+
+  /**
+   * Generate a 1-page watermarked preview PDF and trigger download.
+   * Shows real KPI data but redacts detailed tables. Used as a free-tier
+   * teaser to sell the full 3-page report.
+   */
+  generatePreview(input: PensionInput, result: PensionResult): void {
+    try {
+      const score = this.scoreService.computeScore(result, input.gewuenschteMonatlicheRente);
+      const blob = PdfPreviewBuilder.generate(input, result, score);
+
+      const d = new Date().toISOString().slice(0, 10);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `RentenCheck-Plus-Vorschau_${d}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('[RentenCheck+] Preview PDF generation failed:', error);
+      throw error;
     }
   }
 }
