@@ -1,0 +1,21 @@
+<div class="share-card-wrapper">
+  <button
+    class="share-btn"
+    (click)="share()"
+    [disabled]="sharing()"
+    aria-label="Renten-Score teilen"
+  >
+    @if (sharing()) {
+      <span class="share-spinner"></span>
+      <span>Wird erstellt…</span>
+    } @else {
+      <span class="share-icon">📤</span>
+      <span>Score teilen</span>
+    }
+  </button>
+
+  @if (shareMessage()) {
+    <span class="share-message" role="status">{{ shareMessage() }}</span>
+  }
+</div>
+
