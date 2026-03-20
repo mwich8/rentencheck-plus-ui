@@ -1,0 +1,179 @@
+<div class="purchases-page">
+  <nav class="purchases-nav">
+    <a routerLink="/" class="nav-brand">
+      RentenCheck<span class="brand-plus">+</span>
+    </a>
+  </nav>
+
+  <div class="purchases-container">
+
+    <!-- ═══ VERIFYING MAGIC LINK TOKEN ═══ -->
+    @if (verifyingToken()) {
+      <div class="card login-card">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Anmeldung wird überprüft...</p>
+        </div>
+      </div>
+    }
+
+    <!-- ═══ NOT LOGGED IN: Magic Link Form ═══ -->
+    @if (!auth.isLoggedIn() && !verifyingToken()) {
+      <div class="card login-card">
+        @if (!emailSent()) {
+          <div class="card-icon">🔑</div>
+          <h1>Käufe wiederherstellen</h1>
+          <p>
+            Geben Sie die E-Mail-Adresse ein, mit der Sie Ihren Report gekauft haben.
+            Wir senden Ihnen einen Anmelde-Link.
+          </p>
+
+          <div class="email-form">
+            <label for="recovery-email" class="sr-only">E-Mail-Adresse</label>
+            <input
+              #emailInput
+              id="recovery-email"
+              type="email"
+              placeholder="ihre@email.de"
+              class="email-input"
+              (keyup.enter)="sendMagicLink(emailInput)"
+              [attr.disabled]="sendingEmail() ? '' : null"
+              [attr.aria-describedby]="emailError() ? 'email-error' : null"
+            />
+            <button
+              class="btn-primary"
+              (click)="sendMagicLink(emailInput)"
+              [disabled]="sendingEmail()"
+            >
+              @if (sendingEmail()) {
+                <span class="btn-spinner"></span> Wird gesendet...
+              } @else {
+                📧 Link senden
+              }
+            </button>
+          </div>
+
+          @if (emailError()) {
+            <p id="email-error" class="error-text" role="alert">{{ emailError() }}</p>
+          }
+        } @else {
+          <!-- Email sent confirmation -->
+          <div class="card-icon">📬</div>
+          <h1>E-Mail gesendet!</h1>
+          <p>
+            Prüfen Sie Ihren Posteingang (und Spam-Ordner) und klicken Sie auf den Anmelde-Link.
+            Sie werden dann automatisch hier angemeldet.
+          </p>
+          <button class="btn-secondary" (click)="emailSent.set(false)">
+            ← Andere E-Mail verwenden
+          </button>
+        }
+      </div>
+    }
+
+    <!-- ═══ LOGGED IN: Purchase List ═══ -->
+    @if (auth.isLoggedIn()) {
+      <div class="card purchases-card">
+        <div class="card-header">
+          <div>
+            <h1>Meine Käufe</h1>
+            <p class="email-badge">{{ auth.userEmail() }}</p>
+          </div>
+          <button class="btn-signout" (click)="signOut()">Abmelden</button>
+        </div>
+
+        @if (purchaseService.loading()) {
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Käufe werden geladen...</p>
+          </div>
+        }
+
+        @if (purchaseService.error()) {
+          <div class="error-state">
+            <p>{{ purchaseService.error() }}</p>
+            <button class="btn-secondary" (click)="purchaseService.loadPurchases()">
+              Erneut versuchen
+            </button>
+          </div>
+        }
+
+        @if (!purchaseService.loading() && !purchaseService.error()) {
+          @if (purchaseService.purchases().length === 0) {
+            <div class="empty-state">
+              <div class="card-icon">📭</div>
+              <p>Keine Käufe für diese E-Mail-Adresse gefunden.</p>
+              <a routerLink="/rechner" class="btn-primary">
+                Zum Rechner →
+              </a>
+            </div>
+          } @else {
+            <div class="purchase-list">
+              <div class="reference-hint-banner">
+                💡 Ihre <strong>Bestell-Nr.</strong> und <strong>E-Mail-Adresse</strong> sind Ihre Referenzdaten
+                für Support und Wiederherstellung. Sie finden diese auch in Ihrem PDF-Report und der Kaufbestätigung per E-Mail.
+              </div>
+              @for (purchase of purchaseService.purchases(); track purchase.id) {
+                <div class="purchase-item" [class.refunded]="purchase.status === 'refunded'">
+                  <div class="purchase-info">
+                    <div class="purchase-ref-row">
+                      <span class="purchase-ref-id" title="Bestell-Nr.">{{ shortRef(purchase.id) }}</span>
+                      <span class="purchase-tier">{{ tierLabel(purchase.tier) }}</span>
+                    </div>
+                    <div class="purchase-meta-row">
+                      <span class="purchase-date">{{ purchase.paid_at | date:'dd.MM.yyyy' }}</span>
+                      <span class="purchase-amount">{{ formatAmount(purchase.amount) }} €</span>
+                      @if (purchase.status === 'refunded') {
+                        <span class="purchase-badge refunded-badge">Erstattet</span>
+                      }
+                      @if (purchase.status === 'paid') {
+                        <span class="purchase-badge paid-badge">Bezahlt</span>
+                      }
+                    </div>
+                  </div>
+                  <div class="purchase-actions">
+                    @if (purchase.status === 'paid' && purchase.pension_input && purchase.download_token) {
+                      <button
+                        class="btn-download"
+                        (click)="regeneratePdf(purchase)"
+                        [disabled]="regeneratingId() === purchase.id"
+                      >
+                        @if (regeneratingId() === purchase.id) {
+                          <span class="btn-spinner"></span> Wird überprüft...
+                        } @else {
+                          📄 PDF herunterladen
+                        }
+                      </button>
+                    }
+                    @if (purchase.status === 'paid' && !purchase.pension_input) {
+                      <span class="no-data-hint">Eingabedaten nicht verfügbar</span>
+                    }
+                    @if (purchase.status === 'paid' && purchase.pension_input && !purchase.download_token) {
+                      <span class="no-data-hint">Download-Token fehlt — bitte kontaktieren Sie den Support</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        }
+
+        @if (regenerateError()) {
+          <div class="error-state" role="alert" aria-live="polite">
+            <p>{{ regenerateError() }}</p>
+            <button class="btn-secondary" (click)="regenerateError.set(null)">
+              Schließen
+            </button>
+          </div>
+        }
+
+        <div class="card-footer">
+          <a routerLink="/rechner" class="btn-back">← Zurück zum Rechner</a>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+
+
