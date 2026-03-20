@@ -11,12 +11,15 @@ import { ScenarioComparisonComponent } from './premium/scenario-comparison.compo
 import { WhatIfAnalysisComponent } from './premium/what-if-analysis.component';
 import { OptimizationStrategiesComponent } from './premium/optimization-strategies.component';
 import { EtfExplainerComponent } from './etf-explainer/etf-explainer.component';
+import { EmailCaptureComponent } from './email-capture/email-capture.component';
+import { ScoreShareCardComponent } from './score-share/score-share-card.component';
 import { PensionCalculatorService } from '@core/services/pension-calculator.service';
 import { PdfReportService } from '@core/services/pdf-report.service';
 import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
 import { PremiumUnlockService } from '@core/services/premium-unlock.service';
 import { StripePaymentService } from '@core/services/stripe-payment.service';
 import { AnalyticsService } from '@core/services/analytics.service';
+import { RentenScoreService } from '@core/services/renten-score.service';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
 import { PensionInput, DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
 import { PensionResult } from '@core/models/pension-result.model';
@@ -45,6 +48,8 @@ import { LATEST_STEUER_JAHR } from '@core/constants/tax-brackets.const';
     WhatIfAnalysisComponent,
     OptimizationStrategiesComponent,
     EtfExplainerComponent,
+    EmailCaptureComponent,
+    ScoreShareCardComponent,
     EuroPipe,
   ],
   templateUrl: './calculator-page.component.html',
@@ -57,6 +62,7 @@ export class CalculatorPageComponent {
   private readonly premiumService = inject(PremiumUnlockService);
   private readonly stripeService = inject(StripePaymentService);
   private readonly analytics = inject(AnalyticsService);
+  private readonly scoreService = inject(RentenScoreService);
 
   readonly currentYear: number = new Date().getFullYear();
   readonly isPremiumUnlocked = this.premiumService.isUnlocked;
@@ -69,6 +75,10 @@ export class CalculatorPageComponent {
   readonly paymentError = signal<string | null>(null);
   readonly downloadPending = signal<boolean>(false);
 
+  /** Email capture flow state */
+  readonly showEmailCapture = signal<boolean>(false);
+  readonly previewPending = signal<boolean>(false);
+
   /** Collapse state for premium feature sections — collapsed by default */
   readonly scenarioCollapsed = signal<boolean>(true);
   readonly timelineCollapsed = signal<boolean>(true);
@@ -79,6 +89,11 @@ export class CalculatorPageComponent {
 
   readonly gewuenschteRente = computed(() => this.currentInput().gewuenschteMonatlicheRente);
   readonly hatKinder = computed(() => this.currentInput().hatKinder);
+
+  /** Computed Renten-Score for sharing and email capture */
+  readonly rentenScore = computed(() =>
+    this.scoreService.computeScore(this.pensionResult(), this.gewuenschteRente())
+  );
 
   /** Pension result — recomputes whenever currentInput changes. Error-safe with fallback. */
   readonly pensionResult = computed<PensionResult>(() => {
@@ -155,15 +170,23 @@ export class CalculatorPageComponent {
   }
 
   /**
-   * Free mode: unlock premium features and generate the PDF immediately.
-   * No payment, no Stripe, no server verification needed.
+   * Free mode: show email capture overlay first, then unlock + generate PDF.
+   * The email capture is optional — user can skip and proceed directly.
    */
   private async freeUnlockAndDownload(): Promise<void> {
+    this.showEmailCapture.set(true);
+  }
+
+  /**
+   * Called when email capture completes (submitted or skipped).
+   * Proceeds with the actual PDF generation.
+   */
+  async onEmailCaptureComplete(): Promise<void> {
+    this.showEmailCapture.set(false);
     this.downloadPending.set(true);
     this.paymentError.set(null);
 
     try {
-      // Generate a local free-mode token so the unlock state persists
       const freeToken = crypto.randomUUID();
       this.premiumService.unlock(freeToken);
 
@@ -175,6 +198,23 @@ export class CalculatorPageComponent {
       this.paymentError.set('PDF-Erstellung fehlgeschlagen. Bitte versuchen Sie es erneut.');
     } finally {
       this.downloadPending.set(false);
+    }
+  }
+
+  /**
+   * Download a 1-page watermarked preview PDF (free, no unlock required).
+   */
+  downloadPreview(): void {
+    this.previewPending.set(true);
+    try {
+      const input = this.currentInput();
+      const result = this.pensionResult();
+      this.pdfService.generatePreview(input, result);
+      this.analytics.trackPreviewDownload();
+    } catch {
+      this.paymentError.set('Vorschau konnte nicht erstellt werden.');
+    } finally {
+      this.previewPending.set(false);
     }
   }
 

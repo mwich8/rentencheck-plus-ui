@@ -384,6 +384,32 @@
 
 .preview-cta-wrap {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.preview-download-btn {
+  padding: 0.65rem 1.5rem;
+  background: transparent;
+  color: var(--color-primary, #0f3460);
+  border: 2px solid var(--color-primary, #0f3460);
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(15, 52, 96, 0.06);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
 }
 
 .preview-cta {
@@ -877,3 +903,13 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================
+   Score Share Section
+   ========================================== */
+.score-share-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.75rem;
+}
+

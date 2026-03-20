@@ -91,6 +91,15 @@
           <span>{{ paymentError() }}</span>
         </div>
       }
+
+      <!-- Email Capture Overlay (free mode) -->
+      @if (showEmailCapture()) {
+        <app-email-capture
+          [result]="pensionResult()"
+          [score]="rentenScore()"
+          (completed)="onEmailCaptureComplete()"
+        />
+      }
     </div>
 
     @if (!isPremiumUnlocked() && pensionResult().rentenluecke > 0 && monthlyCostOfWaiting() > 0) {
@@ -154,7 +163,7 @@
     <div style="min-height:1px"></div>
   }
 
-  <!-- Report Preview -->
+  <!-- Report Preview & Share Section -->
   @defer (on viewport) {
     @if (!isPremiumUnlocked()) {
       <div class="report-preview-section animate-fade-in-up">
@@ -179,16 +188,28 @@
           </div>
         </div>
         <div class="preview-cta-wrap">
+          <button class="preview-download-btn" (click)="downloadPreview()" [disabled]="previewPending()">
+            @if (previewPending()) {
+              ⏳ Vorschau wird erstellt…
+            } @else {
+              📄 Kostenlose Vorschau herunterladen
+            }
+          </button>
           <button class="preview-cta" (click)="purchaseReport()">
             @if (freeMode) {
-              Kostenlos herunterladen →
+              Vollständigen Report herunterladen →
             } @else {
-              Jetzt für 14,90 € kaufen →
+              Vollständigen Report kaufen · 14,90 € →
             }
           </button>
         </div>
       </div>
     }
+
+    <!-- Shareable Renten-Score Card -->
+    <div class="score-share-section animate-fade-in-up">
+      <app-score-share-card [result]="pensionResult()" [gewuenschteRente]="gewuenschteRente()" />
+    </div>
   } @placeholder {
     <div style="min-height:1px"></div>
   }

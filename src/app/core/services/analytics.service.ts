@@ -82,5 +82,25 @@ export class AnalyticsService {
   trackPremiumUnlock(): void {
     this.trackEvent('premium_unlock');
   }
+
+  /** Convenience: track PDF preview download */
+  trackPreviewDownload(): void {
+    this.trackEvent('preview_download');
+  }
+
+  /** Convenience: track free report email capture */
+  trackFreeReportEmailCapture(): void {
+    this.trackEvent('free_report_email_capture');
+  }
+
+  /** Convenience: track free report email skip */
+  trackFreeReportSkip(): void {
+    this.trackEvent('free_report_email_skip');
+  }
+
+  /** Convenience: track Renten-Score share */
+  trackScoreShare(method: string): void {
+    this.trackEvent('score_share', { method });
+  }
 }
 
