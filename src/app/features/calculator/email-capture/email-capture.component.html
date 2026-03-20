@@ -1,0 +1,64 @@
+<div class="email-capture-overlay" role="dialog" aria-label="E-Mail für Report eingeben">
+  @if (sent()) {
+    <!-- Success state -->
+    <div class="capture-card capture-success">
+      <span class="success-icon">✅</span>
+      <h3 class="success-title">E-Mail gesendet!</h3>
+      <p class="success-text">
+        Ihre Rentenanalyse wurde an <strong>{{ email() }}</strong> gesendet.
+        Ihr PDF-Download startet gleich…
+      </p>
+    </div>
+  } @else {
+    <!-- Email form -->
+    <div class="capture-card">
+      <div class="capture-header">
+        <span class="capture-icon">📧</span>
+        <h3 class="capture-title">Report per E-Mail erhalten</h3>
+        <p class="capture-subtitle">
+          Erhalten Sie Ihren Renten-Score und die wichtigsten Kennzahlen
+          zusätzlich als E-Mail-Zusammenfassung — kostenlos.
+        </p>
+      </div>
+
+      <div class="capture-form">
+        <div class="input-group" [class.input-error]="error()">
+          <input
+            type="email"
+            class="email-input"
+            placeholder="ihre@email.de"
+            [value]="email()"
+            (input)="onEmailInput($event)"
+            (keydown.enter)="submitEmail()"
+            [disabled]="sending()"
+            autocomplete="email"
+            aria-label="E-Mail-Adresse"
+          />
+          <button
+            class="submit-btn"
+            (click)="submitEmail()"
+            [disabled]="sending() || !isValidEmail"
+            aria-label="Report senden"
+          >
+            @if (sending()) {
+              <span class="spinner"></span>
+            } @else {
+              Senden →
+            }
+          </button>
+        </div>
+        @if (error()) {
+          <p class="error-message" role="alert">{{ error() }}</p>
+        }
+        <p class="privacy-note">
+          🔒 Keine Werbung, kein Spam. <a href="/datenschutz" target="_blank" rel="noopener">Datenschutz</a>
+        </p>
+      </div>
+
+      <button class="skip-link" (click)="skip()">
+        Ohne E-Mail fortfahren →
+      </button>
+    </div>
+  }
+</div>
+
