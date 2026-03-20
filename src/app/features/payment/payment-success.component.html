@@ -6,45 +6,80 @@
   </nav>
 
   <div class="success-container">
-    @if (status() === 'generating') {
-      <div class="success-card">
-        <div class="spinner"></div>
-        <h1>Ihr PDF wird erstellt...</h1>
-        <p>Vielen Dank für Ihren Kauf! Ihr persönlicher Renten-Report wird jetzt generiert.</p>
-      </div>
-    }
-
-    @if (status() === 'done') {
-      <div class="success-card">
-        <div class="success-icon">✅</div>
-        <h1>Report erfolgreich erstellt!</h1>
-        <p>Ihr PDF-Report wurde heruntergeladen. Prüfen Sie Ihren Downloads-Ordner.</p>
-        <div class="success-actions">
-          <button class="btn-download" (click)="regenerate()">
-            📄 Erneut herunterladen
-          </button>
-          <a routerLink="/rechner" class="btn-back">
-            ← Zurück zum Rechner
-          </a>
+    @switch (status()) {
+      @case ('verifying') {
+        <div class="success-card">
+          <div class="spinner"></div>
+          <h1>Zahlung wird bestätigt...</h1>
+          <p>Vielen Dank! Wir überprüfen Ihre Zahlung. Einen Moment bitte.</p>
         </div>
-      </div>
-    }
+      }
 
-    @if (status() === 'error') {
-      <div class="success-card error">
-        <div class="success-icon">⚠️</div>
-        <h1>Etwas ist schiefgelaufen</h1>
-        <p>{{ errorMessage() }}</p>
-        <div class="success-actions">
-          <a routerLink="/rechner" class="btn-back">
-            ← Zurück zum Rechner
-          </a>
+      @case ('generating') {
+        <div class="success-card">
+          <div class="spinner"></div>
+          <h1>Ihr PDF wird erstellt...</h1>
+          <p>Zahlung bestätigt! Ihr persönlicher Renten-Report wird jetzt generiert.</p>
         </div>
-        <p class="support-hint">
-          Bei Problemen kontaktieren Sie uns unter
-          <a href="mailto:marten.wichmann@gmail.com">marten.wichmann&#64;gmail.com</a>
-        </p>
-      </div>
+      }
+
+      @case ('done') {
+        <div class="success-card">
+          <div class="success-icon">✅</div>
+          <h1>Report erfolgreich erstellt!</h1>
+          <p>Ihr PDF-Report wurde heruntergeladen. Prüfen Sie Ihren Downloads-Ordner.</p>
+
+          @if (purchaseRef()) {
+            <div class="reference-box">
+              <p class="reference-label">📋 Ihre Referenzdaten</p>
+              <div class="reference-row">
+                <span class="reference-key">Bestell-Nr.</span>
+                <span class="reference-value mono">{{ purchaseRef() }}</span>
+              </div>
+              @if (purchaseEmail()) {
+                <div class="reference-row">
+                  <span class="reference-key">E-Mail</span>
+                  <span class="reference-value">{{ purchaseEmail() }}</span>
+                </div>
+              }
+              <p class="reference-hint">
+                💡 Bewahren Sie diese Daten auf! Mit Ihrer Bestell-Nr. und E-Mail können Sie
+                Ihren Report jederzeit unter
+                <a routerLink="/meine-kaeufe">Meine Käufe</a> wiederherstellen.
+              </p>
+            </div>
+          }
+
+          <div class="success-actions">
+            <button class="btn-download" (click)="regenerate()">
+              📄 Erneut herunterladen
+            </button>
+            <a routerLink="/meine-kaeufe" class="btn-secondary">
+              📦 Meine Käufe ansehen
+            </a>
+            <a routerLink="/rechner" class="btn-back">
+              ← Zurück zum Rechner
+            </a>
+          </div>
+        </div>
+      }
+
+      @case ('error') {
+        <div class="success-card error">
+          <div class="success-icon">⚠️</div>
+          <h1>Etwas ist schiefgelaufen</h1>
+          <p>{{ errorMessage() }}</p>
+          <div class="success-actions">
+            <a routerLink="/rechner" class="btn-back">
+              ← Zurück zum Rechner
+            </a>
+          </div>
+          <p class="support-hint">
+            Bei Problemen finden Sie unsere Kontaktdaten im
+            <a routerLink="/impressum">Impressum</a>.
+          </p>
+        </div>
+      }
     }
   </div>
 </div>
