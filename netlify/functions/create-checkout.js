@@ -17,15 +17,12 @@ const ALLOWED_TIERS = ['report', 'premium'];
 exports.handler = async (event) => {
   const siteUrl = process.env.URL || 'http://localhost:4200';
 
-  // CORS: restrict to own site origin instead of wildcard
-  const allowedOrigin = siteUrl;
-  const requestOrigin = event.headers?.origin || '';
-  const origin = requestOrigin === allowedOrigin ? allowedOrigin : allowedOrigin;
-
+  // CORS: restrict to own site origin
   const headers = {
-    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Origin': siteUrl,
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
   };
 
   // Handle preflight
@@ -66,7 +63,7 @@ exports.handler = async (event) => {
       };
     }
 
-    const { tier } = body;
+    const { tier, pensionInput } = body;
 
     // Validate tier is a known value
     if (typeof tier !== 'string' || !ALLOWED_TIERS.includes(tier)) {
@@ -75,6 +72,27 @@ exports.handler = async (event) => {
         headers,
         body: JSON.stringify({ error: 'Invalid tier. Must be one of: ' + ALLOWED_TIERS.join(', ') }),
       };
+    }
+
+    // Stripe metadata values must be strings ≤500 chars.
+    // Only allow known pension input fields to prevent metadata injection.
+    const ALLOWED_INPUT_KEYS = [
+      'bruttoMonatlicheRente', 'rentenbeginnJahr', 'aktuellesAlter',
+      'gewuenschteMonatlicheRente', 'inflationsrate', 'hatKinder',
+      'zusatzbeitragssatz', 'steuerJahr',
+    ];
+    const metadata = { tier };
+    if (pensionInput && typeof pensionInput === 'object' && !Array.isArray(pensionInput)) {
+      const sanitized = {};
+      for (const key of ALLOWED_INPUT_KEYS) {
+        if (key in pensionInput) {
+          sanitized[key] = pensionInput[key];
+        }
+      }
+      const serialized = JSON.stringify(sanitized);
+      if (serialized.length <= 500) {
+        metadata.pension_input = serialized;
+      }
     }
 
     // Map tier to Stripe Price ID
@@ -104,9 +122,7 @@ exports.handler = async (event) => {
       success_url: `${siteUrl}/zahlung-erfolgreich?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/rechner?cancelled=true`,
       locale: 'de',
-      metadata: {
-        tier,
-      },
+      metadata,
     });
 
     return {
