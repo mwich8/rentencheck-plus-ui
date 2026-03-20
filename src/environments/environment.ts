@@ -5,6 +5,7 @@ export const environment: Environment = {
   appName: 'RentenCheck+',
   version: '1.0.0',
   siteUrl: 'https://rentencheckplus.de',
+  freeMode: true,
   stripe: {
     publishableKey: '', // Add Stripe test key here
   },

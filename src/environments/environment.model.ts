@@ -7,6 +7,8 @@ export interface Environment {
   appName: string;
   version: string;
   siteUrl: string;
+  /** When true, all features are free — PDF generation skips Stripe checkout entirely */
+  freeMode: boolean;
   stripe: {
     publishableKey: string;
   };
