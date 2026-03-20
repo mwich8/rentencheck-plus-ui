@@ -32,8 +32,13 @@
       <div class="tier-badge report-badge">EINMAL-REPORT</div>
       <h3 class="tier-name">Detail-Analyse</h3>
       <div class="tier-price">
-        <span class="price-amount">0 €</span>
-        <span class="price-period">aktuell kostenlos</span>
+        @if (freeMode()) {
+          <span class="price-amount">0 €</span>
+          <span class="price-period">aktuell kostenlos</span>
+        } @else {
+          <span class="price-amount">14,90 €</span>
+          <span class="price-period">einmalig</span>
+        }
       </div>
       <ul class="tier-features">
         <li class="included">✓ Alles aus Schnell-Check</li>
@@ -44,7 +49,11 @@
         <li class="excluded">✗ Multi-Szenario-Vergleich</li>
       </ul>
       <button class="tier-button report-btn" (click)="tierSelected.emit('report')">
-        PDF herunterladen →
+        @if (freeMode()) {
+          PDF herunterladen →
+        } @else {
+          Jetzt kaufen →
+        }
       </button>
     </div>
 
@@ -53,8 +62,13 @@
       <div class="tier-badge premium-badge">PREMIUM</div>
       <h3 class="tier-name">Renten-Strategie</h3>
       <div class="tier-price">
-        <span class="price-amount">0 €</span>
-        <span class="price-period">aktuell kostenlos</span>
+        @if (freeMode()) {
+          <span class="price-amount">0 €</span>
+          <span class="price-period">aktuell kostenlos</span>
+        } @else {
+          <span class="price-amount">29,90 €</span>
+          <span class="price-period">einmalig</span>
+        }
       </div>
       <ul class="tier-features">
         <li class="included">✓ Alles aus Detail-Analyse</li>
@@ -64,7 +78,11 @@
         <li class="included">✓ Vergleich verschiedener Strategien</li>
       </ul>
       <button class="tier-button premium-btn" (click)="tierSelected.emit('premium')">
-        Kostenlos freischalten →
+        @if (freeMode()) {
+          Kostenlos freischalten →
+        } @else {
+          Premium freischalten →
+        }
       </button>
     </div>
   </div>

@@ -43,7 +43,11 @@
           <li>✓ Optimale Strategie finden</li>
         </ul>
         <button class="teaser-cta premium" (click)="unlock.emit('premium')">
-          Kostenlos freischalten →
+          @if (freeMode()) {
+            Kostenlos freischalten →
+          } @else {
+            Premium freischalten · 29,90 € →
+          }
         </button>
       </div>
     </div>
@@ -98,7 +102,11 @@
           <li>✓ Professionelles Layout</li>
         </ul>
         <button class="teaser-cta report" (click)="unlock.emit('report')">
-          Kostenlos herunterladen →
+          @if (freeMode()) {
+            Kostenlos herunterladen →
+          } @else {
+            Report kaufen · 14,90 € →
+          }
         </button>
       </div>
     </div>

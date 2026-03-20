@@ -15,6 +15,7 @@ import { PensionCalculatorService } from '@core/services/pension-calculator.serv
 import { PdfReportService } from '@core/services/pdf-report.service';
 import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
 import { PremiumUnlockService } from '@core/services/premium-unlock.service';
+import { StripePaymentService } from '@core/services/stripe-payment.service';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
 import { PensionInput, DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
@@ -54,12 +55,19 @@ export class CalculatorPageComponent {
   private readonly pdfService = inject(PdfReportService);
   private readonly savingsService = inject(SavingsCalculatorService);
   private readonly premiumService = inject(PremiumUnlockService);
+  private readonly stripeService = inject(StripePaymentService);
   private readonly analytics = inject(AnalyticsService);
 
   readonly currentYear: number = new Date().getFullYear();
   readonly isPremiumUnlocked = this.premiumService.isUnlocked;
   readonly affiliateUrl: string = environment.affiliate.brokerUrl;
   readonly steuerJahr: number = LATEST_STEUER_JAHR;
+  readonly freeMode: boolean = environment.freeMode;
+
+  /** Payment & download flow state */
+  readonly paymentPending = signal<boolean>(false);
+  readonly paymentError = signal<string | null>(null);
+  readonly downloadPending = signal<boolean>(false);
 
   /** Collapse state for premium feature sections — collapsed by default */
   readonly scenarioCollapsed = signal<boolean>(true);
@@ -113,21 +121,116 @@ export class CalculatorPageComponent {
 
   onTierSelected(tier: string): void {
     if (tier === 'report' || tier === 'premium') {
-      this.purchaseReport();
+      this.unlockAndDownload(tier as 'report' | 'premium');
     }
   }
 
-  async purchaseReport(): Promise<void> {
-    this.downloadReport();
-    this.premiumService.unlock();
-    this.analytics.trackPremiumUnlock();
+  /**
+   * Main entry point for unlocking and downloading a report.
+   * - In freeMode: directly unlocks premium and generates the PDF (no Stripe).
+   * - When freeMode is off: redirects to Stripe Checkout for payment.
+   */
+  async unlockAndDownload(tier: 'report' | 'premium' = 'report'): Promise<void> {
+    // Already unlocked → verify token and re-download
+    if (this.isPremiumUnlocked()) {
+      await this.downloadReport();
+      return;
+    }
+
+    // Free mode → skip Stripe, unlock directly, generate PDF
+    if (this.freeMode) {
+      await this.freeUnlockAndDownload();
+      return;
+    }
+
+    // Paid mode → redirect to Stripe Checkout
+    await this.startStripeCheckout(tier);
   }
 
-  downloadReport(): void {
-    const input = this.currentInput();
-    const result = this.pensionResult();
-    this.pdfService.generateReport(input, result);
-    this.analytics.trackPdfDownload();
+  /**
+   * Alias for template — backwards-compatible with (click)="purchaseReport()".
+   */
+  async purchaseReport(tier: 'report' | 'premium' = 'report'): Promise<void> {
+    await this.unlockAndDownload(tier);
+  }
+
+  /**
+   * Free mode: unlock premium features and generate the PDF immediately.
+   * No payment, no Stripe, no server verification needed.
+   */
+  private async freeUnlockAndDownload(): Promise<void> {
+    this.downloadPending.set(true);
+    this.paymentError.set(null);
+
+    try {
+      // Generate a local free-mode token so the unlock state persists
+      const freeToken = crypto.randomUUID();
+      this.premiumService.unlock(freeToken);
+
+      const input = this.currentInput();
+      const result = this.pensionResult();
+      this.pdfService.generateReport(input, result, freeToken);
+      this.analytics.trackPdfDownload();
+    } catch {
+      this.paymentError.set('PDF-Erstellung fehlgeschlagen. Bitte versuchen Sie es erneut.');
+    } finally {
+      this.downloadPending.set(false);
+    }
+  }
+
+  /**
+   * Paid mode: Start the Stripe Checkout flow.
+   * Redirects user to Stripe's hosted checkout page.
+   */
+  private async startStripeCheckout(tier: 'report' | 'premium'): Promise<void> {
+    this.paymentPending.set(true);
+    this.paymentError.set(null);
+
+    try {
+      const success = await this.stripeService.startCheckout(tier, this.currentInput());
+      if (!success) {
+        this.paymentError.set('Zahlung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.');
+      }
+    } catch {
+      this.paymentError.set('Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
+    } finally {
+      this.paymentPending.set(false);
+    }
+  }
+
+  /**
+   * Download the PDF report.
+   * - In freeMode: generate directly (no server verification needed).
+   * - In paid mode: verify download token server-side first.
+   */
+  async downloadReport(): Promise<void> {
+    this.downloadPending.set(true);
+    this.paymentError.set(null);
+
+    try {
+      // In paid mode: server-side verification before PDF generation
+      if (!this.freeMode) {
+        const verification = await this.premiumService.verifyToken();
+
+        if (!verification.valid) {
+          this.premiumService.lock();
+          this.paymentError.set(
+            'Ihr Download-Zugang ist nicht mehr gültig. Bitte kontaktieren Sie uns oder kaufen Sie erneut.'
+          );
+          return;
+        }
+      }
+
+      const input = this.currentInput();
+      const result = this.pensionResult();
+      const reportId = this.premiumService.getToken() ?? undefined;
+      this.pdfService.generateReport(input, result, reportId);
+      this.analytics.trackPdfDownload();
+    } catch {
+      this.paymentError.set('PDF-Erstellung fehlgeschlagen. Bitte versuchen Sie es erneut.');
+    } finally {
+      this.downloadPending.set(false);
+    }
   }
 }
 

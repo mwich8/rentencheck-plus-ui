@@ -1,4 +1,4 @@
-import { Component, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 /**
  * Blurred premium feature previews that create desire to upgrade.
@@ -11,6 +11,7 @@ import { Component, output } from '@angular/core';
   styleUrls: ['./premium-teaser.component.scss'],
 })
 export class PremiumTeaserComponent {
+  readonly freeMode = input<boolean>(false);
   readonly unlock = output<string>();
 }
 

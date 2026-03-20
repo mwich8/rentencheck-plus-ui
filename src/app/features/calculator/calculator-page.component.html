@@ -5,7 +5,7 @@
       RentenCheck<span class="brand-plus">+</span>
     </a>
     <div class="nav-badges">
-      <span class="nav-badge">✓ Kostenlos</span>
+      <span class="nav-badge">✓ Rechner kostenlos</span>
       <span class="nav-badge">✓ <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>-konform</span>
     </div>
   </div>
@@ -23,7 +23,7 @@
       nach Steuern, Sozialabgaben und Inflation.
     </p>
     <div class="hero-cta">
-      <span class="hero-badge">✓ Kostenlos</span>
+      <span class="hero-badge">✓ Rechner kostenlos</span>
       <span class="hero-badge">✓ Sofort-Ergebnis</span>
       <span class="hero-badge">✓ <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>-konform</span>
     </div>
@@ -48,23 +48,48 @@
   @defer (on idle) {
     <div class="pdf-download-section animate-fade-in-up">
       @if (isPremiumUnlocked()) {
-        <button class="pdf-download-btn pdf-unlocked-btn" (click)="downloadReport()">
+        <button class="pdf-download-btn pdf-unlocked-btn" (click)="downloadReport()" [disabled]="downloadPending()">
           <span class="pdf-icon">📄</span>
           <span class="pdf-text">
-            <strong>PDF-Report herunterladen</strong>
-            <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen</small>
+            @if (downloadPending()) {
+              <strong>Wird überprüft...</strong>
+              <small>Download-Berechtigung wird verifiziert.</small>
+            } @else {
+              <strong>PDF-Report herunterladen</strong>
+              <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen</small>
+            }
           </span>
           <span class="pdf-arrow">↓</span>
         </button>
       } @else {
-        <button class="pdf-download-btn" (click)="purchaseReport()">
+        <button class="pdf-download-btn" (click)="purchaseReport()" [disabled]="paymentPending() || downloadPending()">
           <span class="pdf-icon">📄</span>
           <span class="pdf-text">
-            <strong>Kostenloser PDF-Report</strong>
-            <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen · Sofort-Download</small>
+            @if (paymentPending()) {
+              <strong>Weiterleitung zu Stripe...</strong>
+              <small>Bitte warten Sie einen Moment.</small>
+            } @else if (downloadPending()) {
+              <strong>PDF wird erstellt...</strong>
+              <small>Ihr Report wird generiert.</small>
+            } @else {
+              @if (freeMode) {
+                <strong>Kostenloser PDF-Report</strong>
+                <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen · Sofort-Download</small>
+              } @else {
+                <strong>PDF-Report kaufen · 14,90 €</strong>
+                <small>3-seitiger Report · 30-Jahre-Prognose · Persönliche Handlungsempfehlungen · Sofort-Download</small>
+              }
+            }
           </span>
-          <span class="pdf-arrow">→</span>
+          <span class="pdf-arrow">↓</span>
         </button>
+      }
+
+      @if (paymentError()) {
+        <div class="payment-error-banner" role="alert">
+          <span class="payment-error-icon">⚠️</span>
+          <span>{{ paymentError() }}</span>
+        </div>
       }
     </div>
 
@@ -75,7 +100,11 @@
           <strong class="urgency-headline">Jeder Monat, den Sie warten, kostet Sie {{ monthlyCostOfWaiting() | euro }} extra bis zur Rente</strong>
           <span class="urgency-detail">So viel mehr müssen Sie über die gesamte Laufzeit aufbringen, wenn Sie einen Monat später starten.</span>
         </div>
-        <button class="urgency-cta" (click)="purchaseReport()">Jetzt Report sichern →</button>
+        @if (freeMode) {
+          <button class="urgency-cta" (click)="purchaseReport()">Jetzt kostenlosen Report herunterladen →</button>
+        } @else {
+          <button class="urgency-cta" (click)="purchaseReport()">Jetzt Report sichern · 14,90 € →</button>
+        }
       </div>
     }
   }
@@ -151,7 +180,11 @@
         </div>
         <div class="preview-cta-wrap">
           <button class="preview-cta" (click)="purchaseReport()">
-            Kostenlos herunterladen →
+            @if (freeMode) {
+              Kostenlos herunterladen →
+            } @else {
+              Jetzt für 14,90 € kaufen →
+            }
           </button>
         </div>
       </div>
@@ -184,7 +217,11 @@
                   Sehen Sie, wie Inflation Ihre Rente über 30 Jahre entwertet — im Detail-Report enthalten.
                 </p>
                 <button class="locked-cta" (click)="purchaseReport()">
-                  Kostenlos freischalten →
+                  @if (freeMode) {
+                    Kostenlos freischalten →
+                  } @else {
+                    Freischalten · 14,90 € →
+                  }
                 </button>
               </div>
             </div>
@@ -255,9 +292,9 @@
   @defer (on viewport) {
     @if (!isPremiumUnlocked()) {
       <div class="premium-teaser-section animate-fade-in-up">
-        <app-premium-teaser (unlock)="onTierSelected($event)" />
+        <app-premium-teaser [freeMode]="freeMode" (unlock)="onTierSelected($event)" />
       </div>
-      <app-pricing-tier (tierSelected)="onTierSelected($event)" />
+      <app-pricing-tier [freeMode]="freeMode" (tierSelected)="onTierSelected($event)" />
     }
   } @placeholder {
     <div style="min-height:1px"></div>
@@ -292,6 +329,8 @@
         <a routerLink="/datenschutz">Datenschutz</a>
         <span class="footer-dot">·</span>
         <a routerLink="/haftungsausschluss">Haftungsausschluss</a>
+        <span class="footer-dot">·</span>
+        <a routerLink="/meine-kaeufe">Meine Käufe</a>
       </div>
       <p>© {{ currentYear }} RentenCheck+ — Alle Rechte vorbehalten</p>
     </div>
