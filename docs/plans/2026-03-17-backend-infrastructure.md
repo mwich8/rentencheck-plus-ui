@@ -1,97 +1,163 @@
-# Backend Infrastructure: Supabase + Auth + Purchase Tracking
+# Backend Infrastructure: Neon Postgres + Custom Auth + Purchase Tracking
 
-> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+**Goal:** Server-side payment verification, purchase tracking, and Magic Link authentication so users can recover purchases and the premium unlock is tamper-proof.
 
-**Goal:** Add server-side payment verification, purchase tracking, and Magic Link authentication so users can recover purchases and the premium unlock is tamper-proof.
+**Architecture:** Netlify Functions (serverless) + Neon Serverless Postgres (DB) + Stripe Webhooks + Resend (transactional emails). Custom HMAC-signed session tokens for authentication (no third-party auth provider).
 
-**Architecture:** Netlify Functions (serverless) + Supabase (Postgres DB + Auth). Stripe webhooks write purchase records to Supabase. The frontend verifies payments server-side before unlocking premium. Magic Link login enables purchase recovery on any device.
-
-**Tech Stack:** Angular 21, Supabase (free tier), Stripe Webhooks, Netlify Functions
+**Tech Stack:** Angular 21, Neon Postgres (free tier), Stripe, Resend, Netlify Functions (Node 20)
 
 ---
 
-## What Was Built
+## System Architecture
 
-### New Files Created
+```
+┌─────────────────┐     ┌──────────────────────────┐     ┌─────────────────┐
+│   Browser (SPA)  │────▶│  Netlify Functions        │────▶│  Neon Postgres   │
+│   Angular 21     │     │  (serverless, Node 20)    │     │  (eu-central-1)  │
+│                  │     │                            │     │                  │
+│  - Calculator    │     │  - create-checkout.js      │     │  - purchases     │
+│  - PDF (jsPDF)   │     │  - stripe-webhook.js       │     │  - magic_links   │
+│  - Auth signals  │     │  - verify-session.js       │     │  - sessions      │
+│  - Purchase list │     │  - verify-download.js      │     │                  │
+│                  │     │  - send-magic-link.js       │     └─────────────────┘
+│                  │     │  - verify-magic-link.js     │            ▲
+│                  │     │  - get-purchases.js         │            │
+│                  │     │  - cleanup-expired.js       │     ┌──────┴────────┐
+└─────────────────┘     └──────────────────────────┘     │   Resend       │
+        │                          ▲                      │   (emails)     │
+        │                          │                      └───────────────┘
+        ▼                          │
+┌─────────────────┐     ┌──────────┴───────────────┐
+│   Stripe         │────▶│  stripe-webhook.js        │
+│   Checkout       │     │  (signature verified)     │
+│                  │     │  → writes purchase to DB   │
+│                  │     │  → sends confirmation email│
+└─────────────────┘     └──────────────────────────┘
+```
+
+---
+
+## Database Schema (Neon Postgres)
+
+**Migration:** `neon/migrations/001_schema.sql`
+
+| Table | Purpose |
+|---|---|
+| `purchases` | Source of truth for all payments. UUID PK, Stripe IDs, email, tier, amount, status (`pending`/`paid`/`refunded`/`disputed`), `pension_input` (JSONB), `download_token` (UUID). |
+| `magic_links` | Passwordless login tokens. Random 32-byte hex token, 15-min expiry, single-use (`used_at`). Rate limited: 5/email/hour. |
+| `sessions` | Authenticated user sessions. HMAC-signed tokens (`payload.signature`), 7-day expiry. |
+
+**Cleanup:** `cleanup_expired_tokens()` PL/pgSQL function + Netlify scheduled function (`cleanup-expired.js`) at 03:00 UTC daily.
+
+---
+
+## Authentication Flow (Custom HMAC — No Third-Party Auth)
+
+```
+1. User enters email on /meine-kaeufe
+   └─▶ POST /.netlify/functions/send-magic-link { email }
+       └─▶ Rate check (5/hr) → token → INSERT magic_links → Resend email
+
+2. User clicks email link → /meine-kaeufe?token=abc123...
+   └─▶ POST /.netlify/functions/verify-magic-link { token }
+       └─▶ SELECT magic_links WHERE token AND NOT used AND NOT expired
+       └─▶ Mark used_at → HMAC session → INSERT sessions → return sessionToken
+
+3. Frontend stores session in localStorage
+   └─▶ AuthService.currentUser signal updates → effect() loads purchases
+
+4. Authenticated requests pass sessionToken in POST body
+   └─▶ get-purchases.js verifies HMAC + expiry → returns purchases for that email
+```
+
+**Session Token Format:** `base64url(JSON).base64url(HMAC-SHA256)`
+**Payload:** `{ email, exp }`  |  **Secret:** `SESSION_SECRET` env var
+
+---
+
+## Payment Flow
+
+```
+1. User clicks "PDF-Report kaufen" on /rechner
+   └─▶ Saves pensionInput to sessionStorage
+   └─▶ POST /.netlify/functions/create-checkout { tier }
+   └─▶ Redirect to Stripe Checkout
+
+2. Stripe payment succeeds → webhook fires
+   └─▶ stripe-webhook.js: signature verified → INSERT purchases → Resend confirmation email
+
+3. Stripe redirects to /zahlung-erfolgreich?session_id=cs_...
+   └─▶ verify-session: checks Neon DB (webhook usually done), falls back to Stripe API
+   └─▶ Returns { verified, email, tier, pensionInput, downloadToken }
+   └─▶ Client generates PDF (jsPDF) + stores downloadToken in localStorage
+
+4. Re-download (/meine-kaeufe)
+   └─▶ verify-download: checks download_token + status='paid' → client regenerates PDF
+```
+
+---
+
+## Files
+
+### Backend (Netlify Functions)
+| File | Endpoint | Purpose |
+|---|---|---|
+| `shared/db.js` | — | Cached Neon `sql` via `@neondatabase/serverless` |
+| `create-checkout.js` | `POST /create-checkout` | Creates Stripe Checkout session |
+| `stripe-webhook.js` | `POST /stripe-webhook` | Handles `checkout.session.completed`, `charge.refunded`, `charge.dispute.created` |
+| `verify-session.js` | `POST /verify-session` | Verifies payment after Stripe redirect |
+| `verify-download.js` | `POST /verify-download` | Validates download token for PDF re-generation |
+| `send-magic-link.js` | `POST /send-magic-link` | Rate-limited magic link email |
+| `verify-magic-link.js` | `POST /verify-magic-link` | Verifies token → creates HMAC session |
+| `get-purchases.js` | `POST /get-purchases` | Returns purchases for authenticated user |
+| `cleanup-expired.js` | Scheduled (daily 03:00) | Deletes expired magic links and sessions |
+
+### Frontend Services
 | File | Purpose |
 |---|---|
-| `supabase/migrations/001_purchases.sql` | Database schema: `purchases` table, RLS policies, auto-link trigger |
-| `netlify/functions/stripe-webhook.js` | Stripe webhook → writes purchases to Supabase |
-| `netlify/functions/verify-session.js` | Verifies payment before unlocking premium |
-| `src/app/core/services/supabase.service.ts` | Singleton Supabase client for the browser |
-| `src/app/core/services/auth.service.ts` | Magic Link login/logout via Supabase Auth |
-| `src/app/core/services/purchase.service.ts` | Query purchase history from Supabase |
-| `src/app/features/purchases/purchases-page.component.*` | "Meine Käufe" page (login + purchase list + PDF re-download) |
-
-### Modified Files
-| File | Change |
-|---|---|
-| `src/environments/environment.model.ts` | Added `supabase: { url, anonKey }` |
-| `src/environments/environment.ts` | Added Supabase config (dev) |
-| `src/environments/environment.prod.ts` | Added Supabase config (prod) |
-| `netlify/functions/create-checkout.js` | Now sends `pensionInput` in Stripe metadata |
-| `src/app/core/services/stripe-payment.service.ts` | Sends pension input to checkout function |
-| `src/app/features/payment/payment-success.component.ts` | Verifies payment server-side before unlocking |
-| `src/app/features/payment/payment-success.component.html` | Added "verifying" state UI |
-| `src/app/app.routes.ts` | Added `/meine-kaeufe` route |
-| `netlify.toml` | Added `*.supabase.co` to CSP `connect-src` |
+| `auth.service.ts` | Signal-based auth. Magic link login/logout, session persistence. |
+| `purchase.service.ts` | Loads purchases via `get-purchases`. Signals: `purchases()`, `loading()`, `error()`. |
+| `premium-unlock.service.ts` | Stores download token. `verifyToken()` gates PDF generation. |
+| `stripe-payment.service.ts` | `startCheckout(tier, input)` → sessionStorage + create-checkout + redirect. |
 
 ---
 
-## Setup Steps (YOU need to do these manually)
+## Environment Variables
 
-### 1. Create Supabase Project
-1. Go to [supabase.com](https://supabase.com) → "New Project"
-2. Name: `rentencheck-plus`, Region: `eu-central-1` (Frankfurt)
-3. Save the **project URL** and **anon key** from Settings → API
-
-### 2. Run Database Migration
-1. In Supabase Dashboard → SQL Editor
-2. Paste the contents of `supabase/migrations/001_purchases.sql`
-3. Click "Run"
-
-### 3. Configure Environment Variables
-
-**In the Angular environment files:**
-- `src/environments/environment.ts` → fill `supabase.url` and `supabase.anonKey`
-- `src/environments/environment.prod.ts` → fill `supabase.url` and `supabase.anonKey`
-
-**In Netlify Dashboard → Site Settings → Environment Variables:**
+### Netlify Dashboard
 ```
-SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-SUPABASE_SERVICE_KEY=eyJ...   (Settings → API → service_role key — NEVER expose in frontend!)
+DATABASE_URL=postgresql://user:pass@ep-xxx.eu-central-1.aws.neon.tech/neondb?sslmode=require
+SESSION_SECRET=<64-char hex — node -e "console.log(require('crypto').randomBytes(32).toString('hex'))">
+STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_REPORT=price_...     (€14.90)
+STRIPE_PRICE_PREMIUM=price_...    (€29.90)
+RESEND_API_KEY=re_...
 ```
 
-### 4. Create Stripe Webhook
-1. Stripe Dashboard → Developers → Webhooks → "Add endpoint"
-2. URL: `https://rentencheckplus.de/.netlify/functions/stripe-webhook`
-3. Events to listen for:
-   - `checkout.session.completed`
-   - `charge.refunded`
-4. Copy the **Signing Secret** (`whsec_...`) → add to Netlify env vars as `STRIPE_WEBHOOK_SECRET`
-
-### 5. Configure Supabase Auth
-1. Supabase Dashboard → Authentication → URL Configuration
-2. Set **Site URL**: `https://rentencheckplus.de`
-3. Add **Redirect URLs**: `https://rentencheckplus.de/meine-kaeufe`
-4. Email Templates (optional): customize the magic link email text in German
+### Angular Environments
+- `environment.ts` (dev): `freeMode: true` — skips Stripe
+- `environment.prod.ts`: `freeMode: false` — Stripe required
 
 ---
 
-## Security Architecture
+## Setup Steps
 
-```
-Browser (anon key)     →  Supabase (RLS: read own purchases only)
-                          ↑
-Netlify Functions       →  Supabase (service_role key: full write access)
-(stripe-webhook,           - Only server-side functions can insert/update
- verify-session)           - Browser can only SELECT where email matches JWT
-                          
-Stripe                 →  stripe-webhook (signature verified with whsec_...)
-```
+1. **Neon:** [console.neon.tech](https://console.neon.tech) → New Project → run `neon/migrations/001_schema.sql`
+2. **Netlify Env Vars:** Add all variables listed above
+3. **Stripe Webhook:** Dashboard → Webhooks → `https://rentencheckplus.de/.netlify/functions/stripe-webhook` → events: `checkout.session.completed`, `charge.refunded`, `charge.dispute.created`
+4. **Resend:** Verify domain `rentencheckplus.de` (SPF, DKIM, DMARC)
+5. **Session Secret:** `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
 
-- **anon key** = safe in browser, RLS restricts access
-- **service_role key** = only in Netlify env vars, never in frontend code
-- **Webhook signature** = prevents spoofed events from reaching Supabase
+---
 
+## Security
+
+- **No secrets in frontend** — all sensitive keys are Netlify env vars only
+- **HMAC sessions** — constant-time comparison (`crypto.timingSafeEqual`)
+- **Stripe webhooks** — signature verified (`constructEvent`)
+- **Magic links** — rate limited (5/hr), 15-min expiry, single-use
+- **Download tokens** — UUID per purchase, verified server-side before every PDF
+- **CORS** — restricted to own site origin on every function
+- **CSP** — strict Content-Security-Policy in `netlify.toml`
+- **Parameterized queries** — Neon tagged-template `sql` prevents injection
