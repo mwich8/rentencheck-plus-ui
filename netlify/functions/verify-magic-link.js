@@ -135,6 +135,13 @@ exports.handler = async (event) => {
     const sessionToken = createSessionToken(magicLink.email, SESSION_SECRET);
     const sessionExpiry = new Date(Date.now() + SESSION_DURATION_MS).toISOString();
 
+    // Upsert user row — auto-registration on first login, no-op on subsequent logins
+    await sql`
+      INSERT INTO users (email)
+      VALUES (${magicLink.email})
+      ON CONFLICT (email) DO NOTHING
+    `;
+
     // Store session in DB (allows server-side session invalidation if needed)
     await sql`
       INSERT INTO sessions (email, token, expires_at)
