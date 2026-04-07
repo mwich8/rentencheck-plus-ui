@@ -3,6 +3,7 @@
     <a routerLink="/" class="nav-brand">
       RentenCheck<span class="brand-plus">+</span>
     </a>
+    <a routerLink="/rechner" class="nav-back-link">← Rechner</a>
   </nav>
 
   <div class="purchases-container">
@@ -34,6 +35,8 @@
               #emailInput
               id="recovery-email"
               type="email"
+              inputmode="email"
+              autocomplete="email"
               placeholder="ihre@email.de"
               class="email-input"
               (keyup.enter)="sendMagicLink(emailInput)"
