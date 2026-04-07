@@ -11,6 +11,11 @@
         <span class="nav-badge nav-badge-user" title="Angemeldet als {{ auth.userEmail() }}">
           👤 {{ auth.userEmail() }}
         </span>
+        <a routerLink="/meine-kaeufe" class="nav-badge nav-badge-link">Meine Käufe</a>
+      } @else {
+        <a routerLink="/meine-kaeufe" class="nav-login-btn">
+          <span class="nav-login-icon">👤</span> Anmelden
+        </a>
       }
     </div>
   </div>

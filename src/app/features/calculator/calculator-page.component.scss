@@ -212,6 +212,43 @@
   white-space: nowrap;
 }
 
+.nav-badge-link {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+
+  &:hover {
+    color: white;
+  }
+}
+
+.nav-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: white;
+  }
+}
+
+.nav-login-icon {
+  font-size: 0.85rem;
+}
+
 .result-card {
   min-height: 400px;
 }

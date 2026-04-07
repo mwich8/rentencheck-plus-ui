@@ -322,6 +322,48 @@ h1 {
   to { transform: rotate(360deg); }
 }
 
+/* ── Privacy note ── */
+.privacy-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: #f0f7ff;
+  border: 1px solid #d0e3f5;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.privacy-note .privacy-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.privacy-note p {
+  font-size: 0.82rem;
+  color: #4a6a8a;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.privacy-note strong {
+  color: #0f3460;
+  font-weight: 700;
+}
+
+.privacy-note a {
+  color: #2980b9;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.privacy-note a:hover {
+  text-decoration: underline;
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .purchases-container {

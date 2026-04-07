@@ -22,10 +22,10 @@
       <div class="card login-card">
         @if (!emailSent()) {
           <div class="card-icon">🔑</div>
-          <h1>Käufe wiederherstellen</h1>
+          <h1>Anmelden oder Registrieren</h1>
           <p>
-            Geben Sie die E-Mail-Adresse ein, mit der Sie Ihren Report gekauft haben.
-            Wir senden Ihnen einen Anmelde-Link.
+            Geben Sie Ihre E-Mail-Adresse ein — wir senden Ihnen einen sicheren Anmelde-Link.
+            Kein Passwort nötig. Falls Sie noch kein Konto haben, wird es automatisch erstellt.
           </p>
 
           <div class="email-form">
@@ -48,7 +48,7 @@
               @if (sendingEmail()) {
                 <span class="btn-spinner"></span> Wird gesendet...
               } @else {
-                📧 Link senden
+                📧 Anmelde-Link senden
               }
             </button>
           </div>
@@ -56,6 +56,15 @@
           @if (emailError()) {
             <p id="email-error" class="error-text" role="alert">{{ emailError() }}</p>
           }
+
+          <div class="privacy-note">
+            <span class="privacy-icon">🔒</span>
+            <p>
+              Ihre Daten dienen <strong>ausschließlich Ihrem Komfort</strong> — zum Speichern Ihrer
+              Rechner-Einstellungen und Wiederherstellen Ihrer Käufe. Kein Tracking, kein Verkauf an
+              Dritte, keine Werbung. <a routerLink="/datenschutz">Datenschutzerklärung →</a>
+            </p>
+          </div>
         } @else {
           <!-- Email sent confirmation -->
           <div class="card-icon">📬</div>
