@@ -13,46 +13,8 @@
  *   URL              — site URL (auto-set by Netlify)
  */
 
-const crypto = require('crypto');
 const { getDb } = require('./shared/db');
-
-/**
- * Verify an HMAC-signed session token and extract the email.
- * @returns {{ email: string } | null}
- */
-function verifySessionToken(token, secret) {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 2) return null;
-
-    const [payloadB64, signature] = parts;
-
-    // Verify signature
-    const expectedSig = crypto
-      .createHmac('sha256', secret)
-      .update(payloadB64)
-      .digest('base64url');
-
-    // Verify signature (constant-time comparison)
-    const sigBuf = Buffer.from(signature);
-    const expectedBuf = Buffer.from(expectedSig);
-
-    if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) {
-      return null;
-    }
-
-    // Decode and validate payload
-    const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
-
-    if (!payload.email || !payload.exp || payload.exp < Date.now()) {
-      return null;
-    }
-
-    return { email: payload.email };
-  } catch {
-    return null;
-  }
-}
+const { verifySessionToken, verifySessionInDb } = require('./shared/session');
 
 exports.handler = async (event) => {
   const siteUrl = process.env.URL || 'http://localhost:4200';
@@ -84,7 +46,7 @@ exports.handler = async (event) => {
   }
 
   const { sessionToken } = body;
-  if (typeof sessionToken !== 'string' || sessionToken.length > 1000) {
+  if (typeof sessionToken !== 'string' || sessionToken.length > 2000) {
     return {
       statusCode: 401,
       headers,
@@ -106,13 +68,8 @@ exports.handler = async (event) => {
 
   try {
     // Also verify session exists in DB (allows server-side revocation)
-    const sessionRows = await sql`
-      SELECT id FROM sessions
-      WHERE token = ${sessionToken} AND expires_at > now()
-      LIMIT 1
-    `;
-
-    if (sessionRows.length === 0) {
+    const sessionValid = await verifySessionInDb(sql, sessionToken);
+    if (!sessionValid) {
       return {
         statusCode: 401,
         headers,
