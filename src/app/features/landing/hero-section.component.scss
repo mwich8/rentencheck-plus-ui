@@ -1,4 +1,4 @@
-.hero-landing {
+ .hero-landing {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -7,7 +7,7 @@
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%);
-  padding: 2rem 0;
+  padding: 2rem 0 4.5rem;
 }
 
 /* Animated particles */
@@ -265,48 +265,77 @@
   font-weight: 500;
 }
 
-/* Scroll indicator */
+/* Scroll indicator — elegant line + chevron */
 .scroll-indicator {
   position: absolute;
-  bottom: 2rem;
+  bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  animation: heroFadeIn 1s ease-out 1s both;
-}
-
-.scroll-mouse {
-  width: 24px;
-  height: 38px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  display: flex;
-  justify-content: center;
-  padding-top: 6px;
-}
-
-.scroll-wheel {
-  width: 3px;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 3px;
-  animation: scrollWheel 2s ease-in-out infinite;
-}
-
-@keyframes scrollWheel {
-  0% { transform: translateY(0); opacity: 1; }
-  50% { transform: translateY(8px); opacity: 0.3; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-
-.scroll-text {
-  font-size: 0.7rem;
+  gap: 0;
+  text-decoration: none;
   color: rgba(255, 255, 255, 0.35);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  z-index: 3;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  animation: heroFadeIn 1s ease-out 1s both;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.7);
+
+    .scroll-line {
+      background: rgba(255, 255, 255, 0.5);
+      height: 44px;
+    }
+  }
+}
+
+.scroll-line {
+  width: 1px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 1px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(to bottom, transparent, rgba(233, 69, 96, 0.8), transparent);
+    animation: scrollLineGlow 2.2s ease-in-out infinite;
+  }
+}
+
+@keyframes scrollLineGlow {
+  0%   { top: -50%; opacity: 0; }
+  30%  { opacity: 1; }
+  100% { top: 110%; opacity: 0; }
+}
+
+.scroll-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 4px;
+  animation: scrollChevronBounce 2.2s ease-in-out infinite;
+
+  svg {
+    display: block;
+  }
+}
+
+@keyframes scrollChevronBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  60%      { transform: translateY(0); opacity: 0.5; }
+  75%      { transform: translateY(5px); opacity: 1; }
+  90%      { transform: translateY(0); opacity: 0.5; }
 }
 
 /* Responsive */
