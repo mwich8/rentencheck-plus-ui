@@ -1,4 +1,4 @@
-import { Component, signal, computed, output, effect } from '@angular/core';
+import { Component, signal, computed, output, effect, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
 import { PensionInput, DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
@@ -13,6 +13,12 @@ import { getInsuranceRates } from '@core/constants/insurance-rates.const';
   styleUrls: ['./input-panel.component.scss'],
 })
 export class InputPanelComponent {
+  /**
+   * Optional external settings to pre-fill the form (e.g. loaded from cloud).
+   * When set, all form signals are updated to match.
+   */
+  readonly initialSettings = input<PensionInput | null>(null);
+
   // Signals for all user inputs — instant reactivity
   readonly bruttoRente = signal<number>(DEFAULT_PENSION_INPUT.bruttoMonatlicheRente);
   readonly gewuenschteRente = signal<number>(DEFAULT_PENSION_INPUT.gewuenschteMonatlicheRente);
@@ -42,6 +48,20 @@ export class InputPanelComponent {
   }));
 
   constructor() {
+    // Watch for external settings changes (cloud-loaded) and apply them
+    effect(() => {
+      const settings = this.initialSettings();
+      if (settings) {
+        this.bruttoRente.set(settings.bruttoMonatlicheRente);
+        this.gewuenschteRente.set(settings.gewuenschteMonatlicheRente);
+        this.aktuellesAlter.set(settings.aktuellesAlter);
+        this.rentenbeginnJahr.set(settings.rentenbeginnJahr);
+        this.inflationsrate.set(settings.inflationsrate);
+        this.hatKinder.set(settings.hatKinder);
+      }
+    });
+
+    // Emit input changes
     effect(() => {
       this.inputChange.emit(this.pensionInput());
     });

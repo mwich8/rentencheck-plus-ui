@@ -157,6 +157,61 @@
   align-self: start;
 }
 
+/* ==========================================
+   Cloud Sync Bar (logged-in user)
+   ========================================== */
+.cloud-sync-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--color-border, rgba(0, 0, 0, 0.08));
+  background: rgba(15, 52, 96, 0.03);
+  border-radius: 0 0 var(--radius-lg, 12px) var(--radius-lg, 12px);
+}
+
+.cloud-save-btn {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(15, 52, 96, 0.2);
+  border-radius: 6px;
+  background: white;
+  color: #0f3460;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    background: #0f3460;
+    color: white;
+    border-color: #0f3460;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.cloud-save-error {
+  font-size: 0.78rem;
+  color: #e94560;
+  font-weight: 500;
+}
+
+.nav-badge-user {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .result-card {
   min-height: 400px;
 }

@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, effect } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { InputPanelComponent } from './input-panel/input-panel.component';
 import { ResultPanelComponent } from './result-panel/result-panel.component';
@@ -20,6 +20,8 @@ import { PremiumUnlockService } from '@core/services/premium-unlock.service';
 import { StripePaymentService } from '@core/services/stripe-payment.service';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { RentenScoreService } from '@core/services/renten-score.service';
+import { SettingsService } from '@core/services/settings.service';
+import { AuthService } from '@core/services/auth.service';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
 import { PensionInput, DEFAULT_PENSION_INPUT } from '@core/models/pension-input.model';
 import { PensionResult } from '@core/models/pension-result.model';
@@ -63,6 +65,8 @@ export class CalculatorPageComponent {
   private readonly stripeService = inject(StripePaymentService);
   private readonly analytics = inject(AnalyticsService);
   private readonly scoreService = inject(RentenScoreService);
+  protected readonly settingsService = inject(SettingsService);
+  protected readonly auth = inject(AuthService);
 
   readonly currentYear: number = new Date().getFullYear();
   readonly isPremiumUnlocked = this.premiumService.isUnlocked;
@@ -86,6 +90,24 @@ export class CalculatorPageComponent {
 
   /** Current pension input — starts with defaults, updated instantly by InputPanel output */
   readonly currentInput = signal<PensionInput>(DEFAULT_PENSION_INPUT);
+
+  /** Cloud-loaded settings to pre-fill the input panel */
+  readonly cloudSettings = this.settingsService.cloudSettings;
+
+  /** Whether a settings save is in progress */
+  readonly settingsSaving = this.settingsService.loading;
+
+  /** Whether settings were saved successfully (auto-clears after 3s) */
+  readonly settingsSaved = this.settingsService.saveSuccess;
+
+  constructor() {
+    // Auto-load cloud settings when user logs in
+    effect(() => {
+      if (this.auth.isLoggedIn()) {
+        this.settingsService.loadSettings();
+      }
+    });
+  }
 
   readonly gewuenschteRente = computed(() => this.currentInput().gewuenschteMonatlicheRente);
   readonly hatKinder = computed(() => this.currentInput().hatKinder);
@@ -271,6 +293,14 @@ export class CalculatorPageComponent {
     } finally {
       this.downloadPending.set(false);
     }
+  }
+
+  /**
+   * Save the current calculator settings to the cloud.
+   * Only available for logged-in users.
+   */
+  async saveSettings(): Promise<void> {
+    await this.settingsService.saveSettings(this.currentInput());
   }
 }
 

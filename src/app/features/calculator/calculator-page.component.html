@@ -7,6 +7,11 @@
     <div class="nav-badges">
       <span class="nav-badge">✓ Rechner kostenlos</span>
       <span class="nav-badge">✓ <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>-konform</span>
+      @if (auth.isLoggedIn()) {
+        <span class="nav-badge nav-badge-user" title="Angemeldet als {{ auth.userEmail() }}">
+          👤 {{ auth.userEmail() }}
+        </span>
+      }
     </div>
   </div>
 </nav>
@@ -37,7 +42,23 @@
 <main class="container calculator-section" id="rechner">
   <div class="calculator-grid">
     <div class="card input-card animate-fade-in-up">
-      <app-input-panel (inputChange)="onInputChange($event)" />
+      <app-input-panel [initialSettings]="cloudSettings()" (inputChange)="onInputChange($event)" />
+      @if (auth.isLoggedIn()) {
+        <div class="cloud-sync-bar">
+          <button class="cloud-save-btn" (click)="saveSettings()" [disabled]="settingsSaving()">
+            @if (settingsSaving()) {
+              ⏳ Speichern…
+            } @else if (settingsSaved()) {
+              ✅ Gespeichert
+            } @else {
+              ☁️ Einstellungen speichern
+            }
+          </button>
+          @if (settingsService.error()) {
+            <span class="cloud-save-error">{{ settingsService.error() }}</span>
+          }
+        </div>
+      }
     </div>
     <div class="card result-card animate-fade-in-up" style="animation-delay: 0.15s">
       <app-result-panel [result]="pensionResult()" [gewuenschteRente]="gewuenschteRente()" />
