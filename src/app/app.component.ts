@@ -4,6 +4,7 @@ import { Meta } from '@angular/platform-browser';
 import { filter, map, mergeMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CookieConsentComponent } from '@shared/components/cookie-consent.component';
+import { BackendWakeUpService } from '@core/services/backend-wake-up.service';
 
 /**
  * Root AppComponent — thin shell with router outlet + cookie consent.
@@ -21,8 +22,10 @@ export class AppComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly meta = inject(Meta);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly backendWakeUp = inject(BackendWakeUpService);
 
   ngOnInit(): void {
+    this.backendWakeUp.init();
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd),
       map(() => {
