@@ -7,7 +7,7 @@ export const environment: Environment = {
   siteUrl: 'https://rentencheckplus.de',
   freeMode: false,
   stripe: {
-    publishableKey: 'pk_test_51Sb6nULdAOGyN2patPOjmmg1eJShqdCqqpVqDOaKcEYevRsc9xxOfmN71nb9dZ3UgMsy8G6azuTWzcbDLnJIsWo0005oerdoCV',
+    publishableKey: 'pk_live_51Sb6nNLsBNTqPFAkxHU494fVXS7tFkSt2I4tH0DP3FkXFWDoNx2l91tHpjIMo3V1OWaPSfx48NuLaj4gf8NCQXOX00hYrDyxcw',
   },
   analytics: {
     umamiUrl: 'https://cloud.umami.is', // Umami Cloud (free tier)
