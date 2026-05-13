@@ -1,5 +1,5 @@
 import { Component, inject, computed, signal, effect } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { InputPanelComponent } from './input-panel/input-panel.component';
 import { ResultPanelComponent } from './result-panel/result-panel.component';
 import { WaterfallChartComponent } from '@features/chart/waterfall-chart.component';
@@ -65,6 +65,7 @@ export class CalculatorPageComponent {
   private readonly stripeService = inject(StripePaymentService);
   private readonly analytics = inject(AnalyticsService);
   private readonly scoreService = inject(RentenScoreService);
+  private readonly route = inject(ActivatedRoute);
   protected readonly settingsService = inject(SettingsService);
   protected readonly auth = inject(AuthService);
 
@@ -82,6 +83,12 @@ export class CalculatorPageComponent {
   /** Email capture flow state */
   readonly showEmailCapture = signal<boolean>(false);
   readonly previewPending = signal<boolean>(false);
+
+  /** Show cancelled checkout banner */
+  readonly showCancelledBanner = signal<boolean>(false);
+
+  /** Detect ad/UTM traffic for compact hero */
+  readonly isAdTraffic = signal<boolean>(false);
 
   /** Collapse state for premium feature sections — collapsed by default */
   readonly scenarioCollapsed = signal<boolean>(true);
@@ -101,6 +108,15 @@ export class CalculatorPageComponent {
   readonly settingsSaved = this.settingsService.saveSuccess;
 
   constructor() {
+    // Detect ad/UTM traffic or cancelled checkout from query params
+    const params = this.route.snapshot.queryParamMap;
+    if (params.get('cancelled') === 'true') {
+      this.showCancelledBanner.set(true);
+    }
+    if (params.has('utm_source') || params.has('utm_medium') || params.has('gclid') || params.has('fbclid')) {
+      this.isAdTraffic.set(true);
+    }
+
     // Auto-load cloud settings when user logs in
     effect(() => {
       if (this.auth.isLoggedIn()) {

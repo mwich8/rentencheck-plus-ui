@@ -55,6 +55,10 @@
   color: white;
 }
 
+.hero.hero-compact {
+  padding: 2rem 0 1.75rem;
+}
+
 .hero-content {
   max-width: 700px;
 }
@@ -65,6 +69,11 @@
   line-height: 1.15;
   margin-bottom: 1.25rem;
   letter-spacing: -0.02em;
+}
+
+.hero-title-compact {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .hero-highlight {
@@ -81,6 +90,11 @@
   max-width: 550px;
   margin: 0 auto 1.75rem;
   font-weight: 400;
+}
+
+.hero-subtitle-compact {
+  font-size: 1rem;
+  margin: 0 auto 0;
 }
 
 .hero-cta {
@@ -1003,5 +1017,129 @@
   display: flex;
   justify-content: center;
   margin-bottom: 1.75rem;
+}
+
+/* ==========================================
+   Cancelled Checkout Banner
+   ========================================== */
+.cancelled-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-left: 4px solid #0ea5e9;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+}
+
+.cancelled-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.cancelled-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.cancelled-content strong {
+  display: block;
+  font-size: 0.92rem;
+  color: #0c4a6e;
+  margin-bottom: 0.1rem;
+}
+
+.cancelled-content span {
+  font-size: 0.82rem;
+  color: #0369a1;
+}
+
+.cancelled-dismiss {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.cancelled-dismiss:hover {
+  color: #475569;
+}
+
+/* ==========================================
+   Trust Strip (near CTA)
+   ========================================== */
+.trust-strip {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 0;
+  margin-top: 0.5rem;
+}
+
+.trust-item {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ==========================================
+   Sticky Mobile CTA
+   ========================================== */
+.sticky-mobile-cta {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sticky-mobile-cta {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem 1rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .sticky-cta-btn {
+    width: 100%;
+    padding: 0.85rem 1.5rem;
+    background: linear-gradient(135deg, #0f3460, #1a5276);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 48px;
+    transition: all 0.2s;
+  }
+
+  .sticky-cta-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1a5276, #0f3460);
+  }
+
+  .sticky-cta-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+
+  /* Add bottom padding to footer so sticky CTA doesn't overlap content */
+  .footer {
+    padding-bottom: 5rem;
+  }
 }
 

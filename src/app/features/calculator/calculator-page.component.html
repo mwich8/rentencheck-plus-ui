@@ -21,30 +21,52 @@
   </div>
 </nav>
 
-<!-- Hero Header -->
-<header class="hero bg-gradient-dark">
+<!-- Hero Header — compact for ad/UTM traffic, full for organic -->
+<header class="hero bg-gradient-dark" [class.hero-compact]="isAdTraffic()">
   <div class="container hero-content">
-    <h1 class="hero-title">
-      Die brutale Wahrheit<br>
-      <span class="hero-highlight">über Ihre Rente</span>
-    </h1>
-    <p class="hero-subtitle">
-      Erfahren Sie, was von Ihrer gesetzlichen Rente wirklich übrig bleibt —
-      nach Steuern, Sozialabgaben und Inflation.
-    </p>
-    <div class="hero-cta">
-      <span class="hero-badge">✓ Rechner kostenlos</span>
-      <span class="hero-badge">✓ Sofort-Ergebnis</span>
-      <span class="hero-badge">✓ <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>-konform</span>
-    </div>
-    <a href="#rechner" class="scroll-cta" aria-label="Zum Rechner scrollen">
-      <span class="scroll-arrow">↓</span>
-    </a>
+    @if (isAdTraffic()) {
+      <h1 class="hero-title hero-title-compact">
+        Jetzt Ihre <span class="hero-highlight">Rentenlücke berechnen</span>
+      </h1>
+      <p class="hero-subtitle hero-subtitle-compact">
+        Kostenlos, in unter 2 Minuten — mit Steuern, Sozialabgaben & Inflation.
+      </p>
+    } @else {
+      <h1 class="hero-title">
+        Die brutale Wahrheit<br>
+        <span class="hero-highlight">über Ihre Rente</span>
+      </h1>
+      <p class="hero-subtitle">
+        Erfahren Sie, was von Ihrer gesetzlichen Rente wirklich übrig bleibt —
+        nach Steuern, Sozialabgaben und Inflation.
+      </p>
+      <div class="hero-cta">
+        <span class="hero-badge">✓ Rechner kostenlos</span>
+        <span class="hero-badge">✓ Sofort-Ergebnis</span>
+        <span class="hero-badge">✓ <a href="https://www.gesetze-im-internet.de/estg/__32a.html" target="_blank" rel="noopener">§32a EStG</a>-konform</span>
+      </div>
+      <a href="#rechner" class="scroll-cta" aria-label="Zum Rechner scrollen">
+        <span class="scroll-arrow">↓</span>
+      </a>
+    }
   </div>
 </header>
 
 <!-- Main Calculator Grid — renders IMMEDIATELY (above the fold) -->
 <main class="container calculator-section" id="rechner">
+
+  <!-- Cancelled checkout banner -->
+  @if (showCancelledBanner()) {
+    <div class="cancelled-banner animate-fade-in-up" role="alert">
+      <span class="cancelled-icon">💡</span>
+      <div class="cancelled-content">
+        <strong>Kein Problem — Ihre Berechnung ist noch da!</strong>
+        <span>Sie können den Kauf jederzeit abschließen. Ihre Daten gehen nicht verloren.</span>
+      </div>
+      <button class="cancelled-dismiss" (click)="showCancelledBanner.set(false)" aria-label="Schließen">✕</button>
+    </div>
+  }
+
   <div class="calculator-grid">
     <div class="card input-card animate-fade-in-up">
       <app-input-panel [initialSettings]="cloudSettings()" (inputChange)="onInputChange($event)" />
@@ -115,6 +137,15 @@
         <div class="payment-error-banner" role="alert">
           <span class="payment-error-icon">⚠️</span>
           <span>{{ paymentError() }}</span>
+        </div>
+      }
+
+      <!-- Trust signals near primary CTA -->
+      @if (!isPremiumUnlocked()) {
+        <div class="trust-strip">
+          <span class="trust-item">🔒 Sichere Zahlung via Stripe</span>
+          <span class="trust-item">📄 Sofort-Download als PDF</span>
+          <span class="trust-item">⚖️ §32a EStG-konform</span>
         </div>
       }
 
@@ -350,6 +381,7 @@
 
 <!-- Footer -->
 <footer class="footer">
+  <!-- ...existing footer content... -->
   <div class="container footer-content">
     <div class="footer-disclaimer">
       <h4>⚖️ Haftungsausschluss</h4>
@@ -383,3 +415,17 @@
     </div>
   </div>
 </footer>
+
+<!-- Sticky mobile CTA — only visible when scrolled past main CTA, and not yet purchased -->
+@if (!isPremiumUnlocked()) {
+  <div class="sticky-mobile-cta">
+    <button class="sticky-cta-btn" (click)="purchaseReport()" [disabled]="paymentPending() || downloadPending()">
+      @if (freeMode) {
+        📄 Kostenloser PDF-Report
+      } @else {
+        📄 PDF-Report · 14,90 €
+      }
+    </button>
+  </div>
+}
+
