@@ -8,7 +8,7 @@ import { SavingsCalculatorService } from '@core/services/savings-calculator.serv
 import { AnalyticsService } from '@core/services/analytics.service';
 import { OptimizationSuggestion } from '@core/models/scenario.model';
 import { environment } from '@env/environment';
-import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS } from '@core/constants/calculator-defaults.const';
+import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS, AKTUELLER_RENTENWERT } from '@core/constants/calculator-defaults.const';
 
 /**
  * Optimierungsvorschläge & Strategievergleich — personalized, quantified
@@ -82,9 +82,9 @@ export class OptimizationStrategiesComponent {
     // 3. Freiwillige Einzahlungen in die gesetzliche Rentenversicherung
     if (base.rentenluecke > 0 && base.jahresBisRente > 5) {
       const einzahlungMonat = 100;
-      // 100€/Monat freiwillig → ca. 0.5 Rentenpunkte/Jahr → ca. 18.50€ mehr Rente/Monat pro Jahr
+      // 100€/Monat freiwillig → Rentenpunkte/Jahr × AKTUELLER_RENTENWERT → zusätzliche Rente/Monat
       const zusatzPunkteProJahr = (einzahlungMonat * 12) / 8_024; // Beitragsbemessungsgrenze ca. 8024€/Monat
-      const zusatzRenteProJahr = zusatzPunkteProJahr * 39.32; // aktueller Rentenwert
+      const zusatzRenteProJahr = zusatzPunkteProJahr * AKTUELLER_RENTENWERT;
       const gesamtZusatz = Math.round(zusatzRenteProJahr * Math.min(base.jahresBisRente, 30));
       suggestions.push({
         icon: '🏛️',
@@ -142,8 +142,8 @@ export class OptimizationStrategiesComponent {
       suggestions.push({
         icon: '👶',
         title: 'Kindererziehungszeiten prüfen & beantragen',
-        description: 'Für jedes nach 1992 geborene Kind werden bis zu 3 Rentenpunkte gutgeschrieben — das sind ca. 111 €/Monat mehr Rente pro Kind. Diese Zeiten müssen aktiv beantragt werden und werden nicht automatisch berücksichtigt!',
-        impact: 111,
+        description: `Für jedes nach 1992 geborene Kind werden bis zu 3 Rentenpunkte gutgeschrieben — das sind ca. ${Math.round(3 * AKTUELLER_RENTENWERT)} €/Monat mehr Rente pro Kind. Diese Zeiten müssen aktiv beantragt werden und werden nicht automatisch berücksichtigt!`,
+        impact: Math.round(3 * AKTUELLER_RENTENWERT),
         impactLabel: '/Monat pro Kind',
         category: 'pension',
         actionStep: 'Formular V0800 (deutsche-rentenversicherung.de) bei der DRV anfordern oder online ausfüllen.',

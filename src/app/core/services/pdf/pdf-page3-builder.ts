@@ -4,7 +4,7 @@ import { PdfFormatters } from './pdf-formatters';
 import { PensionInput } from '../../models/pension-input.model';
 import { PensionResult } from '../../models/pension-result.model';
 import { SavingsCalculatorService } from '../savings-calculator.service';
-import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS } from '../../constants/calculator-defaults.const';
+import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS, AKTUELLER_RENTENWERT } from '../../constants/calculator-defaults.const';
 import { RGB } from './pdf-design-tokens';
 
 const { M, CW, MID } = PDF_LAYOUT;
@@ -100,7 +100,7 @@ export class PdfPage3Builder {
     if (r.deckungsquote < 50)
       tips.push({ letter: '!', title: 'Beratung empfohlen',               body: `Mit nur ${r.deckungsquote.toFixed(0)} % Deckung ist eine individuelle Beratung sinnvoll.`, col: c.danger });
     if (inp.hatKinder)
-      tips.push({ letter: 'K', title: 'Kindererziehungszeiten pr\u00fcfen', body: 'F\u00fcr Kindererziehung k\u00f6nnen bis zu 3 Rentenpunkte pro Kind (ca. +111 \u20ac/Monat) gutgeschrieben werden. Antrag per Formular V0800 bei der DRV.', col: c.accent });
+      tips.push({ letter: 'K', title: 'Kindererziehungszeiten pr\u00fcfen', body: `F\u00fcr Kindererziehung k\u00f6nnen bis zu 3 Rentenpunkte pro Kind (ca. +${Math.round(3 * AKTUELLER_RENTENWERT)} \u20ac/Monat) gutgeschrieben werden. Antrag per Formular V0800 bei der DRV.`, col: c.accent });
     tips.push({ letter: '+', title: '1\u20132 Jahre l\u00e4nger arbeiten', body: 'Jedes Extra-Arbeitsjahr erh\u00f6ht die Rente und verk\u00fcrzt die Bezugsdauer \u2014 doppelter Effekt.', col: c.warning });
 
     const th = 14, tg = 3, max = Math.min(tips.length, 5);

@@ -2,7 +2,7 @@ import { Component, input, computed, inject, output } from '@angular/core';
 import { EuroPipe } from '@shared/pipes/euro.pipe';
 import { PensionResult } from '@core/models/pension-result.model';
 import { SavingsCalculatorService } from '@core/services/savings-calculator.service';
-import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS } from '@core/constants/calculator-defaults.const';
+import { DEFAULT_ANNUAL_ETF_RETURN, DEFAULT_PAYOUT_YEARS, AKTUELLER_RENTENWERT } from '@core/constants/calculator-defaults.const';
 
 interface ActionTip {
   icon: string;
@@ -146,7 +146,7 @@ export class ActionTipsComponent {
       tips.push({
         icon: '👶',
         title: 'Kindererziehungszeiten prüfen',
-        description: `Für Kindererziehung können bis zu 3 Rentenpunkte pro Kind gutgeschrieben werden — das sind ca. 111 €/Monat mehr Rente. Falls noch nicht beantragt, stellen Sie den Antrag mit dem Formular V0800 bei der Deutschen Rentenversicherung (deutsche-rentenversicherung.de).`,
+        description: `Für Kindererziehung können bis zu 3 Rentenpunkte pro Kind gutgeschrieben werden — das sind ca. ${Math.round(3 * AKTUELLER_RENTENWERT)} €/Monat mehr Rente. Falls noch nicht beantragt, stellen Sie den Antrag mit dem Formular V0800 bei der Deutschen Rentenversicherung (deutsche-rentenversicherung.de).`,
         highlight: `Formular V0800 bei der DRV anfordern`,
         type: 'strategy',
       });
