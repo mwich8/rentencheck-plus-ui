@@ -51,6 +51,28 @@ export const routes: Routes = [
     title: 'Meine Käufe — Käufe wiederherstellen | RentenCheck+',
     data: { meta: { description: 'Stellen Sie Ihre gekauften RentenCheck+ Reports wieder her. Melden Sie sich per E-Mail an und laden Sie Ihre PDFs erneut herunter.', robots: 'noindex' } },
   },
+  // ── Blog ──
+  {
+    path: 'blog/rentenluecke-berechnen',
+    loadComponent: () =>
+      import('@features/blog/rentenluecke-berechnen.component').then(m => m.RentenlueckeBerechnenComponent),
+    title: 'Rentenlücke berechnen 2026 — So groß ist Ihr Fehlbetrag wirklich | RentenCheck+',
+    data: { meta: { description: 'Erfahren Sie, wie Sie Ihre persönliche Rentenlücke berechnen. Mit konkreten Beispielen, Formeln und dem kostenlosen RentenCheck+ Rechner.' } },
+  },
+  {
+    path: 'blog/gesetzliche-rente-netto',
+    loadComponent: () =>
+      import('@features/blog/gesetzliche-rente-netto.component').then(m => m.GesetzlicheRenteNettoComponent),
+    title: 'Gesetzliche Rente netto 2026 — Was bleibt wirklich übrig? | RentenCheck+',
+    data: { meta: { description: 'Bruttorente ≠ Nettorente. Erfahren Sie, welche Abzüge Ihre gesetzliche Rente schmälern: Steuern, Krankenversicherung, Pflegeversicherung.' } },
+  },
+  {
+    path: 'blog/altersvorsorge-mit-etf',
+    loadComponent: () =>
+      import('@features/blog/altersvorsorge-mit-etf.component').then(m => m.AltersvorsorgeEtfComponent),
+    title: 'Altersvorsorge mit ETF 2026 — Rentenlücke selbst schließen | RentenCheck+',
+    data: { meta: { description: 'ETF-Sparplan als Altersvorsorge: So schließen Sie Ihre Rentenlücke eigenständig. Mit Rechenbeispiel und kostenlosem Sparplan-Rechner.' } },
+  },
   {
     path: '**',
     redirectTo: '',
