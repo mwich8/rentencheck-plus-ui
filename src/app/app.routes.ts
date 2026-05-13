@@ -74,6 +74,13 @@ export const routes: Routes = [
     data: { meta: { description: 'ETF-Sparplan als Altersvorsorge: So schließen Sie Ihre Rentenlücke eigenständig. Mit Rechenbeispiel und kostenlosem Sparplan-Rechner.' } },
   },
   {
+    path: 'blog/rentenreform-2027',
+    loadComponent: () =>
+      import('@features/blog/rentenreform-2027.component').then(m => m.Rentenreform2027Component),
+    title: 'Rentenreform 2027: Was die Bundesbank-Warnung für Ihre Rente bedeutet | RentenCheck+',
+    data: { meta: { description: 'Die Bundesbank warnt vor Überlastung der gesetzlichen Rente. Was die geplante Reform 2027 für Sie bedeutet — und was Sie jetzt tun sollten.' } },
+  },
+  {
     path: '**',
     redirectTo: '',
   },
