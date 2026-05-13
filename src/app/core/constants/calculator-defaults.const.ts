@@ -26,6 +26,13 @@ export const SONDERAUSGABENPAUSCHALE: number = 36;
 export const STANDARD_RENTENALTER: number = 67;
 
 /**
+ * Aktueller Rentenwert — the monetary value of one Rentenpunkt (pension point).
+ * Effective July 1, 2026: 42.52 € (previously 40.79 €, +4.24%).
+ * Source: Bundesregierung / Deutsche Rentenversicherung, Mai 2026.
+ */
+export const AKTUELLER_RENTENWERT: number = 42.52;
+
+/**
  * Default assumed annual return rate for ETF savings projections.
  * Based on historical MSCI World average (~7% nominal).
  */

@@ -57,8 +57,8 @@ describe('Insurance Rates Constants', () => {
       expect(INSURANCE_RATES_2026.kvdrAllgemeinAnteil).toBe(0.073);
     });
 
-    it('should have kvdrZusatzbeitragDefault = 1.9%', () => {
-      expect(INSURANCE_RATES_2026.kvdrZusatzbeitragDefault).toBe(0.019);
+    it('should have kvdrZusatzbeitragDefault = 2.9%', () => {
+      expect(INSURANCE_RATES_2026.kvdrZusatzbeitragDefault).toBe(0.029);
     });
 
     it('should have pflegeMitKindern = 3.6%', () => {
@@ -99,8 +99,8 @@ describe('Insurance Rates Constants', () => {
       expect(getBesteuerungsanteil(2025)).toBe(0.835);
     });
 
-    it('should return 0.86 for 2026', () => {
-      expect(getBesteuerungsanteil(2026)).toBe(0.86);
+    it('should return 0.84 for 2026 (Wachstumschancengesetz)', () => {
+      expect(getBesteuerungsanteil(2026)).toBe(0.84);
     });
 
     it('should return correct values for known table entries', () => {

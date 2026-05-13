@@ -5,13 +5,13 @@ import { SteuerJahr } from './tax-brackets.const';
  *
  * KVdR (Krankenversicherung der Rentner):
  * - Allgemeiner Beitragssatz: 14.6% (halved: 7.3% each for DRV + Rentner)
- * - Zusatzbeitrag: varies by Krankenkasse, avg ~1.7% in 2025 (halved for retirees)
+ * - Zusatzbeitrag: varies by Krankenkasse, avg ~1.7% in 2025, ~2.9% in 2026 (halved for retirees)
  * - Rentner pays: 7.3% + Zusatzbeitrag/2
  * - DRV pays: 7.3% + Zusatzbeitrag/2
  *
  * Pflegeversicherung:
- * - With children: 3.4% (Rentner pays full amount since 2019)
- * - Without children (kinderlos, >= 23 years): 4.0% (Zuschlag: 0.6%)
+ * - With children: 3.4% in 2025, 3.6% in 2026 (Rentner pays full amount since 2019)
+ * - Without children (kinderlos, >= 23 years): 4.0% in 2025, 4.2% in 2026
  * - With 2+ children: reductions apply (simplified here)
  */
 export interface InsuranceRateConfig {
@@ -41,7 +41,7 @@ export const INSURANCE_RATES_2025: InsuranceRateConfig = {
 export const INSURANCE_RATES_2026: InsuranceRateConfig = {
   year: 2026,
   kvdrAllgemeinAnteil: 0.073,
-  kvdrZusatzbeitragDefault: 0.019,
+  kvdrZusatzbeitragDefault: 0.029,
   pflegeMitKindern: 0.036,
   pflegeOhneKinder: 0.042,
 };
@@ -81,7 +81,7 @@ export const BESTEUERUNGSANTEIL_TABELLE: Record<number, number> = {
   2023: 0.83,
   2024: 0.84,
   2025: 0.835,  // Wachstumschancengesetz: 83.5% statt 85%
-  2026: 0.86,
+  2026: 0.84,   // Wachstumschancengesetz: 84% (Merkur/Bundesregierung Mai 2026)
   2027: 0.87,
   2028: 0.88,
   2029: 0.89,

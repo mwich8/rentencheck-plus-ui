@@ -23,7 +23,7 @@ export interface PensionInput {
   /** Whether the person has children (affects Pflegeversicherung) */
   hatKinder: boolean;
 
-  /** KVdR Zusatzbeitragssatz (e.g. 0.017 for 1.7%) — defaults to average */
+  /** KVdR Zusatzbeitragssatz (e.g. 0.029 for 2.9%) — defaults to 2026 average */
   zusatzbeitragssatz: number;
 
   /** Tax year to use for calculation */
@@ -40,7 +40,7 @@ export const DEFAULT_PENSION_INPUT: PensionInput = {
   gewuenschteMonatlicheRente: 2500,
   inflationsrate: 0.02,
   hatKinder: true,
-  zusatzbeitragssatz: 0.017,
+  zusatzbeitragssatz: 0.029,
   steuerJahr: LATEST_STEUER_JAHR,
 };
 
