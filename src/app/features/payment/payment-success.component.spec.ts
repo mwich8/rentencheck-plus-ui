@@ -73,7 +73,7 @@ describe('PaymentSuccessComponent', () => {
           rentenbeginnJahr: 2058,
           inflationsrate: 0.02,
           hatKinder: false,
-          zusatzbeitragssatz: 0.017,
+          zusatzbeitragssatz: 0.029,
           steuerJahr: 2026,
         },
       };
@@ -152,7 +152,7 @@ describe('PaymentSuccessComponent', () => {
         rentenbeginnJahr: 2053,
         inflationsrate: 0.02,
         hatKinder: true,
-        zusatzbeitragssatz: 0.017,
+        zusatzbeitragssatz: 0.029,
         steuerJahr: 2026,
       };
       spyOn(TestBed.inject(StripePaymentService), 'restoreInput').and.returnValue(fallbackInput);

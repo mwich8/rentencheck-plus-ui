@@ -26,7 +26,7 @@ function createMockPurchase(overrides: Partial<Purchase> = {}): Purchase {
       rentenbeginnJahr: 2058,
       inflationsrate: 0.02,
       hatKinder: false,
-      zusatzbeitragssatz: 0.017,
+      zusatzbeitragssatz: 0.029,
       steuerJahr: 2026,
     },
     download_token: 'aaaa-bbbb-cccc-dddd',

@@ -290,7 +290,7 @@ describe('RentenScoreService', () => {
         gewuenschteMonatlicheRente: 2500,
         inflationsrate: 0.02,
         hatKinder: true,
-        zusatzbeitragssatz: 0.017,
+        zusatzbeitragssatz: 0.029,
         steuerJahr: 2026 as const,
       };
 
@@ -317,7 +317,7 @@ describe('RentenScoreService', () => {
         gewuenschteMonatlicheRente: 2500,
         inflationsrate: 0.02,
         hatKinder: true,
-        zusatzbeitragssatz: 0.017,
+        zusatzbeitragssatz: 0.029,
         steuerJahr: 2026 as const,
       };
 
